@@ -3,178 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام المحاسبة الذكي</title>
+    <title>المحاسب المحترف | المؤسسة</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #f0f2f5; }
-        .sidebar { background: #212529; color: white; min-height: 100vh; position: sticky; top: 0; }
-        .nav-link { color: #adb5bd; transition: 0.3s; margin: 5px 0; }
-        .nav-link:hover, .nav-link.active { color: white; background: #343a40; border-radius: 8px; }
-        .card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: 0.3s; }
-        .stat-card { border-right: 5px solid #0d6efd; }
-        .table-container { background: white; padding: 20px; border-radius: 12px; }
-        #loadingOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 9999; }
+        :root { --primary: #1a2a6c; --gold: #b2945e; --dark: #0f172a; }
+        body { font-family: 'Tajawal', sans-serif; background: #f8fafc; color: var(--dark); }
+        
+        /* Sidebar Styling */
+        .sidebar { background: var(--primary); color: white; min-height: 100vh; padding: 1.5rem; box-shadow: 4px 0 10px rgba(0,0,0,0.1); }
+        .nav-link { color: #cbd5e1; margin: 8px 0; border-radius: 10px; padding: 12px; transition: 0.3s; }
+        .nav-link:hover, .nav-link.active { background: var(--gold); color: white; transform: translateX(-5px); }
+        
+        /* Cards Styling */
+        .card-custom { border: none; border-radius: 20px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: 0.4s; border-top: 4px solid var(--gold); }
+        .stat-icon { font-size: 2rem; color: var(--gold); opacity: 0.3; position: absolute; left: 20px; top: 20px; }
+        
+        /* Table Styling */
+        .table thead { background: var(--primary); color: white; }
+        .table-hover tbody tr:hover { background-color: #f1f5f9; }
+
+        /* Loader */
+        #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; z-index:9999; justify-content:center; align-items:center; }
     </style>
 </head>
 <body>
 
-<div id="loadingOverlay"><div class="spinner-border text-primary"></div></div>
+<div id="loader">
+    <div class="text-center">
+        <div class="spinner-grow text-primary" role="status"></div>
+        <p class="mt-3 fw-bold">جاري تحميل البيانات الفاخرة...</p>
+    </div>
+</div>
 
 <div class="container-fluid">
     <div class="row">
-        <nav class="col-md-2 d-none d-md-block sidebar p-3 text-center">
-            <h4 class="py-3 border-bottom border-secondary mb-4">نظام المحاسب</h4>
-            <ul class="nav flex-column text-end">
-                <li class="nav-item"><a class="nav-link active" href="#" onclick="showPage('dashboard')">الرئيسية (الأرصدة)</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('entry')">إضافة قيود / مبيعات</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('reports')">كشف الحسابات</a></li>
-            </ul>
-        </nav>
+        <div class="col-md-2 sidebar d-flex flex-column">
+            <h3 class="fw-800 text-center mb-5 mt-3">LOGO</h3>
+            <nav class="nav flex-column">
+                <a class="nav-link active" href="#" onclick="showSect('dash')">📊 الأرصدة والميزان</a>
+                <a class="nav-link" href="#" onclick="showSect('entry')">📝 إضافة قيود يومية</a>
+                <a class="nav-link" href="#" onclick="showSect('sales')">💰 تسجيل المبيعات</a>
+                <a class="nav-link" href="#" onclick="showSect('accounts')">👥 إدارة الحسابات</a>
+                <a class="nav-link" href="#" onclick="showSect('reports')">🔍 كشوفات الحساب</a>
+            </nav>
+        </div>
 
-        <main class="col-md-10 ms-sm-auto px-md-4 py-4">
+        <div class="col-md-10 p-4">
             
-            <section id="dashboard">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">نظرة عامة (ميزان المراجعة)</h1>
-                    <button class="btn btn-primary" onclick="fetchSummary()">تحديث البيانات</button>
-                </div>
-                
-                <div class="row g-4 mb-4" id="summaryStats">
+            <div id="sect-dash" class="content-sect">
+                <h2 class="mb-4 fw-bold">المركز المالي الحالي</h2>
+                <div class="row mb-5">
+                    <div class="col-md-12 mb-4">
+                        <div class="card card-custom p-4">
+                            <h5 class="fw-bold mb-3 text-primary">📑 ميزان المراجعة</h5>
+                            <div id="mizan-box" class="table-responsive"></div>
+                        </div>
                     </div>
-
-                <div class="row">
-                    <div class="col-12 mb-4">
-                        <div class="table-container card">
-                            <h5>ميزان المراجعة الكامل</h5>
-                            <div id="mizanTable" class="table-responsive">جاري جلب البيانات...</div>
+                    <div class="col-md-12">
+                        <div class="card card-custom p-4">
+                            <h5 class="fw-bold mb-3 text-success">💰 أرصدة الحسابات</h5>
+                            <div id="balance-box" class="table-responsive"></div>
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
 
-            <section id="entry" style="display:none;">
-                <div class="card p-4 mx-auto" style="max-width: 800px;">
-                    <h4 class="mb-4">إدخال عملية جديدة</h4>
-                    <form id="dataForm">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">نوع العملية (الورقة)</label>
-                                <select class="form-select" id="sheetName" required>
-                                    <option value="اليومية">اليومية</option>
-                                    <option value="المبيعات">المبيعات</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">التاريخ</label>
-                                <input type="date" class="form-control" id="date" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">اسم العميل / الحساب</label>
-                                <input type="text" class="form-control" id="account" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">المبلغ</label>
-                                <input type="number" class="form-control" id="amount" required>
-                            </div>
-                            <div class="col-12 text-center mt-4">
-                                <button type="submit" class="btn btn-success px-5">ترحيل العملية</button>
-                            </div>
-                        </div>
+            <div id="sect-entry" class="content-sect" style="display:none">
+                <div class="card card-custom p-5 mx-auto" style="max-width: 700px;">
+                    <h3 class="text-center mb-4">تسجيل قيد يومية</h3>
+                    <form onsubmit="saveData(event, 'اليومية')">
+                        <input type="date" class="form-control mb-3" id="e-date" required>
+                        <input type="text" class="form-control mb-3" id="e-acc" placeholder="اسم الحساب" required>
+                        <input type="number" class="form-control mb-3" id="e-amount" placeholder="المبلغ" required>
+                        <button class="btn btn-primary w-100 py-2 mt-3">ترحيل القيد</button>
                     </form>
                 </div>
-            </section>
+            </div>
 
-            <section id="reports" style="display:none;">
-                <div class="card p-4 mb-4">
-                    <h4>طلب كشف حساب</h4>
-                    <div class="row g-3">
-                        <div class="col-md-5">
-                            <input type="text" id="searchClient" class="form-control" placeholder="أدخل اسم العميل...">
-                        </div>
-                        <div class="col-md-4">
-                            <select class="form-select" id="searchSheet">
-                                <option value="ك.يومية">كشف اليومية</option>
-                                <option value="ك.المبيعات">كشف المبيعات</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <button class="btn btn-dark w-100" onclick="searchData()">بحث</button>
-                        </div>
-                    </div>
+            <div id="sect-sales" class="content-sect" style="display:none">
+                <div class="card card-custom p-5 mx-auto" style="max-width: 700px; border-top-color: #28a745;">
+                    <h3 class="text-center mb-4 text-success">فاتورة مبيعات جديدة</h3>
+                    <form onsubmit="saveData(event, 'المبيعات')">
+                        <input type="date" class="form-control mb-3" id="s-date" required>
+                        <input type="text" class="form-control mb-3" id="s-client" placeholder="اسم العميل" required>
+                        <input type="number" class="form-control mb-3" id="s-amount" placeholder="إجمالي الفاتورة" required>
+                        <button class="btn btn-success w-100 py-2 mt-3">حفظ الفاتورة</button>
+                    </form>
                 </div>
-                <div id="searchResult" class="table-container card mt-3">
-                    <p class="text-muted">نتائج البحث ستظهر هنا...</p>
-                </div>
-            </section>
+            </div>
 
-        </main>
+            <div id="sect-accounts" class="content-sect" style="display:none">
+                <div class="card card-custom p-5 mx-auto" style="max-width: 700px; border-top-color: #6f42c1;">
+                    <h3 class="text-center mb-4">فتح حساب جديد</h3>
+                    <form onsubmit="saveData(event, 'الحسابات')">
+                        <input type="text" class="form-control mb-3" id="a-name" placeholder="اسم الحساب (مثلاً: عميل جديد)" required>
+                        <select class="form-select mb-3" id="a-type">
+                            <option value="عميل">عميل</option>
+                            <option value="مورد">مورد</option>
+                            <option value="مصروف">مصروف</option>
+                        </select>
+                        <button class="btn btn-dark w-100 py-2 mt-3">إضافة الحساب</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
     </div>
 </div>
 
 <script>
-    // هام: استبدل هذا الرابط برابط الـ Web App الذي حصلت عليه من Google Apps Script
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbziDgZXgD2ffm3RsUfxr6kfYkVYiutrDruyW0OoIAJWZUDcOzExNCffBqpkuUIQQXg/exec";
+    const URL = "https://script.google.com/macros/s/AKfycbydiu3gqm5iAEEWqlEt9YdRGI1oFGVz99QZ186UJ_9jc3UCO9eDU1FPdIwE_ILy6ELl/exec";
 
-    function showPage(pageId) {
-        document.querySelectorAll('section').forEach(s => s.style.display = 'none');
-        document.getElementById(pageId).style.display = 'block';
+    function showSect(name) {
+        document.querySelectorAll('.content-sect').forEach(s => s.style.display = 'none');
+        document.getElementById('sect-' + name).style.display = 'block';
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        event.target.classList.add('active');
     }
 
-    // إرسال البيانات
-    document.getElementById('dataForm').onsubmit = function(e) {
-        e.preventDefault();
-        toggleLoading(true);
-        const data = {
-            action: "addData",
-            sheet: document.getElementById('sheetName').value,
-            values: [
-                document.getElementById('date').value,
-                document.getElementById('account').value,
-                document.getElementById('amount').value
-            ]
-        };
-
-        fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) })
-        .then(res => res.json())
-        .then(res => {
-            alert("تم الحفظ بنجاح!");
-            document.getElementById('dataForm').reset();
-            toggleLoading(false);
-        });
-    };
-
-    // جلب البيانات للميزان
-    function fetchSummary() {
-        toggleLoading(true);
-        fetch(`${SCRIPT_URL}?action=getSummary`)
-        .then(res => res.json())
-        .then(data => {
-            renderTable('mizanTable', data.mizan);
-            toggleLoading(false);
-        });
-    }
-
-    function renderTable(divId, data) {
-        let html = '<table class="table table-hover"><thead><tr>';
-        data[0].forEach(h => html += `<th>${h}</th>`);
-        html += '</tr></thead><tbody>';
-        for(let i=1; i<data.length; i++) {
-            html += '<tr>';
-            data[i].forEach(cell => html += `<td>${cell}</td>`);
-            html += '</tr>';
+    // جلب البيانات بسرعة عند الفتح
+    async function loadData() {
+        try {
+            const response = await fetch(URL + "?action=getSummary");
+            const data = await response.json();
+            renderTable('mizan-box', data.mizan);
+            renderTable('balance-box', data.balances);
+            document.getElementById('loader').style.display = 'none';
+        } catch (e) {
+            console.error("خطأ في التحميل، جرب تحديث الصفحة");
         }
-        html += '</tbody></table>';
-        document.getElementById(divId).innerHTML = html;
     }
 
-    function toggleLoading(show) {
-        document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+    async function saveData(e, sheet) {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        btn.disabled = true;
+        btn.innerText = "جاري الحفظ...";
+
+        let values = [];
+        if(sheet === 'اليومية') values = [document.getElementById('e-date').value, document.getElementById('e-acc').value, document.getElementById('e-amount').value];
+        if(sheet === 'المبيعات') values = [document.getElementById('s-date').value, document.getElementById('s-client').value, document.getElementById('s-amount').value];
+        if(sheet === 'الحسابات') values = [document.getElementById('a-name').value, document.getElementById('a-type').value];
+
+        await fetch(URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: "addData", sheet: sheet, values: values })
+        });
+
+        alert("تم الحفظ في ورقة " + sheet);
+        location.reload();
     }
 
-    // جلب البيانات عند التحميل لأول مرة
-    window.onload = fetchSummary;
+    function renderTable(id, data) {
+        let h = '<table class="table table-hover"><thead><tr>';
+        data[0].forEach(cell => h += `<th>${cell}</th>`);
+        h += '</tr></thead><tbody>';
+        for(let i=1; i<data.length; i++){
+            h += '<tr>';
+            data[i].forEach(cell => h += `<td>${cell}</td>`);
+            h += '</tr>';
+        }
+        document.getElementById(id).innerHTML = h + '</tbody></table>';
+    }
+
+    window.onload = loadData;
 </script>
 </body>
 </html>
-
