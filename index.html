@@ -81,7 +81,7 @@
             color: white !important;
         }
 
-        header { padding: 1.2rem 1rem !important; }
+        header { padding: 1rem 1rem !important; }
 
         @media print {
             @page { size: A4; margin: 1cm; }
@@ -96,36 +96,36 @@
         #printOptions {
             display: none;
             position: absolute;
-            top: 80px; left: 20px;
-            background: white; padding: 15px;
+            top: 70px; left: 20px;
+            background: white; padding: 12px;
             border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             z-index: 100; border: 1px solid #cbd5e1;
         }
         
-        /* تبويبات مصغرة */
+        /* تبويبات صغيرة جدا */
         .tabs-container {
             background: white;
-            border-radius: 8px;
-            padding: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 1rem;
+            border-radius: 6px;
+            padding: 3px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            margin-bottom: 0.8rem;
             display: flex;
-            gap: 4px;
+            gap: 3px;
             width: fit-content;
-            margin: 0 auto 1rem auto;
+            margin: 0 auto 0.8rem auto;
         }
         
         .tab-btn {
-            padding: 8px 16px;
+            padding: 6px 14px;
             text-align: center;
             cursor: pointer;
-            border-radius: 6px;
+            border-radius: 5px;
             font-weight: 700;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             transition: all 0.2s ease;
             border: 1px solid transparent;
             color: #475569;
-            min-width: 120px;
+            min-width: 100px;
         }
         
         .tab-btn:hover {
@@ -136,36 +136,29 @@
             background: #3b82f6;
             color: white;
             border-color: #3b82f6;
-            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
         }
         
         .tab-content {
             display: none;
-            animation: fadeIn 0.3s ease;
         }
         
         .tab-content.active {
             display: block;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
         /* تحسين شريط البحث */
         .search-header {
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-            padding: 12px;
+            background: #f8fafc;
+            padding: 10px;
             border-radius: 8px;
-            margin-bottom: 1rem;
-            border: 1px solid #cbd5e1;
+            margin-bottom: 0.8rem;
+            border: 1px solid #e2e8f0;
         }
         
         .search-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            gap: 8px;
         }
     </style>
 </head>
@@ -175,27 +168,27 @@
         <div class="animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent"></div>
     </div>
 
-    <header class="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg mb-4 sticky top-0 z-30 no-print">
+    <header class="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg mb-3 sticky top-0 z-30 no-print">
         <div class="container mx-auto">
-            <div class="flex justify-between items-center mb-3">
-                <h1 class="text-lg font-bold">معرض ال.جي</h1>
+            <div class="flex justify-between items-center mb-2">
+                <h1 class="text-base font-bold">معرض ال.جي</h1>
                 <div class="flex items-center gap-2">
-                    <button onclick="togglePrintOptions()" class="bg-blue-500 hover:bg-blue-400 px-3 py-1 rounded text-xs font-bold border border-blue-400">خيارات الطباعة</button>
+                    <button onclick="togglePrintOptions()" class="bg-blue-500 hover:bg-blue-400 px-2 py-1 rounded text-xs font-bold border border-blue-400">خيارات الطباعة</button>
                     <button onclick="preparePrint()" class="bg-green-600 hover:bg-green-500 px-3 py-1 rounded text-xs font-bold border border-green-500">طباعة</button>
-                    <div class="flex items-center gap-1 bg-blue-700/40 p-1.5 rounded-lg border border-blue-400/30">
+                    <div class="flex items-center gap-1 bg-blue-700/40 p-1 rounded-lg border border-blue-400/30">
                         <span class="text-xs">الصرف:</span>
-                        <input type="number" id="exchangeRate" value="12000" class="bg-transparent border-none text-white text-center font-bold text-sm focus:ring-0" style="width: 4rem;">
+                        <input type="number" id="exchangeRate" value="12000" class="bg-transparent border-none text-white text-center font-bold text-xs focus:ring-0" style="width: 3.5rem;">
                     </div>
                 </div>
             </div>
             
-            <!-- تبويبات مصغرة -->
+            <!-- تبويبات صغيرة جدا -->
             <div class="tabs-container no-print">
                 <button class="tab-btn active" onclick="switchTab('prices')">
-                    <i class="fas fa-tags mr-1"></i>لائحة الأسعار
+                    <i class="fas fa-tags mr-1 text-xs"></i>لائحة الأسعار
                 </button>
                 <button class="tab-btn" onclick="switchTab('sales')">
-                    <i class="fas fa-chart-line mr-1"></i>كشف المبيعات
+                    <i class="fas fa-chart-line mr-1 text-xs"></i>كشف المبيعات
                 </button>
             </div>
         </div>
@@ -203,11 +196,11 @@
 
     <div id="printOptions" class="no-print">
         <p class="font-bold text-xs mb-2">أعمدة الطباعة:</p>
-        <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-xs" id="columnCheckboxes"></div>
-        <button onclick="togglePrintOptions()" class="mt-4 w-full bg-blue-600 text-white py-1.5 rounded text-xs font-bold">حفظ</button>
+        <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs" id="columnCheckboxes"></div>
+        <button onclick="togglePrintOptions()" class="mt-3 w-full bg-blue-600 text-white py-1 rounded text-xs font-bold">حفظ</button>
     </div>
 
-    <main class="container mx-auto px-4">
+    <main class="container mx-auto px-3">
         <!-- شريط بحث لائحة الأسعار -->
         <div id="prices-search" class="tab-content active search-header">
             <div class="search-row">
@@ -258,7 +251,7 @@
                 <table id="mainTable">
                     <thead>
                         <tr>
-                            <th data-col="index" class="w-12">#</th>
+                            <th data-col="index" class="w-10">#</th>
                             <th data-col="cat">التصنيف</th>
                             <th data-col="supp">المورد</th>
                             <th data-col="item">الصنف</th>
@@ -327,58 +320,42 @@
                             allData.pop();
                         }
                         renderPrices();
-                        setupPriceDropdowns();
+                        setupDropdowns('prices');
                     }
                 });
                 
-                // جلب بيانات المبيعات
+                // جلب بيانات المبيعات بنفس الطريقة
                 const salesResponse = await fetch(SALES_CSV_URL + '&t=' + Date.now());
                 const salesCsvText = await salesResponse.text();
                 
-                // عرض البيانات الأولية للتشخيص
-                console.log('بيانات المبيعات الأولية:', salesCsvText.substring(0, 500));
-                
+                // استخدام نفس الدالة لتحليل البيانات
                 Papa.parse(salesCsvText, {
                     header: true, skipEmptyLines: true,
                     complete: (res) => {
-                        console.log('بيانات المبيعات المحللة:', res.data);
                         allSalesData = res.data;
+                        console.log('بيانات المبيعات المحملة:', allSalesData.length, 'صف');
+                        console.log('أعمدة المبيعات:', Object.keys(allSalesData[0] || {}));
                         
-                        // تنظيف البيانات وإعادة تسمية الأعمدة
-                        allSalesData = allSalesData.map(row => {
-                            // إعادة تسمية الأعمدة بناءً على الرؤوس الفعلية
-                            const newRow = {};
-                            
-                            // البحث عن الأعمدة بناءً على المخطط المرئي
-                            Object.keys(row).forEach(key => {
-                                const cleanKey = key.trim();
-                                if (cleanKey.includes('المستهلك') || cleanKey.includes('التاريخ')) {
-                                    newRow['التاريخ'] = row[key];
-                                } else if (cleanKey.includes('الترخيص') || cleanKey.includes('العميل')) {
-                                    newRow['العميل'] = row[key];
-                                } else if (cleanKey.includes('الفاتورة')) {
-                                    newRow['الفاتورة'] = row[key];
-                                } else if (cleanKey.includes('الصنف')) {
-                                    newRow['الصنف'] = row[key];
-                                } else if (cleanKey.includes('الكمية')) {
-                                    newRow['الكمية'] = row[key];
-                                } else if (cleanKey.includes('السعر الدولار')) {
-                                    newRow['السعر الدولار'] = row[key];
-                                } else if (cleanKey.includes('دولار') && !cleanKey.includes('السعر')) {
-                                    newRow['دولار'] = row[key];
-                                } else if (cleanKey.includes('السعر سوري')) {
-                                    newRow['السعر سوري'] = row[key];
-                                } else if (cleanKey.includes('سوري') && !cleanKey.includes('السعر')) {
-                                    newRow['سوري'] = row[key];
+                        // تنظيف البيانات
+                        allSalesData = allSalesData.filter(row => 
+                            row['العميل'] || row['الترخيص'] || row['التاريخ'] || row['المستهلك']
+                        );
+                        
+                        // إذا كانت البيانات فارغة، جرب طريقة مختلفة
+                        if (allSalesData.length === 0) {
+                            console.log('جرب طريقة تحليل مختلفة...');
+                            Papa.parse(salesCsvText, {
+                                header: false, skipEmptyLines: true,
+                                complete: (res2) => {
+                                    console.log('بيانات بدون رؤوس:', res2.data);
+                                    // محاولة استخلاص البيانات يدوياً
+                                    allSalesData = extractSalesData(res2.data);
                                 }
                             });
-                            
-                            return newRow;
-                        });
+                        }
                         
-                        console.log('بيانات المبيعات بعد التنظيف:', allSalesData);
                         renderSales();
-                        setupSalesDropdowns();
+                        setupDropdowns('sales');
                     }
                 });
                 
@@ -390,6 +367,38 @@
                 console.error('خطأ في جلب البيانات:', e);
                 document.getElementById('loader').classList.add('hidden');
             }
+        }
+
+        // دالة لاستخلاص بيانات المبيعات يدوياً إذا فشل التحليل التلقائي
+        function extractSalesData(rawData) {
+            const extracted = [];
+            
+            // البحث عن أول صف يحتوي على رؤوس
+            let headerRowIndex = -1;
+            for (let i = 0; i < Math.min(10, rawData.length); i++) {
+                if (rawData[i].some(cell => cell && (cell.includes('العميل') || cell.includes('التاريخ') || cell.includes('المستهلك')))) {
+                    headerRowIndex = i;
+                    break;
+                }
+            }
+            
+            if (headerRowIndex >= 0) {
+                const headers = rawData[headerRowIndex];
+                for (let i = headerRowIndex + 1; i < rawData.length; i++) {
+                    const row = {};
+                    for (let j = 0; j < Math.min(headers.length, rawData[i].length); j++) {
+                        if (headers[j]) {
+                            row[headers[j]] = rawData[i][j];
+                        }
+                    }
+                    if (Object.keys(row).length > 0) {
+                        extracted.push(row);
+                    }
+                }
+            }
+            
+            console.log('بيانات مستخلصة:', extracted);
+            return extracted;
         }
 
         function switchTab(tabName) {
@@ -419,116 +428,87 @@
             }
         }
 
-        function setupPriceDropdowns() {
-            const priceConfigs = [
-                { id: 'searchCat', suggestId: 'suggestCat', key: 'التصنيف' },
-                { id: 'searchSupplier', suggestId: 'suggestSupplier', key: 'المورد' },
-                { id: 'searchName', suggestId: 'suggestName', key: 'الصنف' },
-                { id: 'searchQty', suggestId: 'suggestQty', key: 'الكمية' }
+        function setupDropdowns(tabType) {
+            const configs = tabType === 'prices' ? [
+                { id: 'searchCat', suggestId: 'suggestCat', key: 'التصنيف', data: allData, render: renderPrices },
+                { id: 'searchSupplier', suggestId: 'suggestSupplier', key: 'المورد', data: allData, render: renderPrices },
+                { id: 'searchName', suggestId: 'suggestName', key: 'الصنف', data: allData, render: renderPrices },
+                { id: 'searchQty', suggestId: 'suggestQty', key: 'الكمية', data: allData, render: renderPrices }
+            ] : [
+                { id: 'searchCustomer', suggestId: 'suggestCustomer', key: 'العميل', data: allSalesData, render: renderSales },
+                { id: 'searchDate', suggestId: 'suggestDate', key: 'المستهلك', data: allSalesData, render: renderSales },
+                { id: 'searchItemSales', suggestId: 'suggestItemSales', key: 'الصنف', data: allSalesData, render: renderSales },
+                { id: 'searchInvoice', suggestId: 'suggestInvoice', key: 'الفاتورة', data: allSalesData, render: renderSales }
             ];
 
-            priceConfigs.forEach(config => {
+            configs.forEach(config => {
                 const input = document.getElementById(config.id);
                 const list = document.getElementById(config.suggestId);
 
-                input.onfocus = function() {
-                    updateSuggestions(input, list, config.key, allData, renderPrices);
-                };
-                
-                input.oninput = function() {
-                    updateSuggestions(input, list, config.key, allData, renderPrices);
-                    renderPrices();
-                };
-                
-                setupInputKeydown(input, list, () => updateSuggestions(input, list, config.key, allData, renderPrices));
-            });
-        }
+                const updateList = () => {
+                    const val = input.value.toLowerCase();
+                    const uniqueValues = [...new Set(config.data
+                        .filter(row => row[config.key])
+                        .map(row => String(row[config.key]).trim()))]
+                        .filter(v => v && v.toLowerCase().includes(val))
+                        .slice(0, 15);
 
-        function setupSalesDropdowns() {
-            const salesConfigs = [
-                { id: 'searchCustomer', suggestId: 'suggestCustomer', key: 'العميل' },
-                { id: 'searchDate', suggestId: 'suggestDate', key: 'التاريخ' },
-                { id: 'searchItemSales', suggestId: 'suggestItemSales', key: 'الصنف' },
-                { id: 'searchInvoice', suggestId: 'suggestInvoice', key: 'الفاتورة' }
-            ];
-            
-            salesConfigs.forEach(config => {
-                const input = document.getElementById(config.id);
-                const list = document.getElementById(config.suggestId);
-
-                input.onfocus = function() {
-                    updateSuggestions(input, list, config.key, allSalesData, renderSales);
-                };
-                
-                input.oninput = function() {
-                    updateSuggestions(input, list, config.key, allSalesData, renderSales);
-                    renderSales();
-                };
-                
-                setupInputKeydown(input, list, () => updateSuggestions(input, list, config.key, allSalesData, renderSales));
-            });
-        }
-
-        function updateSuggestions(input, list, key, dataArray, renderFunction) {
-            const val = input.value.toLowerCase();
-            
-            // جمع القيم الفريدة من عمود محدد
-            const uniqueValues = [...new Set(dataArray
-                .filter(row => row[key])
-                .map(row => String(row[key]).trim()))]
-                .filter(v => v && v.toLowerCase().includes(val))
-                .slice(0, 15);
-
-            list.innerHTML = '';
-            suggestionItems = [];
-            
-            if (uniqueValues.length > 0) {
-                uniqueValues.forEach(v => {
-                    const div = document.createElement('div');
-                    div.className = 'suggestion-item';
-                    div.textContent = v;
-                    div.onclick = () => {
-                        input.value = v;
-                        list.style.display = 'none';
+                    list.innerHTML = '';
+                    suggestionItems = [];
+                    
+                    if (uniqueValues.length > 0) {
+                        uniqueValues.forEach(v => {
+                            const div = document.createElement('div');
+                            div.className = 'suggestion-item';
+                            div.textContent = v;
+                            div.onclick = () => {
+                                input.value = v;
+                                list.style.display = 'none';
+                                currentFocus = -1;
+                                config.render();
+                            };
+                            list.appendChild(div);
+                            suggestionItems.push(div);
+                        });
+                        list.style.display = 'block';
+                        activeList = list;
                         currentFocus = -1;
-                        renderFunction();
-                    };
-                    list.appendChild(div);
-                    suggestionItems.push(div);
-                });
-                list.style.display = 'block';
-                activeList = list;
-                currentFocus = -1;
-            } else {
-                list.style.display = 'none';
-                activeList = null;
-            }
-        }
-
-        function setupInputKeydown(input, list, updateFunction) {
-            input.onkeydown = function(e) {
-                if (!activeList || activeList.style.display === 'none') return;
-                
-                const items = activeList.getElementsByClassName('suggestion-item');
-                
-                if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    currentFocus = Math.min(currentFocus + 1, items.length - 1);
-                    updateActiveItem(items);
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    currentFocus = Math.max(currentFocus - 1, -1);
-                    updateActiveItem(items);
-                } else if (e.key === 'Enter') {
-                    e.preventDefault();
-                    if (currentFocus > -1 && items[currentFocus]) {
-                        items[currentFocus].click();
+                    } else {
+                        list.style.display = 'none';
+                        activeList = null;
                     }
-                } else if (e.key === 'Escape') {
-                    activeList.style.display = 'none';
-                    currentFocus = -1;
-                }
-            };
+                };
+
+                input.onfocus = updateList;
+                input.oninput = function() {
+                    updateList();
+                    config.render();
+                };
+                
+                input.onkeydown = function(e) {
+                    if (!activeList || activeList.style.display === 'none') return;
+                    
+                    const items = activeList.getElementsByClassName('suggestion-item');
+                    
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        currentFocus = Math.min(currentFocus + 1, items.length - 1);
+                        updateActiveItem(items);
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        currentFocus = Math.max(currentFocus - 1, -1);
+                        updateActiveItem(items);
+                    } else if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (currentFocus > -1 && items[currentFocus]) {
+                            items[currentFocus].click();
+                        }
+                    } else if (e.key === 'Escape') {
+                        activeList.style.display = 'none';
+                        currentFocus = -1;
+                    }
+                };
+            });
         }
 
         function updateActiveItem(items) {
@@ -610,9 +590,13 @@
             
             tbody.innerHTML = '';
             
+            console.log('جميع بيانات المبيعات:', allSalesData);
+            console.log('الفلاتر:', filters);
+            
             const filteredData = allSalesData.filter(row => {
-                const rowCustomer = String(row['العميل'] || '').toLowerCase();
-                const rowDate = String(row['التاريخ'] || '').toLowerCase();
+                // البحث في كل عمود محتمل
+                const rowCustomer = String(row['العميل'] || row['الترخيص'] || '').toLowerCase();
+                const rowDate = String(row['التاريخ'] || row['المستهلك'] || '').toLowerCase();
                 const rowItem = String(row['الصنف'] || '').toLowerCase();
                 const rowInvoice = String(row['الفاتورة'] || '').toLowerCase();
                 
@@ -622,24 +606,44 @@
                        rowInvoice.includes(filters.invoice);
             });
             
-            console.log('بيانات المبيعات المفلترة:', filteredData);
+            console.log('البيانات المفلترة:', filteredData.length, 'صف');
             
-            filteredData.forEach((row, i) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="text-gray-400 text-[10px]">${i + 1}</td>
-                    <td class="text-[11px] font-bold">${row['التاريخ'] || ''}</td>
-                    <td class="text-[11px]">${row['العميل'] || ''}</td>
-                    <td class="font-bold">${row['الفاتورة'] || ''}</td>
-                    <td class="text-right font-bold text-gray-800">${row['الصنف'] || ''}</td>
-                    <td class="font-bold">${row['الكمية'] || ''}</td>
-                    <td>${row['السعر الدولار'] || ''}</td>
-                    <td>${row['دولار'] || ''}</td>
-                    <td>${row['السعر سوري'] || ''}</td>
-                    <td>${row['سوري'] || ''}</td>
-                `;
-                tbody.appendChild(tr);
-            });
+            if (filteredData.length === 0 && allSalesData.length > 0) {
+                // عرض جميع البيانات إذا لم يكن هناك بحث
+                allSalesData.forEach((row, i) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="text-gray-400 text-[10px]">${i + 1}</td>
+                        <td class="text-[11px] font-bold">${row['التاريخ'] || row['المستهلك'] || ''}</td>
+                        <td class="text-[11px]">${row['العميل'] || row['الترخيص'] || ''}</td>
+                        <td class="font-bold">${row['الفاتورة'] || ''}</td>
+                        <td class="text-right font-bold text-gray-800">${row['الصنف'] || ''}</td>
+                        <td class="font-bold">${row['الكمية'] || ''}</td>
+                        <td>${row['السعر الدولار'] || row['دولار'] || ''}</td>
+                        <td>${row['دولار'] || ''}</td>
+                        <td>${row['السعر سوري'] || ''}</td>
+                        <td>${row['سوري'] || ''}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else {
+                filteredData.forEach((row, i) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="text-gray-400 text-[10px]">${i + 1}</td>
+                        <td class="text-[11px] font-bold">${row['التاريخ'] || row['المستهلك'] || ''}</td>
+                        <td class="text-[11px]">${row['العميل'] || row['الترخيص'] || ''}</td>
+                        <td class="font-bold">${row['الفاتورة'] || ''}</td>
+                        <td class="text-right font-bold text-gray-800">${row['الصنف'] || ''}</td>
+                        <td class="font-bold">${row['الكمية'] || ''}</td>
+                        <td>${row['السعر الدولار'] || row['دولار'] || ''}</td>
+                        <td>${row['دولار'] || ''}</td>
+                        <td>${row['السعر سوري'] || ''}</td>
+                        <td>${row['سوري'] || ''}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
         }
 
         function initPrintOptions() {
@@ -650,7 +654,6 @@
             if (currentTab === 'prices') {
                 currentColumns = columns;
             } else {
-                // أعمدة كشف المبيعات
                 currentColumns = [
                     {id:'index',label:'#'},
                     {id:'date',label:'التاريخ'},
