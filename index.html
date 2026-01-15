@@ -1,173 +1,477 @@
+ممتاز، قمت بتحديث الكود ليتناسب تماماً مع أسماء الأعمدة في روابط الجداول التي أرفقتها (المشتريات والمبيعات).
+
+### التعديلات التي تمت:
+
+1. **ربط الروابط:** تم وضع روابط CSV الخاصة بالمبيعات والمشتريات التي أرسلتها في أماكنها الصحيحة.
+2. **تطابق الأعمدة:** * في **المشتريات**: الكود الآن يبحث عن عمود `المورد` كاسم للحساب، وعمود `ا.دولار` كقيمة للمبلغ.
+* في **المبيعات**: الكود يبحث عن عمود `العميل` كاسم للحساب، وعمود `ا.دولار` كقيمة للمبلغ.
+
+
+3. **تنسيق كشف الحساب:** تم ضبط البيان ليظهر (نوع الحركة + اسم الصنف) ليعطيك تفصيلاً كاملاً في الجدول.
+4. **الترتيب الزمني:** يتم دمج البيانات وترتيبها من الأقدم إلى الأحدث تلقائياً.
+
+### الكود الكامل المحدث:
+
+```html
 <!DOCTYPE html>
-<html dir="rtl" lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المحاسب المحترف | المؤسسة</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;800&display=swap" rel="stylesheet">
+    <title>معرض ال.جي - النظام المتكامل</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #1a2a6c; --gold: #b2945e; --dark: #0f172a; }
-        body { font-family: 'Tajawal', sans-serif; background: #f8fafc; color: var(--dark); }
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
         
-        /* Sidebar Styling */
-        .sidebar { background: var(--primary); color: white; min-height: 100vh; padding: 1.5rem; box-shadow: 4px 0 10px rgba(0,0,0,0.1); }
-        .nav-link { color: #cbd5e1; margin: 8px 0; border-radius: 10px; padding: 12px; transition: 0.3s; }
-        .nav-link:hover, .nav-link.active { background: var(--gold); color: white; transform: translateX(-5px); }
-        
-        /* Cards Styling */
-        .card-custom { border: none; border-radius: 20px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: 0.4s; border-top: 4px solid var(--gold); }
-        .stat-icon { font-size: 2rem; color: var(--gold); opacity: 0.3; position: absolute; left: 20px; top: 20px; }
-        
-        /* Table Styling */
-        .table thead { background: var(--primary); color: white; }
-        .table-hover tbody tr:hover { background-color: #f1f5f9; }
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            background: #f8fafc; 
+            margin: 0; 
+            color: #334155;
+            font-size: 0.8rem; 
+        }
 
-        /* Loader */
-        #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; z-index:9999; justify-content:center; align-items:center; }
+        .table-container { 
+            max-height: 65vh; 
+            overflow-y: auto; 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+
+        thead th { 
+            position: sticky; top: 0; z-index: 20; 
+            background-color: #3b82f6; color: white; 
+            padding: 12px 8px; font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        td { padding: 8px 4px; border-bottom: 1px solid #f1f5f9; text-align: center; }
+
+        .search-wrapper { position: relative; width: 100%; }
+
+        .input-glass {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #cbd5e1;
+            color: #1e293b !important;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        .suggestions-list {
+            position: absolute;
+            top: 100%; left: 0; right: 0;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0 0 6px 6px;
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 50;
+            display: none;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            color: #000000 !important;
+        }
+
+        .suggestion-item {
+            padding: 8px 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.75rem;
+            color: #000000 !important;
+            text-align: right;
+        }
+
+        .suggestion-item:hover { background: #eff6ff; color: #2563eb !important; }
+
+        .suggestion-item.active {
+            background: #3b82f6 !important;
+            color: white !important;
+        }
+
+        .tab-btn.active {
+            border-bottom: 3px solid white;
+            opacity: 1;
+        }
+
+        @media print {
+            @page { size: A4; margin: 1cm; }
+            header, .no-print, #loader, #printOptions, .suggestions-list, .nav-tabs { display: none !important; }
+            .table-container { max-height: none !important; overflow: visible !important; border: none !important; box-shadow: none !important; }
+            table { width: 100%; border-collapse: collapse; }
+            th { position: static !important; background-color: #eee !important; color: black !important; border: 1px solid #000 !important; }
+            td { border: 1px solid #000 !important; color: black !important; }
+            .print-hidden { display: none !important; }
+        }
+
+        #printOptions {
+            display: none;
+            position: absolute;
+            top: 80px; left: 20px;
+            background: white; padding: 15px;
+            border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 100; border: 1px solid #cbd5e1;
+        }
     </style>
 </head>
 <body>
 
-<div id="loader">
-    <div class="text-center">
-        <div class="spinner-grow text-primary" role="status"></div>
-        <p class="mt-3 fw-bold">جاري تحميل البيانات الفاخرة...</p>
+    <div id="loader" class="fixed inset-0 bg-white/90 z-[100] flex flex-col items-center justify-center">
+        <div class="animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent"></div>
+        <p class="mt-4 font-bold text-blue-600">جاري تحميل البيانات من Sheets...</p>
     </div>
-</div>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-2 sidebar d-flex flex-column">
-            <h3 class="fw-800 text-center mb-5 mt-3">LOGO</h3>
-            <nav class="nav flex-column">
-                <a class="nav-link active" href="#" onclick="showSect('dash')">📊 الأرصدة والميزان</a>
-                <a class="nav-link" href="#" onclick="showSect('entry')">📝 إضافة قيود يومية</a>
-                <a class="nav-link" href="#" onclick="showSect('sales')">💰 تسجيل المبيعات</a>
-                <a class="nav-link" href="#" onclick="showSect('accounts')">👥 إدارة الحسابات</a>
-                <a class="nav-link" href="#" onclick="showSect('reports')">🔍 كشوفات الحساب</a>
-            </nav>
-        </div>
-
-        <div class="col-md-10 p-4">
-            
-            <div id="sect-dash" class="content-sect">
-                <h2 class="mb-4 fw-bold">المركز المالي الحالي</h2>
-                <div class="row mb-5">
-                    <div class="col-md-12 mb-4">
-                        <div class="card card-custom p-4">
-                            <h5 class="fw-bold mb-3 text-primary">📑 ميزان المراجعة</h5>
-                            <div id="mizan-box" class="table-responsive"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="card card-custom p-4">
-                            <h5 class="fw-bold mb-3 text-success">💰 أرصدة الحسابات</h5>
-                            <div id="balance-box" class="table-responsive"></div>
-                        </div>
+    <header class="bg-blue-600 text-white shadow-lg mb-4 sticky top-0 z-30 no-print">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-3">
+                <h1 class="text-xl font-bold">معرض ال.جي</h1>
+                <div class="flex items-center gap-3">
+                    <button onclick="togglePrintOptions()" class="bg-blue-500 hover:bg-blue-400 px-3 py-1.5 rounded text-xs font-bold border border-blue-400">خيارات الطباعة</button>
+                    <button onclick="preparePrint()" class="bg-green-600 hover:bg-green-500 px-4 py-1.5 rounded text-xs font-bold border border-green-500">طباعة</button>
+                    <div class="flex items-center gap-2 bg-blue-700/40 p-2 rounded-lg border border-blue-400/30">
+                        <span class="text-xs">الصرف:</span>
+                        <input type="number" id="exchangeRate" value="12000" class="bg-transparent border-none text-white text-center font-bold text-sm focus:ring-0" style="width: 4.5rem;">
                     </div>
                 </div>
             </div>
 
-            <div id="sect-entry" class="content-sect" style="display:none">
-                <div class="card card-custom p-5 mx-auto" style="max-width: 700px;">
-                    <h3 class="text-center mb-4">تسجيل قيد يومية</h3>
-                    <form onsubmit="saveData(event, 'اليومية')">
-                        <input type="date" class="form-control mb-3" id="e-date" required>
-                        <input type="text" class="form-control mb-3" id="e-acc" placeholder="اسم الحساب" required>
-                        <input type="number" class="form-control mb-3" id="e-amount" placeholder="المبلغ" required>
-                        <button class="btn btn-primary w-100 py-2 mt-3">ترحيل القيد</button>
-                    </form>
-                </div>
+            <div class="flex gap-6 mt-2 nav-tabs">
+                <button onclick="switchTab('pricing')" id="tab-pricing" class="tab-btn active pb-2 px-2 font-bold opacity-80">لائحة الأسعار</button>
+                <button onclick="switchTab('account')" id="tab-account" class="tab-btn pb-2 px-2 font-bold opacity-80">كشف حساب</button>
             </div>
+        </div>
+    </header>
 
-            <div id="sect-sales" class="content-sect" style="display:none">
-                <div class="card card-custom p-5 mx-auto" style="max-width: 700px; border-top-color: #28a745;">
-                    <h3 class="text-center mb-4 text-success">فاتورة مبيعات جديدة</h3>
-                    <form onsubmit="saveData(event, 'المبيعات')">
-                        <input type="date" class="form-control mb-3" id="s-date" required>
-                        <input type="text" class="form-control mb-3" id="s-client" placeholder="اسم العميل" required>
-                        <input type="number" class="form-control mb-3" id="s-amount" placeholder="إجمالي الفاتورة" required>
-                        <button class="btn btn-success w-100 py-2 mt-3">حفظ الفاتورة</button>
-                    </form>
-                </div>
+    <div id="pricing-section" class="container mx-auto px-4">
+        <div class="grid grid-cols-4 gap-3 mb-4 no-print">
+            <div class="search-wrapper">
+                <input type="text" id="searchCat" placeholder="التصنيف" class="input-glass search-input" autocomplete="off">
+                <div id="suggestCat" class="suggestions-list"></div>
             </div>
-
-            <div id="sect-accounts" class="content-sect" style="display:none">
-                <div class="card card-custom p-5 mx-auto" style="max-width: 700px; border-top-color: #6f42c1;">
-                    <h3 class="text-center mb-4">فتح حساب جديد</h3>
-                    <form onsubmit="saveData(event, 'الحسابات')">
-                        <input type="text" class="form-control mb-3" id="a-name" placeholder="اسم الحساب (مثلاً: عميل جديد)" required>
-                        <select class="form-select mb-3" id="a-type">
-                            <option value="عميل">عميل</option>
-                            <option value="مورد">مورد</option>
-                            <option value="مصروف">مصروف</option>
-                        </select>
-                        <button class="btn btn-dark w-100 py-2 mt-3">إضافة الحساب</button>
-                    </form>
-                </div>
+            <div class="search-wrapper">
+                <input type="text" id="searchSupplier" placeholder="المورد" class="input-glass search-input" autocomplete="off">
+                <div id="suggestSupplier" class="suggestions-list"></div>
             </div>
+            <div class="search-wrapper">
+                <input type="text" id="searchName" placeholder="الصنف" class="input-glass search-input" autocomplete="off">
+                <div id="suggestName" class="suggestions-list"></div>
+            </div>
+            <div class="search-wrapper">
+                <input type="text" id="searchQty" placeholder="الكمية" class="input-glass search-input" autocomplete="off">
+                <div id="suggestQty" class="suggestions-list"></div>
+            </div>
+        </div>
 
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th data-col="index" class="w-12">#</th>
+                        <th data-col="cat">التصنيف</th>
+                        <th data-col="supp">المورد</th>
+                        <th data-col="item">الصنف</th>
+                        <th data-col="qty">الكمية</th>
+                        <th data-col="buy">شراء</th>
+                        <th data-col="disc">حسم</th>
+                        <th data-col="final">صافي</th>
+                        <th data-col="plus">البيع($)</th>
+                        <th data-col="syp">سوري</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
         </div>
     </div>
-</div>
 
-<script>
-    const URL = "https://script.google.com/macros/s/AKfycbydiu3gqm5iAEEWqlEt9YdRGI1oFGVz99QZ186UJ_9jc3UCO9eDU1FPdIwE_ILy6ELl/exec";
+    <div id="account-section" class="container mx-auto px-4 hidden">
+        <div class="bg-white p-4 rounded-lg shadow-md mb-4 no-print">
+            <div class="flex flex-wrap gap-4 items-end">
+                <div class="flex-1 min-w-[250px] search-wrapper">
+                    <label class="block text-xs font-bold mb-1">بحث باسم الحساب (المورد أو العميل):</label>
+                    <input type="text" id="accountSearch" placeholder="اكتب الاسم للبحث في المبيعات والمشتريات..." class="input-glass" autocomplete="off">
+                    <div id="suggestAccount" class="suggestions-list"></div>
+                </div>
+            </div>
+        </div>
 
-    function showSect(name) {
-        document.querySelectorAll('.content-sect').forEach(s => s.style.display = 'none');
-        document.getElementById('sect-' + name).style.display = 'block';
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        event.target.classList.add('active');
-    }
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr class="bg-gray-800 text-white">
+                        <th class="w-12">#</th>
+                        <th>التاريخ</th>
+                        <th>البيان (الصنف)</th>
+                        <th>مدين (مشتريات $)</th>
+                        <th>دائن (مبيعات $)</th>
+                        <th>الرصيد التراكمي</th>
+                    </tr>
+                </thead>
+                <tbody id="accountTableBody">
+                    <tr><td colspan="6" class="p-8 text-gray-400 text-center">بانتظار اختيار اسم الحساب...</td></tr>
+                </tbody>
+                <tfoot id="accountFooter" class="bg-gray-100 font-bold hidden">
+                    <tr class="border-t-2 border-gray-300">
+                        <td colspan="3" class="text-left p-2">الإجمالي النهائي:</td>
+                        <td id="totalDebit" class="text-red-600">0</td>
+                        <td id="totalCredit" class="text-green-600">0</td>
+                        <td id="finalBalance" class="bg-blue-100">0</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
 
-    // جلب البيانات بسرعة عند الفتح
-    async function loadData() {
-        try {
-            const response = await fetch(URL + "?action=getSummary");
-            const data = await response.json();
-            renderTable('mizan-box', data.mizan);
-            renderTable('balance-box', data.balances);
-            document.getElementById('loader').style.display = 'none';
-        } catch (e) {
-            console.error("خطأ في التحميل، جرب تحديث الصفحة");
+    <div id="printOptions" class="no-print">
+        <p class="font-bold text-xs mb-2">أعمدة الطباعة:</p>
+        <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-xs" id="columnCheckboxes"></div>
+        <button onclick="togglePrintOptions()" class="mt-4 w-full bg-blue-600 text-white py-1.5 rounded text-xs font-bold">حفظ</button>
+    </div>
+
+    <script>
+        // روابط Google Sheets
+        const PRICING_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRZgBZaf8J75UuFGvmdPbl95jnO9kfoVzKM2vULW4QhfDWEpAVp0uZ4hO4O3GgK20v2Y35UcW8nNnLW/pub?gid=313186314&single=true&output=csv';
+        const SALES_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRZgBZaf8J75UuFGvmdPbl95jnO9kfoVzKM2vULW4QhfDWEpAVp0uZ4hO4O3GgK20v2Y35UcW8nNnLW/pub?gid=1169303046&single=true&output=csv';
+        const PURCHASES_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRZgBZaf8J75UuFGvmdPbl95jnO9kfoVzKM2vULW4QhfDWEpAVp0uZ4hO4O3GgK20v2Y35UcW8nNnLW/pub?gid=1461133672&single=true&output=csv';
+
+        let allData = [], salesData = [], purchasesData = [];
+        const columns = [{id:'index',label:'#'},{id:'cat',label:'التصنيف'},{id:'supp',label:'المورد'},{id:'item',label:'الصنف'},{id:'qty',label:'الكمية'},{id:'buy',label:'شراء'},{id:'disc',label:'حسم'},{id:'final',label:'صافي'},{id:'plus',label:'البيع($)'},{id:'syp',label:'سوري'}];
+
+        async function fetchData() {
+            const ts = Date.now();
+            try {
+                // 1. تحميل لائحة الأسعار
+                Papa.parse(`${PRICING_CSV}&t=${ts}`, {
+                    download: true, header: true, skipEmptyLines: true,
+                    complete: (res) => {
+                        allData = res.data;
+                        render();
+                        setupDropdowns();
+                        document.getElementById('loader').classList.add('hidden');
+                    }
+                });
+
+                // 2. تحميل المبيعات
+                Papa.parse(`${SALES_CSV}&t=${ts}`, {
+                    download: true, header: true, skipEmptyLines: true,
+                    complete: (res) => salesData = res.data
+                });
+
+                // 3. تحميل المشتريات
+                Papa.parse(`${PURCHASES_CSV}&t=${ts}`, {
+                    download: true, header: true, skipEmptyLines: true,
+                    complete: (res) => purchasesData = res.data
+                });
+
+            } catch (e) { console.error("Error loading data:", e); }
         }
-    }
 
-    async function saveData(e, sheet) {
-        e.preventDefault();
-        const btn = e.target.querySelector('button');
-        btn.disabled = true;
-        btn.innerText = "جاري الحفظ...";
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            
+            if(tab === 'pricing') {
+                document.getElementById('pricing-section').classList.remove('hidden');
+                document.getElementById('account-section').classList.add('hidden');
+            } else {
+                document.getElementById('pricing-section').classList.add('hidden');
+                document.getElementById('account-section').classList.remove('hidden');
+                setupAccountDropdown();
+            }
+        }
 
-        let values = [];
-        if(sheet === 'اليومية') values = [document.getElementById('e-date').value, document.getElementById('e-acc').value, document.getElementById('e-amount').value];
-        if(sheet === 'المبيعات') values = [document.getElementById('s-date').value, document.getElementById('s-client').value, document.getElementById('s-amount').value];
-        if(sheet === 'الحسابات') values = [document.getElementById('a-name').value, document.getElementById('a-type').value];
+        // --- كشف الحساب ---
 
-        await fetch(URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: "addData", sheet: sheet, values: values })
+        function setupAccountDropdown() {
+            const input = document.getElementById('accountSearch');
+            const list = document.getElementById('suggestAccount');
+
+            input.oninput = () => {
+                const val = input.value.trim().toLowerCase();
+                const names = [...new Set([
+                    ...salesData.map(r => r['العميل']), 
+                    ...purchasesData.map(r => r['المورد'])
+                ])].filter(n => n && n.toLowerCase().includes(val));
+
+                list.innerHTML = '';
+                if(names.length > 0 && val !== '') {
+                    names.forEach(n => {
+                        const div = document.createElement('div');
+                        div.className = 'suggestion-item';
+                        div.textContent = n;
+                        div.onclick = () => {
+                            input.value = n;
+                            list.style.display = 'none';
+                            renderAccountStatement(n);
+                        };
+                        list.appendChild(div);
+                    });
+                    list.style.display = 'block';
+                } else list.style.display = 'none';
+            };
+        }
+
+        function renderAccountStatement(name) {
+            const tbody = document.getElementById('accountTableBody');
+            const footer = document.getElementById('accountFooter');
+            
+            // تجميع الحركات
+            let movements = [
+                ...purchasesData.filter(r => r['المورد'] === name).map(r => ({
+                    date: r['التاريخ'],
+                    item: `شراء: ${r['الصنف'] || 'فاتورة مشتريات'}`,
+                    debit: parseFloat(String(r['ا.دولار']).replace(/[^\d.]/g, '')) || 0,
+                    credit: 0
+                })),
+                ...salesData.filter(r => r['العميل'] === name).map(r => ({
+                    date: r['التاريخ'],
+                    item: `بيع: ${r['الصنف'] || 'فاتورة مبيعات'}`,
+                    debit: 0,
+                    credit: parseFloat(String(r['ا.دولار']).replace(/[^\d.]/g, '')) || 0
+                }))
+            ];
+
+            // الترتيب حسب التاريخ
+            movements.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            tbody.innerHTML = '';
+            let balance = 0, totalD = 0, totalC = 0;
+
+            movements.forEach((row, i) => {
+                balance += (row.debit - row.credit);
+                totalD += row.debit;
+                totalC += row.credit;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${i+1}</td>
+                    <td>${row.date}</td>
+                    <td class="text-right">${row.item}</td>
+                    <td class="text-red-600 font-bold">${row.debit > 0 ? row.debit.toLocaleString(undefined, {minimumFractionDigits: 2}) : '-'}</td>
+                    <td class="text-green-600 font-bold">${row.credit > 0 ? row.credit.toLocaleString(undefined, {minimumFractionDigits: 2}) : '-'}</td>
+                    <td class="font-bold ${balance >= 0 ? 'text-blue-700' : 'text-orange-700'}">${balance.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('totalDebit').textContent = totalD.toLocaleString(undefined, {minimumFractionDigits: 2});
+            document.getElementById('totalCredit').textContent = totalC.toLocaleString(undefined, {minimumFractionDigits: 2});
+            document.getElementById('finalBalance').textContent = balance.toLocaleString(undefined, {minimumFractionDigits: 2});
+            footer.classList.remove('hidden');
+        }
+
+        // --- لائحة الأسعار ---
+
+        function setupDropdowns() {
+            const configs = [
+                { id: 'searchCat', suggestId: 'suggestCat', key: 'التصنيف' },
+                { id: 'searchSupplier', suggestId: 'suggestSupplier', key: 'المورد' },
+                { id: 'searchName', suggestId: 'suggestName', key: 'الصنف' },
+                { id: 'searchQty', suggestId: 'suggestQty', key: 'الكمية' }
+            ];
+
+            configs.forEach(config => {
+                const input = document.getElementById(config.id);
+                const list = document.getElementById(config.suggestId);
+
+                input.oninput = () => {
+                    const val = input.value.toLowerCase();
+                    const uniqueValues = [...new Set(allData.map(row => String(row[config.key] || '')))]
+                        .filter(v => v.toLowerCase().includes(val)).slice(0, 15);
+
+                    list.innerHTML = '';
+                    if (uniqueValues.length > 0) {
+                        uniqueValues.forEach(v => {
+                            const div = document.createElement('div');
+                            div.className = 'suggestion-item';
+                            div.textContent = v;
+                            div.onclick = () => {
+                                input.value = v;
+                                list.style.display = 'none';
+                                render();
+                            };
+                            list.appendChild(div);
+                        });
+                        list.style.display = 'block';
+                    } else list.style.display = 'none';
+                };
+            });
+        }
+
+        function render() {
+            const tbody = document.getElementById('tableBody');
+            const rate = parseFloat(document.getElementById('exchangeRate').value) || 1;
+            const filters = {
+                cat: document.getElementById('searchCat').value.toLowerCase(),
+                supp: document.getElementById('searchSupplier').value.toLowerCase(),
+                name: document.getElementById('searchName').value.toLowerCase(),
+                qty: document.getElementById('searchQty').value.toLowerCase()
+            };
+            
+            tbody.innerHTML = '';
+            allData.filter(row => 
+                String(row['التصنيف']||'').toLowerCase().includes(filters.cat) &&
+                String(row['المورد']||'').toLowerCase().includes(filters.supp) &&
+                String(row['الصنف']||'').toLowerCase().includes(filters.name) &&
+                String(row['الكمية']||'').toLowerCase().includes(filters.qty)
+            ).forEach((row, i) => {
+                const buy = parseFloat(String(row['شراء']).replace(/[^\d.]/g, '')) || 0;
+                const disc = parseFloat(String(row['الحسم']).replace(/[^\d.]/g, '')) || 0;
+                const final = buy - (buy * disc / 100);
+                const plus = final * 1.15;
+                const syp = plus * rate;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="text-gray-400 text-[10px]">${i + 1}</td>
+                    <td><span class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-[11px] font-bold">${row['التصنيف'] || ''}</span></td>
+                    <td class="text-[11px] text-gray-500">${row['المورد'] || ''}</td>
+                    <td class="text-right font-bold text-gray-800">${row['الصنف'] || ''}</td>
+                    <td class="font-bold">${row['الكمية'] || ''}</td>
+                    <td>${buy.toFixed(2)}</td>
+                    <td class="text-red-500">${disc}%</td>
+                    <td>${final.toFixed(2)}</td>
+                    <td class="bg-orange-50 font-bold">${plus.toFixed(2)}</td>
+                    <td class="bg-green-50 text-green-700 font-bold">${Math.round(syp).toLocaleString()}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-wrapper')) {
+                document.querySelectorAll('.suggestions-list').forEach(l => l.style.display = 'none');
+            }
         });
 
-        alert("تم الحفظ في ورقة " + sheet);
-        location.reload();
-    }
-
-    function renderTable(id, data) {
-        let h = '<table class="table table-hover"><thead><tr>';
-        data[0].forEach(cell => h += `<th>${cell}</th>`);
-        h += '</tr></thead><tbody>';
-        for(let i=1; i<data.length; i++){
-            h += '<tr>';
-            data[i].forEach(cell => h += `<td>${cell}</td>`);
-            h += '</tr>';
+        function initPrintOptions() {
+            const container = document.getElementById('columnCheckboxes');
+            columns.forEach(col => {
+                const label = document.createElement('label');
+                label.className = 'flex items-center gap-2 cursor-pointer';
+                label.innerHTML = `<input type="checkbox" checked data-col-ref="${col.id}"> ${col.label}`;
+                container.appendChild(label);
+            });
         }
-        document.getElementById(id).innerHTML = h + '</tbody></table>';
-    }
 
-    window.onload = loadData;
-</script>
+        function togglePrintOptions() {
+            const div = document.getElementById('printOptions');
+            div.style.display = div.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function preparePrint() { window.print(); }
+
+        document.querySelectorAll('.search-input').forEach(el => el.addEventListener('input', render));
+        document.getElementById('exchangeRate').addEventListener('input', render);
+        window.onload = () => { initPrintOptions(); fetchData(); };
+    </script>
 </body>
 </html>
+
+```
