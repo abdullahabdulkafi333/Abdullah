@@ -3,85 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>معرض ال.جي - كشف </title>
+    <title>معرض ال.جي - نظام المحاسبة</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
         
+        :root {
+            --primary: #3b82f6;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+        }
+        
         body { 
             font-family: 'Cairo', sans-serif; 
-            background: #f8fafc; 
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             margin: 0; 
-            color: #334155;
-            font-size: 0.8rem; 
+            color: var(--dark);
+            font-size: 0.85rem;
+            min-height: 100vh;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
         .table-container { 
-            max-height: 78vh; 
+            max-height: 70vh; 
             overflow-y: auto; 
             background: white; 
-            border-radius: 12px; 
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e2e8f0;
+            border-radius: 16px; 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(226, 232, 240, 0.6);
         }
 
         table { width: 100%; border-collapse: separate; border-spacing: 0; }
 
         thead th { 
             position: sticky; top: 0; z-index: 20; 
-            background-color: #3b82f6; color: white; 
-            padding: 12px 8px; font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, #2563eb 100%); 
+            color: white; 
+            padding: 14px 10px; 
+            font-weight: 800;
             font-size: 0.85rem;
+            border-bottom: 3px solid rgba(255, 255, 255, 0.3);
         }
 
-        td { padding: 8px 4px; border-bottom: 1px solid #f1f5f9; text-align: center; }
+        td { 
+            padding: 10px 8px; 
+            border-bottom: 1px solid rgba(241, 245, 249, 0.8); 
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:hover td {
+            background: rgba(59, 130, 246, 0.05);
+            transform: translateY(-1px);
+        }
 
         .search-wrapper { position: relative; width: 100%; }
 
         .input-glass {
             background: rgba(255, 255, 255, 0.95);
-            border: 1px solid #cbd5e1;
-            color: #1e293b !important;
-            border-radius: 6px;
-            padding: 6px 10px;
-            font-size: 0.8rem;
+            border: 2px solid rgba(203, 213, 225, 0.3);
+            color: var(--dark) !important;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.85rem;
             width: 100%;
             font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .input-glass:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         .suggestions-list {
             position: absolute;
             top: 100%; left: 0; right: 0;
             background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 0 0 6px 6px;
-            max-height: 150px;
+            border: 2px solid rgba(226, 232, 240, 0.8);
+            border-radius: 0 0 10px 10px;
+            max-height: 200px;
             overflow-y: auto;
             z-index: 50;
             display: none;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-            color: #000000 !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            color: var(--dark) !important;
         }
 
         .suggestion-item {
-            padding: 8px 10px;
+            padding: 10px 14px;
             cursor: pointer;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 0.75rem;
-            color: #000000 !important;
+            border-bottom: 1px solid rgba(241, 245, 249, 0.8);
+            font-size: 0.8rem;
+            color: var(--dark) !important;
             text-align: right;
+            transition: all 0.2s ease;
         }
 
-        .suggestion-item:hover { background: #eff6ff; color: #2563eb !important; }
+        .suggestion-item:hover { 
+            background: rgba(59, 130, 246, 0.1); 
+            color: var(--primary) !important; 
+            padding-right: 20px;
+        }
 
         .suggestion-item.active {
-            background: #3b82f6 !important;
+            background: var(--primary) !important;
             color: white !important;
         }
 
-        header { padding: 1.2rem 1rem !important; }
+        header { padding: 1.2rem 1.5rem !important; }
 
         @media print {
             @page { size: A4; margin: 1cm; }
@@ -96,37 +137,74 @@
         #printOptions {
             display: none;
             position: absolute;
-            top: 80px; left: 20px;
-            background: white; padding: 15px;
-            border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            z-index: 100; border: 1px solid #cbd5e1;
+            top: 100px; left: 20px;
+            background: white; padding: 20px;
+            border-radius: 12px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            z-index: 100; 
+            border: 2px solid rgba(203, 213, 225, 0.5);
         }
 
+        /* تصميم جديد للتبويبات */
         .tab-buttons {
             display: flex;
-            background: #e2e8f0;
-            border-radius: 8px;
-            padding: 4px;
-            margin-bottom: 16px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+            padding: 6px;
+            margin-bottom: 20px;
+            gap: 8px;
+            border: 2px solid rgba(226, 232, 240, 0.5);
         }
 
         .tab-button {
             flex: 1;
-            padding: 8px 16px;
+            padding: 12px 20px;
             text-align: center;
             cursor: pointer;
-            border-radius: 6px;
-            font-weight: 600;
-            transition: all 0.3s;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            color: var(--dark);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .tab-button:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
         }
 
         .tab-button.active {
-            background: #3b82f6;
-            color: white;
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .tab-button.active::before {
+            transform: translateY(0);
         }
 
         .content-section {
             display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .content-section.active {
@@ -134,18 +212,37 @@
         }
 
         .summary-card {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            border: 1px solid #e2e8f0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.9) 100%);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            border: 2px solid rgba(226, 232, 240, 0.5);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--primary);
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
         }
 
         .summary-value {
-            font-size: 1.5rem;
-            font-weight: 800;
-            margin-top: 5px;
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-top: 8px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
 
         .positive { color: #10b981; }
@@ -153,80 +250,256 @@
         .neutral { color: #6b7280; }
 
         .transaction-type {
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
         }
 
-        .purchase-type { background: #fef3c7; color: #92400e; }
-        .sale-type { background: #d1fae5; color: #065f46; }
+        .purchase-type { 
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); 
+            color: #92400e; 
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+        
+        .sale-type { 
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); 
+            color: #065f46; 
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
 
-        .balance-positive { background: #d1fae5; color: #065f46; }
-        .balance-negative { background: #fee2e2; color: #991b1b; }
-        .balance-neutral { background: #e5e7eb; color: #374151; }
+        .balance-positive { 
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); 
+            color: #065f46; 
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .balance-negative { 
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); 
+            color: #991b1b; 
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .balance-neutral { 
+            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%); 
+            color: #374151; 
+            border: 1px solid rgba(107, 114, 128, 0.3);
+        }
+
+        /* تصميم الأزرار */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(107, 114, 128, 0.4);
+        }
+
+        /* إشعارات */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-right: 5px solid var(--primary);
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.4s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        /* شريط التحميل */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(59, 130, 246, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* تحسين شريط البحث */
+        .search-header {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(226, 232, 240, 0.5);
+        }
     </style>
 </head>
 <body>
 
-    <div id="loader" class="fixed inset-0 bg-white/90 z-[100] flex flex-col items-center justify-center">
-        <div class="animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent"></div>
-        <p class="mt-4 text-gray-600">جاري تحميل البيانات...</p>
+    <div id="loader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center">
+        <div class="loader-spinner"></div>
+        <p class="mt-6 text-lg font-bold text-gray-700">جاري تحميل البيانات...</p>
+        <p class="mt-2 text-sm text-gray-500">يرجى الانتظار قليلاً</p>
     </div>
 
-    <header class="bg-blue-600 text-white shadow-lg mb-4 sticky top-0 z-30 no-print">
+    <div id="notification" class="notification">
+        <div class="flex items-center gap-3">
+            <i class="fas fa-check-circle text-green-500 text-lg"></i>
+            <div>
+                <p class="font-bold text-sm" id="notification-title">تم العملية بنجاح</p>
+                <p class="text-xs text-gray-600" id="notification-message"></p>
+            </div>
+        </div>
+    </div>
+
+    <header class="bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-xl mb-6 sticky top-0 z-30 no-print glass-effect">
         <div class="container mx-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h1 class="text-xl font-bold">معرض ال.جي - نظام المحاسبة</h1>
+            <div class="flex justify-between items-center mb-6">
                 <div class="flex items-center gap-3">
-                    <button onclick="togglePrintOptions()" class="bg-blue-500 hover:bg-blue-400 px-3 py-1.5 rounded text-xs font-bold border border-blue-400">خيارات الطباعة</button>
-                    <button onclick="preparePrint()" class="bg-green-600 hover:bg-green-500 px-4 py-1.5 rounded text-xs font-bold border border-green-500">طباعة</button>
-                    <div class="flex items-center gap-2 bg-blue-700/40 p-2 rounded-lg border border-blue-400/30">
-                        <span class="text-xs">الصرف:</span>
-                        <input type="number" id="exchangeRate" value="12000" class="bg-transparent border-none text-white text-center font-bold text-sm focus:ring-0" style="width: 4.5rem;">
+                    <div class="bg-white p-2 rounded-xl">
+                        <i class="fas fa-store text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-black">معرض ال.جي</h1>
+                        <p class="text-blue-100 text-xs">نظام إدارة المخزون والمحاسبة</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="togglePrintOptions()" class="btn-secondary">
+                        <i class="fas fa-print ml-2"></i> خيارات الطباعة
+                    </button>
+                    <button onclick="preparePrint()" class="btn-primary">
+                        <i class="fas fa-print ml-2"></i> طباعة
+                    </button>
+                    <div class="bg-blue-800/30 p-3 rounded-xl border border-blue-500/30 glass-effect">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-exchange-alt text-blue-200"></i>
+                            <span class="text-xs text-blue-100">سعر الصرف:</span>
+                            <input type="number" id="exchangeRate" value="12000" 
+                                   class="bg-transparent border-none text-white text-center font-bold text-base focus:ring-0 w-24"
+                                   min="1" step="100">
+                            <span class="text-xs text-blue-200">ل.س/دولار</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="tab-buttons mb-4">
-                <div class="tab-button active" onclick="switchTab('prices')">لائحة الأسعار</div>
-                <div class="tab-button" onclick="switchTab('accounts')">كشف الحساب</div>
+            <div class="tab-buttons">
+                <div class="tab-button active" onclick="switchTab('prices')">
+                    <i class="fas fa-tags ml-2"></i> لائحة الأسعار
+                </div>
+                <div class="tab-button" onclick="switchTab('accounts')">
+                    <i class="fas fa-file-invoice-dollar ml-2"></i> كشف الحساب
+                </div>
             </div>
 
             <!-- لائحة الأسعار (الواجهة الأصلية) -->
             <div id="prices-search" class="tab-content active">
-                <div class="grid grid-cols-4 gap-3 pb-2">
-                    <div class="search-wrapper">
-                        <input type="text" id="searchCat" placeholder="التصنيف" class="input-glass search-input" autocomplete="off">
-                        <div id="suggestCat" class="suggestions-list"></div>
-                    </div>
-                    <div class="search-wrapper">
-                        <input type="text" id="searchSupplier" placeholder="المورد" class="input-glass search-input" autocomplete="off">
-                        <div id="suggestSupplier" class="suggestions-list"></div>
-                    </div>
-                    <div class="search-wrapper">
-                        <input type="text" id="searchName" placeholder="الصنف" class="input-glass search-input" autocomplete="off">
-                        <div id="suggestName" class="suggestions-list"></div>
-                    </div>
-                    <div class="search-wrapper">
-                        <input type="text" id="searchQty" placeholder="الكمية" class="input-glass search-input" autocomplete="off">
-                        <div id="suggestQty" class="suggestions-list"></div>
+                <div class="search-header">
+                    <div class="grid grid-cols-4 gap-4">
+                        <div class="search-wrapper">
+                            <div class="relative">
+                                <i class="fas fa-filter absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="searchCat" placeholder="بحث في التصنيف" class="input-glass search-input pl-10" autocomplete="off">
+                            </div>
+                            <div id="suggestCat" class="suggestions-list"></div>
+                        </div>
+                        <div class="search-wrapper">
+                            <div class="relative">
+                                <i class="fas fa-truck absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="searchSupplier" placeholder="بحث في الموردين" class="input-glass search-input pl-10" autocomplete="off">
+                            </div>
+                            <div id="suggestSupplier" class="suggestions-list"></div>
+                        </div>
+                        <div class="search-wrapper">
+                            <div class="relative">
+                                <i class="fas fa-box absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="searchName" placeholder="بحث في الأصناف" class="input-glass search-input pl-10" autocomplete="off">
+                            </div>
+                            <div id="suggestName" class="suggestions-list"></div>
+                        </div>
+                        <div class="search-wrapper">
+                            <div class="relative">
+                                <i class="fas fa-hashtag absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="searchQty" placeholder="بحث في الكمية" class="input-glass search-input pl-10" autocomplete="off">
+                            </div>
+                            <div id="suggestQty" class="suggestions-list"></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- كشف الحساب (الواجهة الجديدة) -->
             <div id="accounts-search" class="tab-content" style="display: none;">
-                <div class="grid grid-cols-3 gap-3 pb-2">
-                    <div class="search-wrapper">
-                        <input type="text" id="searchAccount" placeholder="اسم الحساب (مورد أو عميل)" class="input-glass search-input" autocomplete="off">
-                        <div id="suggestAccount" class="suggestions-list"></div>
+                <div class="search-header">
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="search-wrapper col-span-2">
+                            <div class="relative">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="searchAccount" placeholder="ابحث عن اسم المورد (من المشتريات) أو العميل (من المبيعات)" 
+                                       class="input-glass search-input pl-10" autocomplete="off">
+                            </div>
+                            <div id="suggestAccount" class="suggestions-list"></div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="loadAccountStatement()" class="btn-primary flex-1">
+                                <i class="fas fa-search ml-2"></i> بحث
+                            </button>
+                            <button onclick="clearAccountSearch()" class="btn-secondary">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div class="search-wrapper">
-                        <button onclick="loadAccountStatement()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-bold">بحث</button>
-                    </div>
-                    <div class="search-wrapper">
-                        <button onclick="clearAccountSearch()" class="w-full bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg font-bold">إلغاء</button>
+                    <div class="mt-3 text-xs text-gray-600 flex items-center gap-2">
+                        <i class="fas fa-info-circle"></i>
+                        <span>ابحث عن اسم المورد من جدول المشتريات أو اسم العميل من جدول المبيعات</span>
                     </div>
                 </div>
             </div>
@@ -234,19 +507,36 @@
     </header>
 
     <div id="printOptions" class="no-print">
-        <p class="font-bold text-xs mb-2">أعمدة الطباعة:</p>
-        <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-xs" id="columnCheckboxes"></div>
-        <button onclick="togglePrintOptions()" class="mt-4 w-full bg-blue-600 text-white py-1.5 rounded text-xs font-bold">حفظ</button>
+        <div class="flex justify-between items-center mb-3">
+            <p class="font-bold text-sm">خيارات الطباعة المتقدمة</p>
+            <button onclick="togglePrintOptions()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <p class="text-xs text-gray-600 mb-3">اختر الأعمدة المراد طباعتها:</p>
+        <div class="grid grid-cols-2 gap-x-8 gap-y-3 text-sm" id="columnCheckboxes"></div>
+        <button onclick="togglePrintOptions()" class="mt-6 w-full btn-primary">حفظ الإعدادات</button>
     </div>
 
-    <main class="container mx-auto px-4">
+    <main class="container mx-auto px-6 pb-10">
         <!-- قسم لائحة الأسعار -->
         <div id="prices-section" class="content-section active">
+            <div class="mb-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-black text-gray-800">
+                        <i class="fas fa-list-alt text-blue-600 ml-2"></i> لائحة الأسعار الشاملة
+                    </h2>
+                    <div class="text-sm text-gray-600">
+                        <span id="prices-count">0</span> صنف
+                    </div>
+                </div>
+            </div>
+            
             <div class="table-container">
                 <table id="mainTable">
                     <thead>
                         <tr>
-                            <th data-col="index" class="w-12">#</th>
+                            <th data-col="index" class="w-16">#</th>
                             <th data-col="cat">التصنيف</th>
                             <th data-col="supp">المورد</th>
                             <th data-col="item">الصنف</th>
@@ -266,43 +556,93 @@
         <!-- قسم كشف الحساب -->
         <div id="accounts-section" class="content-section">
             <!-- بطاقات الملخص -->
-            <div class="grid grid-cols-4 gap-4 mb-6">
-                <div class="summary-card">
-                    <div class="text-gray-500 text-sm">إجمالي المشتريات</div>
-                    <div class="summary-value" id="totalPurchases">0 $</div>
-                </div>
-                <div class="summary-card">
-                    <div class="text-gray-500 text-sm">إجمالي المبيعات</div>
-                    <div class="summary-value positive" id="totalSales">0 $</div>
-                </div>
-                <div class="summary-card">
-                    <div class="text-gray-500 text-sm">الرصيد الحالي</div>
-                    <div class="summary-value neutral" id="currentBalance">0 $</div>
-                </div>
-                <div class="summary-card">
-                    <div class="text-gray-500 text-sm">عدد المعاملات</div>
-                    <div class="summary-value" id="transactionCount">0</div>
+            <div class="mb-8">
+                <h2 class="text-xl font-black text-gray-800 mb-6">
+                    <i class="fas fa-chart-line text-green-600 ml-2"></i> ملخص الحساب
+                </h2>
+                <div class="grid grid-cols-4 gap-6">
+                    <div class="summary-card">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="bg-red-100 p-2 rounded-lg">
+                                <i class="fas fa-shopping-cart text-red-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-gray-500 text-sm">إجمالي المشتريات</div>
+                                <div class="summary-value" id="totalPurchases">0 $</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-400 mt-3">من مورد: <span id="account-name">---</span></div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="bg-green-100 p-2 rounded-lg">
+                                <i class="fas fa-cash-register text-green-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-gray-500 text-sm">إجمالي المبيعات</div>
+                                <div class="summary-value positive" id="totalSales">0 $</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-400 mt-3">لعميل: <span id="account-name-sales">---</span></div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="bg-blue-100 p-2 rounded-lg">
+                                <i class="fas fa-scale-balanced text-blue-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-gray-500 text-sm">الرصيد الحالي</div>
+                                <div class="summary-value neutral" id="currentBalance">0 $</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-400 mt-3">آخر تحديث: الآن</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="bg-purple-100 p-2 rounded-lg">
+                                <i class="fas fa-receipt text-purple-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-gray-500 text-sm">عدد المعاملات</div>
+                                <div class="summary-value" id="transactionCount">0</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-400 mt-3">مشتريات + مبيعات</div>
+                    </div>
                 </div>
             </div>
 
             <!-- جدول كشف الحساب -->
-            <div class="table-container">
-                <table id="accountTable">
-                    <thead>
-                        <tr>
-                            <th>التاريخ</th>
-                            <th>نوع المعاملة</th>
-                            <th>رقم الفاتورة</th>
-                            <th>الصنف</th>
-                            <th>الكمية</th>
-                            <th>السعر ($)</th>
-                            <th>الإجمالي ($)</th>
-                            <th>الإجمالي (ل.س)</th>
-                            <th>الرصيد ($)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="accountBody"></tbody>
-                </table>
+            <div>
+                <h2 class="text-xl font-black text-gray-800 mb-6">
+                    <i class="fas fa-history text-orange-600 ml-2"></i> كشف المعاملات
+                </h2>
+                <div class="table-container">
+                    <table id="accountTable">
+                        <thead>
+                            <tr>
+                                <th>التاريخ</th>
+                                <th>نوع المعاملة</th>
+                                <th>رقم الفاتورة</th>
+                                <th>الصنف</th>
+                                <th>الكمية</th>
+                                <th>السعر ($)</th>
+                                <th>الإجمالي ($)</th>
+                                <th>الإجمالي (ل.س)</th>
+                                <th>الرصيد ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="accountBody">
+                            <tr>
+                                <td colspan="9" class="text-center py-12 text-gray-400">
+                                    <i class="fas fa-search text-3xl mb-4"></i>
+                                    <p class="text-lg font-bold">ابحث عن حساب لعرض المعاملات</p>
+                                    <p class="text-sm mt-2">ادخل اسم المورد أو العميل في شريط البحث أعلاه</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
@@ -316,11 +656,46 @@
         let allPriceData = [];
         let allPurchasesData = [];
         let allSalesData = [];
-        const columns = [{id:'index',label:'#'},{id:'cat',label:'التصنيف'},{id:'supp',label:'المورد'},{id:'item',label:'الصنف'},{id:'qty',label:'الكمية'},{id:'buy',label:'شراء'},{id:'disc',label:'حسم'},{id:'final',label:'صافي'},{id:'plus',label:'البيع($)'},{id:'syp',label:'سوري'}];
+        const columns = [
+            {id:'index',label:'#'},
+            {id:'cat',label:'التصنيف'},
+            {id:'supp',label:'المورد'},
+            {id:'item',label:'الصنف'},
+            {id:'qty',label:'الكمية'},
+            {id:'buy',label:'شراء'},
+            {id:'disc',label:'حسم'},
+            {id:'final',label:'صافي'},
+            {id:'plus',label:'البيع($)'},
+            {id:'syp',label:'سوري'}
+        ];
         
         let currentFocus = -1;
         let activeList = null;
         let suggestionItems = [];
+
+        // دالة لعرض الإشعارات
+        function showNotification(title, message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const titleEl = document.getElementById('notification-title');
+            const messageEl = document.getElementById('notification-message');
+            
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            
+            if (type === 'error') {
+                titleEl.parentElement.querySelector('i').className = 'fas fa-exclamation-circle text-red-500 text-lg';
+            } else if (type === 'warning') {
+                titleEl.parentElement.querySelector('i').className = 'fas fa-exclamation-triangle text-yellow-500 text-lg';
+            } else {
+                titleEl.parentElement.querySelector('i').className = 'fas fa-check-circle text-green-500 text-lg';
+            }
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
 
         // وظيفة تبديل التبويبات
         function switchTab(tabName) {
@@ -356,11 +731,17 @@
                 Papa.parse(csvText.split('\n').slice(1).join('\n'), {
                     header: true, skipEmptyLines: true,
                     complete: (res) => {
-                        allPriceData = res.data;
+                        allPriceData = res.data.filter(row => Object.keys(row).length > 0);
                         if (allPriceData.length > 0) allPriceData.pop();
                         render();
                         setupDropdowns();
+                        updatePricesCount();
                         document.getElementById('loader').classList.add('hidden');
+                        showNotification('تم التحميل', `تم تحميل ${allPriceData.length} صنف في لائحة الأسعار`);
+                    },
+                    error: (err) => {
+                        console.error('خطأ في تحليل بيانات الأسعار:', err);
+                        showNotification('خطأ', 'فشل تحميل بيانات الأسعار', 'error');
                     }
                 });
 
@@ -372,8 +753,12 @@
                     Papa.parse(purchasesCsvText, {
                         header: true, skipEmptyLines: true,
                         complete: (res) => {
-                            allPurchasesData = res.data;
+                            allPurchasesData = res.data.filter(row => Object.keys(row).length > 0);
                             console.log('بيانات المشتريات:', allPurchasesData.length, 'سجل');
+                            console.log('أعمدة المشتريات:', Object.keys(allPurchasesData[0] || {}));
+                        },
+                        error: (err) => {
+                            console.error('خطأ في تحليل بيانات المشتريات:', err);
                         }
                     });
                 } catch (e) {
@@ -388,8 +773,12 @@
                     Papa.parse(salesCsvText, {
                         header: true, skipEmptyLines: true,
                         complete: (res) => {
-                            allSalesData = res.data;
+                            allSalesData = res.data.filter(row => Object.keys(row).length > 0);
                             console.log('بيانات المبيعات:', allSalesData.length, 'سجل');
+                            console.log('أعمدة المبيعات:', Object.keys(allSalesData[0] || {}));
+                        },
+                        error: (err) => {
+                            console.error('خطأ في تحليل بيانات المبيعات:', err);
                         }
                     });
                 } catch (e) {
@@ -399,7 +788,29 @@
             } catch (e) { 
                 console.error('خطأ في تحميل البيانات:', e);
                 document.getElementById('loader').classList.add('hidden');
+                showNotification('خطأ', 'فشل في تحميل البيانات', 'error');
             }
+        }
+
+        function updatePricesCount() {
+            const filteredData = filterPriceData();
+            document.getElementById('prices-count').textContent = filteredData.length;
+        }
+
+        function filterPriceData() {
+            const filters = {
+                cat: document.getElementById('searchCat').value.toLowerCase(),
+                supp: document.getElementById('searchSupplier').value.toLowerCase(),
+                name: document.getElementById('searchName').value.toLowerCase(),
+                qty: document.getElementById('searchQty').value.toLowerCase()
+            };
+            
+            return allPriceData.filter(row => 
+                String(row['التصنيف']||'').toLowerCase().includes(filters.cat) &&
+                String(row['المورد']||'').toLowerCase().includes(filters.supp) &&
+                String(row['الصنف']||'').toLowerCase().includes(filters.name) &&
+                String(row['الكمية']||'').toLowerCase().includes(filters.qty)
+            );
         }
 
         // وظائف لائحة الأسعار (الكود الأصلي بدون تعديل)
@@ -448,7 +859,7 @@
                 };
 
                 input.onfocus = function() { updateList(); activeList = list; };
-                input.oninput = function() { updateList(); activeList = list; };
+                input.oninput = function() { updateList(); activeList = list; render(); };
                 
                 input.onkeydown = function(e) {
                     if (!activeList || activeList.style.display === 'none') return;
@@ -500,39 +911,45 @@
         function render() {
             const tbody = document.getElementById('tableBody');
             const rate = parseFloat(document.getElementById('exchangeRate').value) || 1;
-            const filters = {
-                cat: document.getElementById('searchCat').value.toLowerCase(),
-                supp: document.getElementById('searchSupplier').value.toLowerCase(),
-                name: document.getElementById('searchName').value.toLowerCase(),
-                qty: document.getElementById('searchQty').value.toLowerCase()
-            };
+            const filteredData = filterPriceData();
+            
             tbody.innerHTML = '';
-            allPriceData.filter(row => 
-                String(row['التصنيف']||'').toLowerCase().includes(filters.cat) &&
-                String(row['المورد']||'').toLowerCase().includes(filters.supp) &&
-                String(row['الصنف']||'').toLowerCase().includes(filters.name) &&
-                String(row['الكمية']||'').toLowerCase().includes(filters.qty)
-            ).forEach((row, i) => {
-                const buy = parseFloat(String(row['شراء']).replace(/[^\d.]/g, '')) || 0;
-                const disc = parseFloat(String(row['الحسم']).replace(/[^\d.]/g, '')) || 0;
-                const final = buy - (buy * disc / 100);
-                const plus = final * 1.15;
-                const syp = plus * rate;
+            
+            if (filteredData.length === 0) {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="text-gray-400 text-[10px]">${i + 1}</td>
-                    <td><span class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-[11px] font-bold">${row['التصنيف'] || ''}</span></td>
-                    <td class="text-[11px] text-gray-500">${row['المورد'] || ''}</td>
-                    <td class="text-right font-bold text-gray-800">${row['الصنف'] || ''}</td>
-                    <td class="font-bold">${row['الكمية'] || ''}</td>
-                    <td>${buy.toFixed(2)}</td>
-                    <td class="text-red-500">${disc}%</td>
-                    <td>${final.toFixed(2)}</td>
-                    <td class="bg-orange-50 font-bold">${plus.toFixed(2)}</td>
-                    <td class="bg-green-50 text-green-700 font-bold">${Math.round(syp).toLocaleString()}</td>
+                    <td colspan="10" class="text-center py-12 text-gray-400">
+                        <i class="fas fa-search text-3xl mb-4"></i>
+                        <p class="text-lg font-bold">لا توجد نتائج</p>
+                        <p class="text-sm mt-2">جرب مصطلحات بحث مختلفة</p>
+                    </td>
                 `;
                 tbody.appendChild(tr);
-            });
+            } else {
+                filteredData.forEach((row, i) => {
+                    const buy = parseFloat(String(row['شراء']).replace(/[^\d.]/g, '')) || 0;
+                    const disc = parseFloat(String(row['الحسم']).replace(/[^\d.]/g, '')) || 0;
+                    const final = buy - (buy * disc / 100);
+                    const plus = final * 1.15;
+                    const syp = plus * rate;
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="text-gray-400 text-[10px] font-bold">${i + 1}</td>
+                        <td><span class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold border border-blue-100">${row['التصنيف'] || ''}</span></td>
+                        <td class="text-gray-700 text-xs">${row['المورد'] || ''}</td>
+                        <td class="text-right font-bold text-gray-800">${row['الصنف'] || ''}</td>
+                        <td class="font-bold text-gray-700">${row['الكمية'] || ''}</td>
+                        <td class="text-gray-600">${buy.toFixed(2)}</td>
+                        <td class="text-red-500 font-bold">${disc}%</td>
+                        <td class="text-gray-700 font-bold">${final.toFixed(2)}</td>
+                        <td class="bg-orange-50 font-bold text-orange-700 border border-orange-100">${plus.toFixed(2)}</td>
+                        <td class="bg-green-50 text-green-700 font-bold border border-green-100">${Math.round(syp).toLocaleString()}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+            
+            updatePricesCount();
         }
 
         // وظائف كشف الحساب الجديدة
@@ -541,11 +958,16 @@
             const list = document.getElementById('suggestAccount');
 
             const updateList = () => {
-                const val = input.value.toLowerCase();
+                const val = input.value.trim().toLowerCase();
+                if (val.length < 2) {
+                    list.style.display = 'none';
+                    activeList = null;
+                    return;
+                }
                 
                 let accountNames = [];
                 
-                // جمع أسماء الموردين من المشتريات
+                // جمع أسماء الموردين من المشتريات (عمود "المورد")
                 if (allPurchasesData && allPurchasesData.length > 0) {
                     const purchaseAccounts = allPurchasesData
                         .map(row => row['المورد'] || '')
@@ -553,7 +975,7 @@
                     accountNames = [...accountNames, ...purchaseAccounts];
                 }
                 
-                // جمع أسماء العملاء من المبيعات
+                // جمع أسماء العملاء من المبيعات (عمود "العميل")
                 if (allSalesData && allSalesData.length > 0) {
                     const saleAccounts = allSalesData
                         .map(row => row['العميل'] || '')
@@ -564,7 +986,7 @@
                 // إزالة التكرارات
                 const uniqueAccounts = [...new Set(accountNames)]
                     .filter(v => v.toLowerCase().includes(val))
-                    .slice(0, 15);
+                    .slice(0, 20);
 
                 list.innerHTML = '';
                 suggestionItems = [];
@@ -596,6 +1018,12 @@
             input.oninput = updateList;
             
             input.onkeydown = function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    loadAccountStatement();
+                    return;
+                }
+                
                 if (!activeList || activeList.style.display === 'none') return;
                 
                 const items = activeList.getElementsByClassName('suggestion-item');
@@ -612,8 +1040,6 @@
                     e.preventDefault();
                     if (currentFocus > -1 && items[currentFocus]) {
                         items[currentFocus].click();
-                    } else {
-                        loadAccountStatement();
                     }
                 } else if (e.key === 'Escape') {
                     activeList.style.display = 'none';
@@ -623,28 +1049,43 @@
         }
 
         function loadAccountStatement() {
-            const accountName = document.getElementById('searchAccount').value;
+            const accountName = document.getElementById('searchAccount').value.trim();
             const rate = parseFloat(document.getElementById('exchangeRate').value) || 1;
             
-            if (!accountName || accountName.trim() === '') {
-                alert('الرجاء إدخال اسم الحساب للبحث');
+            if (!accountName || accountName.length < 2) {
+                showNotification('تنبيه', 'الرجاء إدخال اسم حساب مكون من حرفين على الأقل', 'warning');
                 return;
             }
             
             let allTransactions = [];
+            let foundInPurchases = false;
+            let foundInSales = false;
             
             // جمع معاملات المشتريات (البحث في عمود "المورد")
             if (allPurchasesData && allPurchasesData.length > 0) {
                 const purchaseTransactions = allPurchasesData
                     .filter(row => {
                         const rowAccount = row['المورد'] || '';
-                        return rowAccount.toLowerCase().includes(accountName.toLowerCase());
+                        const match = rowAccount.toLowerCase().includes(accountName.toLowerCase());
+                        if (match) foundInPurchases = true;
+                        return match;
                     })
                     .map(row => {
                         // حساب الإجمالي من "ا.دولار" أو من السعر والكمية
                         let totalUSD = 0;
+                        let unitPrice = 0;
+                        
+                        // محاولة الحصول على السعر من أعمدة مختلفة
+                        if (row['السعر']) {
+                            unitPrice = parseFloat(String(row['السعر']).replace(/[^\d.]/g, '')) || 0;
+                        } else if (row['سعر']) {
+                            unitPrice = parseFloat(String(row['سعر']).replace(/[^\d.]/g, '')) || 0;
+                        }
+                        
                         if (row['ا.دولار']) {
                             totalUSD = parseFloat(String(row['ا.دولار']).replace(/[^\d.]/g, '')) || 0;
+                        } else if (row['ا دولار']) {
+                            totalUSD = parseFloat(String(row['ا دولار']).replace(/[^\d.]/g, '')) || 0;
                         } else if (row['السعر'] && row['الكمية']) {
                             const price = parseFloat(String(row['السعر']).replace(/[^\d.]/g, '')) || 0;
                             const quantity = parseFloat(String(row['الكمية']).replace(/[^\d.]/g, '')) || 0;
@@ -654,10 +1095,10 @@
                         return {
                             date: row['التاريخ'] || '',
                             type: 'شراء',
-                            invoiceNo: row['الفاتورة'] || '',
+                            invoiceNo: row['الفاتورة'] || row['فاتورة'] || '',
                             itemName: row['الصنف'] || '',
                             quantity: row['الكمية'] || '1',
-                            unitPrice: parseFloat(String(row['السعر']).replace(/[^\d.]/g, '')) || 0,
+                            unitPrice: unitPrice,
                             totalUSD: totalUSD,
                             totalSYP: totalUSD * rate,
                             notes: ''
@@ -672,13 +1113,26 @@
                 const saleTransactions = allSalesData
                     .filter(row => {
                         const rowAccount = row['العميل'] || '';
-                        return rowAccount.toLowerCase().includes(accountName.toLowerCase());
+                        const match = rowAccount.toLowerCase().includes(accountName.toLowerCase());
+                        if (match) foundInSales = true;
+                        return match;
                     })
                     .map(row => {
                         // حساب الإجمالي من "ا.دولار" أو من السعر والكمية
                         let totalUSD = 0;
+                        let unitPrice = 0;
+                        
+                        // محاولة الحصول على السعر من أعمدة مختلفة
+                        if (row['السعر دولار']) {
+                            unitPrice = parseFloat(String(row['السعر دولار']).replace(/[^\d.]/g, '')) || 0;
+                        } else if (row['السعر']) {
+                            unitPrice = parseFloat(String(row['السعر']).replace(/[^\d.]/g, '')) || 0;
+                        }
+                        
                         if (row['ا.دولار']) {
                             totalUSD = parseFloat(String(row['ا.دولار']).replace(/[^\d.]/g, '')) || 0;
+                        } else if (row['ا دولار']) {
+                            totalUSD = parseFloat(String(row['ا دولار']).replace(/[^\d.]/g, '')) || 0;
                         } else if (row['السعر دولار'] && row['الكمية']) {
                             const price = parseFloat(String(row['السعر دولار']).replace(/[^\d.]/g, '')) || 0;
                             const quantity = parseFloat(String(row['الكمية']).replace(/[^\d.]/g, '')) || 0;
@@ -688,6 +1142,8 @@
                         let totalSYP = 0;
                         if (row['ا.سوري']) {
                             totalSYP = parseFloat(String(row['ا.سوري']).replace(/[^\d.]/g, '')) || 0;
+                        } else if (row['ا سوري']) {
+                            totalSYP = parseFloat(String(row['ا سوري']).replace(/[^\d.]/g, '')) || 0;
                         } else {
                             totalSYP = totalUSD * rate;
                         }
@@ -695,10 +1151,10 @@
                         return {
                             date: row['التاريخ'] || '',
                             type: 'بيع',
-                            invoiceNo: row['الفاتورة'] || '',
+                            invoiceNo: row['الفاتورة'] || row['فاتورة'] || '',
                             itemName: row['الصنف'] || '',
                             quantity: row['الكمية'] || '1',
-                            unitPrice: parseFloat(String(row['السعر دولار']).replace(/[^\d.]/g, '')) || 0,
+                            unitPrice: unitPrice,
                             totalUSD: totalUSD,
                             totalSYP: totalSYP,
                             notes: ''
@@ -706,6 +1162,13 @@
                     });
                 
                 allTransactions = [...allTransactions, ...saleTransactions];
+            }
+            
+            if (!foundInPurchases && !foundInSales) {
+                showNotification('لم يتم العثور', `لا توجد معاملات لحساب "${accountName}"`, 'warning');
+                renderAccountStatement([]);
+                updateSummaryCards([], accountName);
+                return;
             }
             
             // ترتيب حسب التاريخ
@@ -731,15 +1194,21 @@
             renderAccountStatement(allTransactions);
             
             // تحديث بطاقات الملخص
-            updateSummaryCards(allTransactions);
+            updateSummaryCards(allTransactions, accountName);
+            
+            // إظهار إشعار النجاح
+            const message = `تم العثور على ${allTransactions.length} معاملة ${foundInPurchases ? '(مشتريات)' : ''} ${foundInSales ? '(مبيعات)' : ''}`;
+            showNotification('تم البحث', message);
         }
 
         function clearAccountSearch() {
             document.getElementById('searchAccount').value = '';
             document.getElementById('accountBody').innerHTML = `
                 <tr>
-                    <td colspan="9" class="text-center py-8 text-gray-500">
-                        ادخل اسم الحساب للبحث
+                    <td colspan="9" class="text-center py-12 text-gray-400">
+                        <i class="fas fa-search text-3xl mb-4"></i>
+                        <p class="text-lg font-bold">ابحث عن حساب لعرض المعاملات</p>
+                        <p class="text-sm mt-2">ادخل اسم المورد أو العميل في شريط البحث أعلاه</p>
                     </td>
                 </tr>
             `;
@@ -751,6 +1220,8 @@
             document.getElementById('currentBalance').classList.remove('positive', 'negative', 'neutral');
             document.getElementById('currentBalance').classList.add('neutral');
             document.getElementById('transactionCount').textContent = '0';
+            document.getElementById('account-name').textContent = '---';
+            document.getElementById('account-name-sales').textContent = '---';
         }
 
         function renderAccountStatement(transactions) {
@@ -761,8 +1232,10 @@
             if (transactions.length === 0) {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td colspan="9" class="text-center py-8 text-gray-500">
-                        لا توجد معاملات لهذا الحساب
+                    <td colspan="9" class="text-center py-12 text-gray-400">
+                        <i class="fas fa-search text-3xl mb-4"></i>
+                        <p class="text-lg font-bold">لا توجد معاملات</p>
+                        <p class="text-sm mt-2">جرب اسم حساب مختلف</p>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -775,21 +1248,21 @@
                                     transaction.balance < 0 ? 'balance-negative' : 'balance-neutral';
                 
                 tr.innerHTML = `
-                    <td class="text-gray-600 text-[11px]">${transaction.date || 'غير محدد'}</td>
+                    <td class="text-gray-700 font-bold text-xs">${transaction.date || 'غير محدد'}</td>
                     <td><span class="transaction-type ${transaction.type === 'شراء' ? 'purchase-type' : 'sale-type'}">${transaction.type}</span></td>
                     <td class="font-bold text-blue-600">${transaction.invoiceNo || '-'}</td>
-                    <td class="text-right">${transaction.itemName}</td>
-                    <td>${transaction.quantity}</td>
-                    <td>${transaction.unitPrice.toFixed(2)}</td>
+                    <td class="text-right font-medium text-gray-800">${transaction.itemName}</td>
+                    <td class="font-bold text-gray-700">${transaction.quantity}</td>
+                    <td class="text-gray-600">${transaction.unitPrice.toFixed(2)}</td>
                     <td class="font-bold ${transaction.type === 'شراء' ? 'text-red-600' : 'text-green-600'}">${transaction.totalUSD.toFixed(2)}</td>
-                    <td class="text-gray-700">${Math.round(transaction.totalSYP).toLocaleString()}</td>
-                    <td><span class="${balanceClass} px-3 py-1 rounded-full text-xs font-bold">${transaction.balance.toFixed(2)}</span></td>
+                    <td class="text-gray-700 font-bold">${Math.round(transaction.totalSYP).toLocaleString()}</td>
+                    <td><span class="${balanceClass} px-3 py-1.5 rounded-full text-xs font-bold">${transaction.balance.toFixed(2)} $</span></td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function updateSummaryCards(transactions) {
+        function updateSummaryCards(transactions, accountName = '') {
             const totalPurchases = transactions
                 .filter(t => t.type === 'شراء')
                 .reduce((sum, t) => sum + t.totalUSD, 0);
@@ -806,16 +1279,25 @@
             document.getElementById('currentBalance').textContent = currentBalance.toFixed(2) + ' $';
             document.getElementById('transactionCount').textContent = transactionCount;
             
+            // تحديث أسماء الحسابات
+            if (accountName) {
+                document.getElementById('account-name').textContent = accountName;
+                document.getElementById('account-name-sales').textContent = accountName;
+            }
+            
             // تحديث لون الرصيد
             const balanceElement = document.getElementById('currentBalance');
             balanceElement.classList.remove('positive', 'negative', 'neutral');
             
             if (currentBalance > 0) {
                 balanceElement.classList.add('positive');
+                balanceElement.parentElement.parentElement.querySelector('.fa-scale-balanced').className = 'fas fa-scale-balanced text-green-600';
             } else if (currentBalance < 0) {
                 balanceElement.classList.add('negative');
+                balanceElement.parentElement.parentElement.querySelector('.fa-scale-balanced').className = 'fas fa-scale-balanced text-red-600';
             } else {
                 balanceElement.classList.add('neutral');
+                balanceElement.parentElement.parentElement.querySelector('.fa-scale-balanced').className = 'fas fa-scale-balanced text-blue-600';
             }
         }
 
@@ -823,8 +1305,12 @@
             const container = document.getElementById('columnCheckboxes');
             columns.forEach(col => {
                 const label = document.createElement('label');
-                label.className = 'flex items-center gap-2 cursor-pointer';
-                label.innerHTML = `<input type="checkbox" checked data-col-ref="${col.id}"> ${col.label}`;
+                label.className = 'flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded';
+                label.innerHTML = `
+                    <input type="checkbox" checked data-col-ref="${col.id}" 
+                           class="rounded text-blue-600 focus:ring-blue-500">
+                    <span>${col.label}</span>
+                `;
                 container.appendChild(label);
             });
         }
@@ -858,12 +1344,28 @@
             }
         });
         
-        document.getElementById('exchangeRate').addEventListener('input', render);
+        document.getElementById('exchangeRate').addEventListener('input', () => {
+            render();
+            if (document.getElementById('accounts-section').classList.contains('active')) {
+                loadAccountStatement();
+            }
+        });
 
         // إضافة مستمع لزر Enter في البحث
         document.getElementById('searchAccount').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
+                e.preventDefault();
                 loadAccountStatement();
+            }
+        });
+
+        // إغلاق خيارات الطباعة عند النقر خارجها
+        document.addEventListener('click', (e) => {
+            const printOptions = document.getElementById('printOptions');
+            if (printOptions.style.display === 'block' && 
+                !printOptions.contains(e.target) && 
+                !e.target.closest('button[onclick*="togglePrintOptions"]')) {
+                printOptions.style.display = 'none';
             }
         });
 
@@ -875,4 +1377,3 @@
     </script>
 </body>
 </html>
-
