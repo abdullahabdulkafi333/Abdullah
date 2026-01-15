@@ -480,13 +480,13 @@
                 
                 let accountNames = [];
                 
-                // جمع أسماء الموردين من المشتريات
+                // جمع أسماء الموردين من المشتريات (من عمود "المورد")
                 if (allPurchasesData && allPurchasesData.length > 0) {
                     const purchaseAccounts = allPurchasesData.map(row => row['المورد'] || '');
                     accountNames = [...accountNames, ...purchaseAccounts];
                 }
                 
-                // جمع أسماء العملاء من المبيعات
+                // جمع أسماء العملاء من المبيعات (من عمود "العميل")
                 if (allSalesData && allSalesData.length > 0) {
                     const saleAccounts = allSalesData.map(row => row['العميل'] || '');
                     accountNames = [...accountNames, ...saleAccounts];
@@ -624,12 +624,12 @@
             
             let allTransactions = [];
             
-            // جمع معاملات المشتريات
+            // جمع معاملات المشتريات (البحث في عمود "المورد")
             if (allPurchasesData && allPurchasesData.length > 0) {
                 const purchaseTransactions = allPurchasesData
                     .filter(row => {
                         const rowAccount = row['المورد'] || '';
-                        return rowAccount.toLowerCase().includes(accountName.toLowerCase());
+                        return rowAccount.toLowerCase() === accountName.toLowerCase();
                     })
                     .map(row => {
                         // حساب الإجمالي من "ا.دولار" أو من السعر والكمية
@@ -658,12 +658,12 @@
                 allTransactions = [...allTransactions, ...purchaseTransactions];
             }
             
-            // جمع معاملات المبيعات
+            // جمع معاملات المبيعات (البحث في عمود "العميل")
             if (allSalesData && allSalesData.length > 0) {
                 const saleTransactions = allSalesData
                     .filter(row => {
                         const rowAccount = row['العميل'] || '';
-                        return rowAccount.toLowerCase().includes(accountName.toLowerCase());
+                        return rowAccount.toLowerCase() === accountName.toLowerCase();
                     })
                     .map(row => {
                         // حساب الإجمالي من "ا.دولار" أو من السعر والكمية
