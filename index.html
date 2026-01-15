@@ -217,19 +217,16 @@
 
             <!-- كشف الحساب (الواجهة الجديدة) -->
             <div id="accounts-search" class="tab-content" style="display: none;">
-                <div class="grid grid-cols-4 gap-3 pb-2">
+                <div class="grid grid-cols-3 gap-3 pb-2">
                     <div class="search-wrapper">
                         <input type="text" id="searchAccount" placeholder="اسم الحساب (مورد أو عميل)" class="input-glass search-input" autocomplete="off">
                         <div id="suggestAccount" class="suggestions-list"></div>
                     </div>
                     <div class="search-wrapper">
-                        <input type="date" id="startDate" class="input-glass">
-                    </div>
-                    <div class="search-wrapper">
-                        <input type="date" id="endDate" class="input-glass">
-                    </div>
-                    <div class="search-wrapper">
                         <button onclick="loadAccountStatement()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-bold">بحث</button>
+                    </div>
+                    <div class="search-wrapper">
+                        <button onclick="clearAccountSearch()" class="w-full bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg font-bold">إلغاء</button>
                     </div>
                 </div>
             </div>
@@ -347,58 +344,66 @@
                 document.querySelector('.tab-button:nth-child(2)').classList.add('active');
                 document.getElementById('accounts-search').style.display = 'block';
                 document.getElementById('accounts-section').classList.add('active');
+                setupAccountDropdowns();
             }
         }
 
         async function fetchAllData() {
             try {
-                // تحميل بيانات الأسعار
-                const pricesResponse = await fetch(PRICES_CSV_URL + '&t=' + Date.now());
-                const pricesCsvText = await pricesResponse.text();
-                
-                Papa.parse(pricesCsvText.split('\n').slice(1).join('\n'), {
+                // تحميل بيانات الأسعار (الكود الأصلي بدون تعديل)
+                const response = await fetch(PRICES_CSV_URL + '&t=' + Date.now());
+                const csvText = await response.text();
+                Papa.parse(csvText.split('\n').slice(1).join('\n'), {
                     header: true, skipEmptyLines: true,
                     complete: (res) => {
                         allPriceData = res.data;
                         if (allPriceData.length > 0) allPriceData.pop();
-                        renderPriceTable();
-                        setupPriceDropdowns();
+                        render();
+                        setupDropdowns();
+                        document.getElementById('loader').classList.add('hidden');
                     }
                 });
 
                 // تحميل بيانات المشتريات
-                const purchasesResponse = await fetch(PURCHASES_CSV_URL + '&t=' + Date.now());
-                const purchasesCsvText = await purchasesResponse.text();
-                
-                Papa.parse(purchasesCsvText, {
-                    header: true, skipEmptyLines: true,
-                    complete: (res) => {
-                        allPurchasesData = res.data;
-                        console.log('بيانات المشتريات:', allPurchasesData.length, 'سجل');
-                    }
-                });
+                try {
+                    const purchasesResponse = await fetch(PURCHASES_CSV_URL + '&t=' + Date.now());
+                    const purchasesCsvText = await purchasesResponse.text();
+                    
+                    Papa.parse(purchasesCsvText, {
+                        header: true, skipEmptyLines: true,
+                        complete: (res) => {
+                            allPurchasesData = res.data;
+                            console.log('بيانات المشتريات:', allPurchasesData.length, 'سجل');
+                        }
+                    });
+                } catch (e) {
+                    console.log('خطأ في تحميل بيانات المشتريات:', e);
+                }
 
                 // تحميل بيانات المبيعات
-                const salesResponse = await fetch(SALES_CSV_URL + '&t=' + Date.now());
-                const salesCsvText = await salesResponse.text();
-                
-                Papa.parse(salesCsvText, {
-                    header: true, skipEmptyLines: true,
-                    complete: (res) => {
-                        allSalesData = res.data;
-                        console.log('بيانات المبيعات:', allSalesData.length, 'سجل');
-                        setupAccountDropdowns();
-                    }
-                });
+                try {
+                    const salesResponse = await fetch(SALES_CSV_URL + '&t=' + Date.now());
+                    const salesCsvText = await salesResponse.text();
+                    
+                    Papa.parse(salesCsvText, {
+                        header: true, skipEmptyLines: true,
+                        complete: (res) => {
+                            allSalesData = res.data;
+                            console.log('بيانات المبيعات:', allSalesData.length, 'سجل');
+                        }
+                    });
+                } catch (e) {
+                    console.log('خطأ في تحميل بيانات المبيعات:', e);
+                }
 
-                document.getElementById('loader').classList.add('hidden');
             } catch (e) { 
                 console.error('خطأ في تحميل البيانات:', e);
                 document.getElementById('loader').classList.add('hidden');
             }
         }
 
-        function setupPriceDropdowns() {
+        // وظائف لائحة الأسعار (الكود الأصلي بدون تعديل)
+        function setupDropdowns() {
             const configs = [
                 { id: 'searchCat', suggestId: 'suggestCat', key: 'التصنيف' },
                 { id: 'searchSupplier', suggestId: 'suggestSupplier', key: 'المورد' },
@@ -428,7 +433,7 @@
                                 input.value = v;
                                 list.style.display = 'none';
                                 currentFocus = -1;
-                                renderPriceTable();
+                                render();
                             };
                             list.appendChild(div);
                             suggestionItems.push(div);
@@ -471,6 +476,66 @@
             });
         }
 
+        function updateActiveItem(items) {
+            for (let i = 0; i < items.length; i++) {
+                items[i].classList.remove('active');
+            }
+            
+            if (currentFocus > -1 && items[currentFocus]) {
+                items[currentFocus].classList.add('active');
+                items[currentFocus].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('search-input')) {
+                document.querySelectorAll('.suggestions-list').forEach(l => {
+                    l.style.display = 'none';
+                });
+                currentFocus = -1;
+                activeList = null;
+            }
+        });
+
+        function render() {
+            const tbody = document.getElementById('tableBody');
+            const rate = parseFloat(document.getElementById('exchangeRate').value) || 1;
+            const filters = {
+                cat: document.getElementById('searchCat').value.toLowerCase(),
+                supp: document.getElementById('searchSupplier').value.toLowerCase(),
+                name: document.getElementById('searchName').value.toLowerCase(),
+                qty: document.getElementById('searchQty').value.toLowerCase()
+            };
+            tbody.innerHTML = '';
+            allPriceData.filter(row => 
+                String(row['التصنيف']||'').toLowerCase().includes(filters.cat) &&
+                String(row['المورد']||'').toLowerCase().includes(filters.supp) &&
+                String(row['الصنف']||'').toLowerCase().includes(filters.name) &&
+                String(row['الكمية']||'').toLowerCase().includes(filters.qty)
+            ).forEach((row, i) => {
+                const buy = parseFloat(String(row['شراء']).replace(/[^\d.]/g, '')) || 0;
+                const disc = parseFloat(String(row['الحسم']).replace(/[^\d.]/g, '')) || 0;
+                const final = buy - (buy * disc / 100);
+                const plus = final * 1.15;
+                const syp = plus * rate;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="text-gray-400 text-[10px]">${i + 1}</td>
+                    <td><span class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-[11px] font-bold">${row['التصنيف'] || ''}</span></td>
+                    <td class="text-[11px] text-gray-500">${row['المورد'] || ''}</td>
+                    <td class="text-right font-bold text-gray-800">${row['الصنف'] || ''}</td>
+                    <td class="font-bold">${row['الكمية'] || ''}</td>
+                    <td>${buy.toFixed(2)}</td>
+                    <td class="text-red-500">${disc}%</td>
+                    <td>${final.toFixed(2)}</td>
+                    <td class="bg-orange-50 font-bold">${plus.toFixed(2)}</td>
+                    <td class="bg-green-50 text-green-700 font-bold">${Math.round(syp).toLocaleString()}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // وظائف كشف الحساب الجديدة
         function setupAccountDropdowns() {
             const input = document.getElementById('searchAccount');
             const list = document.getElementById('suggestAccount');
@@ -480,20 +545,24 @@
                 
                 let accountNames = [];
                 
-                // جمع أسماء الموردين من المشتريات (من عمود "المورد")
+                // جمع أسماء الموردين من المشتريات
                 if (allPurchasesData && allPurchasesData.length > 0) {
-                    const purchaseAccounts = allPurchasesData.map(row => row['المورد'] || '');
+                    const purchaseAccounts = allPurchasesData
+                        .map(row => row['المورد'] || '')
+                        .filter(name => name && name.trim() !== '');
                     accountNames = [...accountNames, ...purchaseAccounts];
                 }
                 
-                // جمع أسماء العملاء من المبيعات (من عمود "العميل")
+                // جمع أسماء العملاء من المبيعات
                 if (allSalesData && allSalesData.length > 0) {
-                    const saleAccounts = allSalesData.map(row => row['العميل'] || '');
+                    const saleAccounts = allSalesData
+                        .map(row => row['العميل'] || '')
+                        .filter(name => name && name.trim() !== '');
                     accountNames = [...accountNames, ...saleAccounts];
                 }
                 
-                // إزالة التكرارات والقيم الفارغة
-                const uniqueAccounts = [...new Set(accountNames.filter(name => name && name.trim() !== ''))]
+                // إزالة التكرارات
+                const uniqueAccounts = [...new Set(accountNames)]
                     .filter(v => v.toLowerCase().includes(val))
                     .slice(0, 15);
 
@@ -543,6 +612,8 @@
                     e.preventDefault();
                     if (currentFocus > -1 && items[currentFocus]) {
                         items[currentFocus].click();
+                    } else {
+                        loadAccountStatement();
                     }
                 } else if (e.key === 'Escape') {
                     activeList.style.display = 'none';
@@ -551,73 +622,11 @@
             };
         }
 
-        function updateActiveItem(items) {
-            for (let i = 0; i < items.length; i++) {
-                items[i].classList.remove('active');
-            }
-            
-            if (currentFocus > -1 && items[currentFocus]) {
-                items[currentFocus].classList.add('active');
-                items[currentFocus].scrollIntoView({ block: 'nearest' });
-            }
-        }
-
-        document.addEventListener('click', (e) => {
-            if (!e.target.classList.contains('search-input')) {
-                document.querySelectorAll('.suggestions-list').forEach(l => {
-                    l.style.display = 'none';
-                });
-                currentFocus = -1;
-                activeList = null;
-            }
-        });
-
-        function renderPriceTable() {
-            const tbody = document.getElementById('tableBody');
-            const rate = parseFloat(document.getElementById('exchangeRate').value) || 1;
-            const filters = {
-                cat: document.getElementById('searchCat').value.toLowerCase(),
-                supp: document.getElementById('searchSupplier').value.toLowerCase(),
-                name: document.getElementById('searchName').value.toLowerCase(),
-                qty: document.getElementById('searchQty').value.toLowerCase()
-            };
-            
-            tbody.innerHTML = '';
-            allPriceData.filter(row => 
-                String(row['التصنيف']||'').toLowerCase().includes(filters.cat) &&
-                String(row['المورد']||'').toLowerCase().includes(filters.supp) &&
-                String(row['الصنف']||'').toLowerCase().includes(filters.name) &&
-                String(row['الكمية']||'').toLowerCase().includes(filters.qty)
-            ).forEach((row, i) => {
-                const buy = parseFloat(String(row['شراء']).replace(/[^\d.]/g, '')) || 0;
-                const disc = parseFloat(String(row['الحسم']).replace(/[^\d.]/g, '')) || 0;
-                const final = buy - (buy * disc / 100);
-                const plus = final * 1.15;
-                const syp = plus * rate;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="text-gray-400 text-[10px]">${i + 1}</td>
-                    <td><span class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-[11px] font-bold">${row['التصنيف'] || ''}</span></td>
-                    <td class="text-[11px] text-gray-500">${row['المورد'] || ''}</td>
-                    <td class="text-right font-bold text-gray-800">${row['الصنف'] || ''}</td>
-                    <td class="font-bold">${row['الكمية'] || ''}</td>
-                    <td>${buy.toFixed(2)}</td>
-                    <td class="text-red-500">${disc}%</td>
-                    <td>${final.toFixed(2)}</td>
-                    <td class="bg-orange-50 font-bold">${plus.toFixed(2)}</td>
-                    <td class="bg-green-50 text-green-700 font-bold">${Math.round(syp).toLocaleString()}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
         function loadAccountStatement() {
             const accountName = document.getElementById('searchAccount').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
             const rate = parseFloat(document.getElementById('exchangeRate').value) || 1;
             
-            if (!accountName) {
+            if (!accountName || accountName.trim() === '') {
                 alert('الرجاء إدخال اسم الحساب للبحث');
                 return;
             }
@@ -629,7 +638,7 @@
                 const purchaseTransactions = allPurchasesData
                     .filter(row => {
                         const rowAccount = row['المورد'] || '';
-                        return rowAccount.toLowerCase() === accountName.toLowerCase();
+                        return rowAccount.toLowerCase().includes(accountName.toLowerCase());
                     })
                     .map(row => {
                         // حساب الإجمالي من "ا.دولار" أو من السعر والكمية
@@ -663,7 +672,7 @@
                 const saleTransactions = allSalesData
                     .filter(row => {
                         const rowAccount = row['العميل'] || '';
-                        return rowAccount.toLowerCase() === accountName.toLowerCase();
+                        return rowAccount.toLowerCase().includes(accountName.toLowerCase());
                     })
                     .map(row => {
                         // حساب الإجمالي من "ا.دولار" أو من السعر والكمية
@@ -699,21 +708,6 @@
                 allTransactions = [...allTransactions, ...saleTransactions];
             }
             
-            // تصفية حسب التاريخ إذا تم تحديده
-            if (startDate) {
-                allTransactions = allTransactions.filter(t => {
-                    if (!t.date) return true;
-                    return t.date >= startDate;
-                });
-            }
-            
-            if (endDate) {
-                allTransactions = allTransactions.filter(t => {
-                    if (!t.date) return true;
-                    return t.date <= endDate;
-                });
-            }
-            
             // ترتيب حسب التاريخ
             allTransactions.sort((a, b) => {
                 if (!a.date && !b.date) return 0;
@@ -740,6 +734,25 @@
             updateSummaryCards(allTransactions);
         }
 
+        function clearAccountSearch() {
+            document.getElementById('searchAccount').value = '';
+            document.getElementById('accountBody').innerHTML = `
+                <tr>
+                    <td colspan="9" class="text-center py-8 text-gray-500">
+                        ادخل اسم الحساب للبحث
+                    </td>
+                </tr>
+            `;
+            
+            // إعادة تعيين بطاقات الملخص
+            document.getElementById('totalPurchases').textContent = '0 $';
+            document.getElementById('totalSales').textContent = '0 $';
+            document.getElementById('currentBalance').textContent = '0 $';
+            document.getElementById('currentBalance').classList.remove('positive', 'negative', 'neutral');
+            document.getElementById('currentBalance').classList.add('neutral');
+            document.getElementById('transactionCount').textContent = '0';
+        }
+
         function renderAccountStatement(transactions) {
             const tbody = document.getElementById('accountBody');
             
@@ -749,7 +762,7 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td colspan="9" class="text-center py-8 text-gray-500">
-                        لا توجد معاملات لهذا الحساب في الفترة المحددة
+                        لا توجد معاملات لهذا الحساب
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -841,27 +854,18 @@
         // إضافة مستمعين للأحداث
         document.querySelectorAll('.search-input').forEach(el => {
             if (el.id !== 'searchAccount') {
-                el.addEventListener('input', renderPriceTable);
+                el.addEventListener('input', render);
             }
         });
         
-        document.getElementById('exchangeRate').addEventListener('input', () => {
-            renderPriceTable();
-            if (document.getElementById('accounts-section').classList.contains('active')) {
+        document.getElementById('exchangeRate').addEventListener('input', render);
+
+        // إضافة مستمع لزر Enter في البحث
+        document.getElementById('searchAccount').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
                 loadAccountStatement();
             }
         });
-
-        // تعيين التاريخ الحالي كتاريخ افتراضي للنهاية
-        const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
-        document.getElementById('endDate').value = todayStr;
-        
-        // تعيين تاريخ قبل شهر كمثال للبداية
-        const oneMonthAgo = new Date();
-        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-        const oneMonthAgoStr = oneMonthAgo.toISOString().split('T')[0];
-        document.getElementById('startDate').value = oneMonthAgoStr;
 
         // تهيئة التطبيق
         window.onload = () => { 
