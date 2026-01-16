@@ -689,7 +689,7 @@
                 const creditNames = [...new Set(allJournalData.map(row => String(row['دائن'] || '')))];
                 const debitNames = [...new Set(allJournalData.map(row => String(row['مدين'] || '')))];
                 const allNames = [...new Set([...creditNames, ...debitNames])]
-                    .filter(name => name && name.toLowerCase() === val) // مطابقة تامة
+                    .filter(name => name && name.toLowerCase() === val) // مطابقة تامة فقط عند البحث
                     .slice(0, 15);
 
                 list.innerHTML = '';
@@ -750,7 +750,7 @@
             };
         }
 
-        // دالة عامة لإعداد القوائم المنسدلة مع مطابقة تامة
+        // دالة عامة لإعداد القوائم المنسدلة
         function setupDropdownsForData(configs, dataArray) {
             configs.forEach(config => {
                 const input = document.getElementById(config.id);
@@ -760,8 +760,9 @@
 
                 const updateList = () => {
                     const val = input.value.toLowerCase();
+                    // عرض جميع القيم عند ترك الحقل فارغاً، وعرض المطابقة التامة عند الكتابة
                     const uniqueValues = [...new Set(dataArray.map(row => String(row[config.key] || '')))]
-                        .filter(v => v.toLowerCase() === val) // مطابقة تامة
+                        .filter(v => v && (val === '' || v.toLowerCase() === val)) // مطابقة تامة فقط عند البحث
                         .slice(0, 15);
 
                     list.innerHTML = '';
@@ -855,7 +856,13 @@
             }
         });
 
-        // عرض بيانات الأصناف - مع مطابقة تامة
+        // دالة مساعدة للبحث بمطابقة تامة أو عرض الكل
+        function searchFilter(value, searchValue) {
+            if (!searchValue) return true; // إذا كان البحث فارغاً، عرض كل شيء
+            return String(value || '').toLowerCase() === searchValue.toLowerCase(); // مطابقة تامة
+        }
+
+        // عرض بيانات الأصناف
         function renderItems() {
             const tbody = document.getElementById('tableBody');
             const rate = parseFloat(document.getElementById('exchangeRate').value) || 1;
@@ -868,10 +875,10 @@
             
             tbody.innerHTML = '';
             const filteredData = allItemsData.filter(row => 
-                String(row['التصنيف']||'').toLowerCase() === filters.cat &&
-                String(row['المورد']||'').toLowerCase() === filters.supp &&
-                String(row['الصنف']||'').toLowerCase() === filters.name &&
-                String(row['الكمية']||'').toLowerCase() === filters.qty
+                searchFilter(row['التصنيف'], filters.cat) &&
+                searchFilter(row['المورد'], filters.supp) &&
+                searchFilter(row['الصنف'], filters.name) &&
+                searchFilter(row['الكمية'], filters.qty)
             );
             
             filteredData.forEach((row, i) => {
@@ -897,7 +904,7 @@
             });
         }
 
-        // عرض بيانات المبيعات - مع مطابقة تامة
+        // عرض بيانات المبيعات
         function renderSales() {
             const tbody = document.getElementById('salesTableBody');
             const rate = parseFloat(document.getElementById('exchangeRate').value) || 1;
@@ -910,10 +917,10 @@
             
             tbody.innerHTML = '';
             const filteredData = allSalesData.filter(row => 
-                String(row['التاريخ']||'').toLowerCase() === filters.date &&
-                String(row['العميل']||'').toLowerCase() === filters.customer &&
-                String(row['الفاتورة']||'').toLowerCase() === filters.invoice &&
-                String(row['الصنف']||'').toLowerCase() === filters.item
+                searchFilter(row['التاريخ'], filters.date) &&
+                searchFilter(row['العميل'], filters.customer) &&
+                searchFilter(row['الفاتورة'], filters.invoice) &&
+                searchFilter(row['الصنف'], filters.item)
             );
             
             let totalUsd = 0;
@@ -952,7 +959,7 @@
             document.getElementById('salesTotalSyp').textContent = `${Math.round(totalSyp).toLocaleString()} ل.س`;
         }
 
-        // عرض بيانات المشتريات - مع مطابقة تامة
+        // عرض بيانات المشتريات
         function renderPurchases() {
             const tbody = document.getElementById('purchasesTableBody');
             const filters = {
@@ -964,10 +971,10 @@
             
             tbody.innerHTML = '';
             const filteredData = allPurchasesData.filter(row => 
-                String(row['التاريخ']||'').toLowerCase() === filters.date &&
-                String(row['المورد']||'').toLowerCase() === filters.supplier &&
-                String(row['الفاتورة']||'').toLowerCase() === filters.invoice &&
-                String(row['الصنف']||'').toLowerCase() === filters.item
+                searchFilter(row['التاريخ'], filters.date) &&
+                searchFilter(row['المورد'], filters.supplier) &&
+                searchFilter(row['الفاتورة'], filters.invoice) &&
+                searchFilter(row['الصنف'], filters.item)
             );
             
             let totalUsd = 0;
@@ -1002,7 +1009,7 @@
             document.getElementById('purchasesTotalUsd').textContent = `${totalUsd.toFixed(2)} $`;
         }
 
-        // عرض بيانات اليومية - مع مطابقة تامة
+        // عرض بيانات اليومية
         function renderJournal() {
             const tbody = document.getElementById('journalTableBody');
             const filters = {
@@ -1012,10 +1019,10 @@
             
             tbody.innerHTML = '';
             const filteredData = allJournalData.filter(row => 
-                String(row['التاريخ']||'').toLowerCase() === filters.date &&
+                searchFilter(row['التاريخ'], filters.date) &&
                 (
-                    String(row['دائن']||'').toLowerCase() === filters.account ||
-                    String(row['مدين']||'').toLowerCase() === filters.account
+                    searchFilter(row['دائن'], filters.account) ||
+                    searchFilter(row['مدين'], filters.account)
                 )
             );
             
