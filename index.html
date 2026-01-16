@@ -189,6 +189,29 @@
             gap: 0.75rem;
             align-items: center;
         }
+        
+        /* مؤشر المزامنة */
+        .sync-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #10b981;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -196,6 +219,11 @@
     <div id="loader" class="fixed inset-0 bg-white/90 z-[100] flex flex-col items-center justify-center">
         <div class="animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent"></div>
         <p class="mt-4 text-gray-600 text-sm">جاري تحميل البيانات...</p>
+    </div>
+
+    <!-- مؤشر المزامنة -->
+    <div id="syncIndicator" class="sync-indicator no-print">
+        <i class="fas fa-sync-alt mr-2"></i> جاري تحديث البيانات...
     </div>
 
     <header class="bg-blue-600 text-white shadow-lg mb-4 sticky top-0 z-30 no-print">
@@ -224,7 +252,7 @@
                     <button onclick="togglePrintOptions()" class="bg-blue-500 hover:bg-blue-400 px-2 py-1 rounded text-xs font-bold border border-blue-400">طباعة</button>
                     <div class="flex items-center gap-2 bg-blue-700/40 p-1.5 rounded-lg border border-blue-400/30">
                         <span class="text-[11px]">سعر الصرف:</span>
-                        <input type="number" id="exchangeRate" value="12000" class="bg-transparent border-none text-white text-center font-bold text-xs focus:ring-0" style="width: 3.5rem;">
+                        <input type="number" id="exchangeRate" value="0" class="bg-transparent border-none text-white text-center font-bold text-xs focus:ring-0" style="width: 3.5rem;">
                     </div>
                 </div>
             </div>
@@ -468,6 +496,8 @@
         let allPurchasesData = [];
         let allJournalData = [];
         let currentTab = 'items';
+        let lastUpdateTime = null;
+        let syncInterval;
 
         // تعريف الأعمدة لكل تبويب
         const itemsColumns = [
@@ -498,16 +528,20 @@
             {id:'description',label:'البيان'}
         ];
 
-        // متغيرات للتحكم في القوائم المنسدلة
-        let currentFocus = -1;
-        let activeList = null;
-        let suggestionItems = [];
+        // متغير للتحكم في القائمة المنسدلة الحالية
+        let activeSuggestList = null;
 
         // تحميل جميع البيانات
-        async function fetchAllData() {
+        async function fetchAllData(showSyncIndicator = false) {
             try {
+                if (showSyncIndicator) {
+                    showSyncNotification();
+                }
+                
+                const timestamp = Date.now();
+                
                 // تحميل بيانات الأصناف
-                const itemsResponse = await fetch(ITEMS_CSV_URL + '&t=' + Date.now());
+                const itemsResponse = await fetch(ITEMS_CSV_URL + '&t=' + timestamp);
                 const itemsCsvText = await itemsResponse.text();
                 
                 Papa.parse(itemsCsvText.split('\n').slice(1).join('\n'), {
@@ -521,7 +555,7 @@
                 });
 
                 // تحميل بيانات المبيعات
-                const salesResponse = await fetch(SALES_CSV_URL + '&t=' + Date.now());
+                const salesResponse = await fetch(SALES_CSV_URL + '&t=' + timestamp);
                 const salesCsvText = await salesResponse.text();
                 
                 Papa.parse(salesCsvText.split('\n').slice(1).join('\n'), {
@@ -535,7 +569,7 @@
                 });
 
                 // تحميل بيانات المشتريات
-                const purchasesResponse = await fetch(PURCHASES_CSV_URL + '&t=' + Date.now());
+                const purchasesResponse = await fetch(PURCHASES_CSV_URL + '&t=' + timestamp);
                 const purchasesCsvText = await purchasesResponse.text();
                 
                 Papa.parse(purchasesCsvText.split('\n').slice(1).join('\n'), {
@@ -549,7 +583,7 @@
                 });
 
                 // تحميل بيانات اليومية
-                const journalResponse = await fetch(JOURNAL_CSV_URL + '&t=' + Date.now());
+                const journalResponse = await fetch(JOURNAL_CSV_URL + '&t=' + timestamp);
                 const journalCsvText = await journalResponse.text();
                 
                 Papa.parse(journalCsvText.split('\n').slice(1).join('\n'), {
@@ -562,13 +596,42 @@
                         
                         // إخفاء الloader بعد تحميل كل البيانات
                         document.getElementById('loader').classList.add('hidden');
+                        
+                        // تحديث وقت آخر مزامنة
+                        lastUpdateTime = new Date();
+                        
+                        if (showSyncIndicator) {
+                            setTimeout(() => {
+                                document.getElementById('syncIndicator').style.display = 'none';
+                            }, 2000);
+                        }
                     }
                 });
 
             } catch (e) { 
                 console.error('خطأ في تحميل البيانات:', e);
                 document.getElementById('loader').classList.add('hidden');
+                if (showSyncIndicator) {
+                    document.getElementById('syncIndicator').style.display = 'none';
+                }
             }
+        }
+
+        // إظهار إشعار المزامنة
+        function showSyncNotification() {
+            const indicator = document.getElementById('syncIndicator');
+            indicator.style.display = 'block';
+        }
+
+        // بدء مزامنة تلقائية كل 3 دقائق
+        function startAutoSync() {
+            if (syncInterval) {
+                clearInterval(syncInterval);
+            }
+            
+            syncInterval = setInterval(() => {
+                fetchAllData(true);
+            }, 3 * 60 * 1000); // 3 دقائق
         }
 
         // إعداد القوائم المنسدلة للأصناف
@@ -609,6 +672,13 @@
 
         // إعداد القوائم المنسدلة لليومية
         function setupJournalDropdowns() {
+            const configs = [
+                { id: 'searchJournalDate', suggestId: 'suggestJournalDate', key: 'التاريخ' }
+            ];
+
+            setupDropdownsForData(configs, allJournalData);
+
+            // بحث خاص للدائن/المدين
             const input = document.getElementById('searchJournalAccount');
             const list = document.getElementById('suggestJournalAccount');
 
@@ -619,11 +689,10 @@
                 const creditNames = [...new Set(allJournalData.map(row => String(row['دائن'] || '')))];
                 const debitNames = [...new Set(allJournalData.map(row => String(row['مدين'] || '')))];
                 const allNames = [...new Set([...creditNames, ...debitNames])]
-                    .filter(name => name && name.toLowerCase().includes(val))
+                    .filter(name => name && name.toLowerCase() === val) // مطابقة تامة
                     .slice(0, 15);
 
                 list.innerHTML = '';
-                suggestionItems = [];
                 
                 if (allNames.length > 0) {
                     allNames.forEach(name => {
@@ -632,58 +701,56 @@
                         div.textContent = name;
                         div.onclick = () => {
                             input.value = name;
-                            list.style.display = 'none';
-                            currentFocus = -1;
+                            hideAllSuggestLists();
                             renderJournal();
                         };
                         list.appendChild(div);
-                        suggestionItems.push(div);
                     });
                     list.style.display = 'block';
-                    activeList = list;
-                    currentFocus = -1;
+                    activeSuggestList = list;
                 } else {
                     list.style.display = 'none';
-                    activeList = null;
+                    activeSuggestList = null;
                 }
             };
 
             input.onfocus = function() {
+                hideAllSuggestLists();
                 updateList();
-                activeList = list;
+                activeSuggestList = list;
             };
             
             input.oninput = function() {
                 updateList();
-                activeList = list;
+                activeSuggestList = list;
             };
             
             input.onkeydown = function(e) {
-                if (!activeList || activeList.style.display === 'none') return;
+                if (!activeSuggestList || activeSuggestList.style.display === 'none') return;
                 
-                const items = activeList.getElementsByClassName('suggestion-item');
+                const items = activeSuggestList.getElementsByClassName('suggestion-item');
+                let currentFocus = -1;
                 
                 if (e.key === 'ArrowDown') {
                     e.preventDefault();
                     currentFocus = Math.min(currentFocus + 1, items.length - 1);
-                    updateActiveItem(items);
+                    updateActiveItem(items, currentFocus);
                 } else if (e.key === 'ArrowUp') {
                     e.preventDefault();
                     currentFocus = Math.max(currentFocus - 1, -1);
-                    updateActiveItem(items);
+                    updateActiveItem(items, currentFocus);
                 } else if (e.key === 'Enter') {
                     e.preventDefault();
                     if (currentFocus > -1 && items[currentFocus]) {
                         items[currentFocus].click();
                     }
                 } else if (e.key === 'Escape') {
-                    activeList.style.display = 'none';
-                    currentFocus = -1;
+                    hideAllSuggestLists();
                 }
             };
         }
 
-        // دالة عامة لإعداد القوائم المنسدلة
+        // دالة عامة لإعداد القوائم المنسدلة مع مطابقة تامة
         function setupDropdownsForData(configs, dataArray) {
             configs.forEach(config => {
                 const input = document.getElementById(config.id);
@@ -694,11 +761,10 @@
                 const updateList = () => {
                     const val = input.value.toLowerCase();
                     const uniqueValues = [...new Set(dataArray.map(row => String(row[config.key] || '')))]
-                        .filter(v => v.toLowerCase().includes(val))
+                        .filter(v => v.toLowerCase() === val) // مطابقة تامة
                         .slice(0, 15);
 
                     list.innerHTML = '';
-                    suggestionItems = [];
                     
                     if (uniqueValues.length > 0) {
                         uniqueValues.forEach(v => {
@@ -707,62 +773,60 @@
                             div.textContent = v;
                             div.onclick = () => {
                                 input.value = v;
-                                list.style.display = 'none';
-                                currentFocus = -1;
+                                hideAllSuggestLists();
                                 if (currentTab === 'items') renderItems();
                                 else if (currentTab === 'sales') renderSales();
                                 else if (currentTab === 'purchases') renderPurchases();
                                 else if (currentTab === 'journal') renderJournal();
                             };
                             list.appendChild(div);
-                            suggestionItems.push(div);
                         });
                         list.style.display = 'block';
-                        activeList = list;
-                        currentFocus = -1;
+                        activeSuggestList = list;
                     } else {
                         list.style.display = 'none';
-                        activeList = null;
+                        activeSuggestList = null;
                     }
                 };
 
                 input.onfocus = function() {
+                    hideAllSuggestLists();
                     updateList();
-                    activeList = list;
+                    activeSuggestList = list;
                 };
                 
                 input.oninput = function() {
                     updateList();
-                    activeList = list;
+                    activeSuggestList = list;
                 };
                 
                 input.onkeydown = function(e) {
-                    if (!activeList || activeList.style.display === 'none') return;
+                    if (!activeSuggestList || activeSuggestList.style.display === 'none') return;
                     
-                    const items = activeList.getElementsByClassName('suggestion-item');
+                    const items = activeSuggestList.getElementsByClassName('suggestion-item');
+                    let currentFocus = -1;
                     
                     if (e.key === 'ArrowDown') {
                         e.preventDefault();
                         currentFocus = Math.min(currentFocus + 1, items.length - 1);
-                        updateActiveItem(items);
+                        updateActiveItem(items, currentFocus);
                     } else if (e.key === 'ArrowUp') {
                         e.preventDefault();
                         currentFocus = Math.max(currentFocus - 1, -1);
-                        updateActiveItem(items);
+                        updateActiveItem(items, currentFocus);
                     } else if (e.key === 'Enter') {
                         e.preventDefault();
                         if (currentFocus > -1 && items[currentFocus]) {
                             items[currentFocus].click();
                         }
                     } else if (e.key === 'Escape') {
-                        activeList.style.display = 'none';
-                        currentFocus = -1;
+                        hideAllSuggestLists();
                     }
                 };
             });
         }
 
-        function updateActiveItem(items) {
+        function updateActiveItem(items, currentFocus) {
             for (let i = 0; i < items.length; i++) {
                 items[i].classList.remove('active');
             }
@@ -773,21 +837,25 @@
             }
         }
 
+        // إخفاء جميع القوائم المنسدلة
+        function hideAllSuggestLists() {
+            document.querySelectorAll('.suggestions-list').forEach(l => {
+                l.style.display = 'none';
+            });
+            activeSuggestList = null;
+        }
+
         // إخفاء القوائم عند النقر خارجها
         document.addEventListener('click', (e) => {
             if (!e.target.classList.contains('search-input') && 
                 !e.target.classList.contains('sales-search-input') && 
                 !e.target.classList.contains('purchases-search-input') &&
                 !e.target.classList.contains('journal-search-input')) {
-                document.querySelectorAll('.suggestions-list').forEach(l => {
-                    l.style.display = 'none';
-                });
-                currentFocus = -1;
-                activeList = null;
+                hideAllSuggestLists();
             }
         });
 
-        // عرض بيانات الأصناف
+        // عرض بيانات الأصناف - مع مطابقة تامة
         function renderItems() {
             const tbody = document.getElementById('tableBody');
             const rate = parseFloat(document.getElementById('exchangeRate').value) || 1;
@@ -800,10 +868,10 @@
             
             tbody.innerHTML = '';
             const filteredData = allItemsData.filter(row => 
-                String(row['التصنيف']||'').toLowerCase().includes(filters.cat) &&
-                String(row['المورد']||'').toLowerCase().includes(filters.supp) &&
-                String(row['الصنف']||'').toLowerCase().includes(filters.name) &&
-                String(row['الكمية']||'').toLowerCase().includes(filters.qty)
+                String(row['التصنيف']||'').toLowerCase() === filters.cat &&
+                String(row['المورد']||'').toLowerCase() === filters.supp &&
+                String(row['الصنف']||'').toLowerCase() === filters.name &&
+                String(row['الكمية']||'').toLowerCase() === filters.qty
             );
             
             filteredData.forEach((row, i) => {
@@ -829,7 +897,7 @@
             });
         }
 
-        // عرض بيانات المبيعات
+        // عرض بيانات المبيعات - مع مطابقة تامة
         function renderSales() {
             const tbody = document.getElementById('salesTableBody');
             const rate = parseFloat(document.getElementById('exchangeRate').value) || 1;
@@ -842,10 +910,10 @@
             
             tbody.innerHTML = '';
             const filteredData = allSalesData.filter(row => 
-                String(row['التاريخ']||'').toLowerCase().includes(filters.date) &&
-                String(row['العميل']||'').toLowerCase().includes(filters.customer) &&
-                String(row['الفاتورة']||'').toLowerCase().includes(filters.invoice) &&
-                String(row['الصنف']||'').toLowerCase().includes(filters.item)
+                String(row['التاريخ']||'').toLowerCase() === filters.date &&
+                String(row['العميل']||'').toLowerCase() === filters.customer &&
+                String(row['الفاتورة']||'').toLowerCase() === filters.invoice &&
+                String(row['الصنف']||'').toLowerCase() === filters.item
             );
             
             let totalUsd = 0;
@@ -855,8 +923,9 @@
                 const price = parseFloat(String(row['السعر دولار']).replace(/[^\d.]/g, '')) || 0;
                 const quantity = parseFloat(String(row['الكمية']).replace(/[^\d.]/g, '')) || 0;
                 const totalUsdRow = price * quantity;
-                const priceSyp = Math.round(price * rate); // السعر سوري - تم التقريب
-                const totalSypRow = Math.round(totalUsdRow * rate); // الإجمالي سوري - تم التقريب
+                // استخدام عمود "سوري" من البيانات إذا كان موجوداً، وإلا الحساب من سعر الصرف
+                const priceSyp = parseFloat(String(row['سوري']).replace(/[^\d.]/g, '')) || Math.round(price * rate);
+                const totalSypRow = Math.round(totalUsdRow * rate);
                 
                 // جمع الإجماليات
                 totalUsd += totalUsdRow;
@@ -883,7 +952,7 @@
             document.getElementById('salesTotalSyp').textContent = `${Math.round(totalSyp).toLocaleString()} ل.س`;
         }
 
-        // عرض بيانات المشتريات
+        // عرض بيانات المشتريات - مع مطابقة تامة
         function renderPurchases() {
             const tbody = document.getElementById('purchasesTableBody');
             const filters = {
@@ -895,10 +964,10 @@
             
             tbody.innerHTML = '';
             const filteredData = allPurchasesData.filter(row => 
-                String(row['التاريخ']||'').toLowerCase().includes(filters.date) &&
-                String(row['المورد']||'').toLowerCase().includes(filters.supplier) &&
-                String(row['الفاتورة']||'').toLowerCase().includes(filters.invoice) &&
-                String(row['الصنف']||'').toLowerCase().includes(filters.item)
+                String(row['التاريخ']||'').toLowerCase() === filters.date &&
+                String(row['المورد']||'').toLowerCase() === filters.supplier &&
+                String(row['الفاتورة']||'').toLowerCase() === filters.invoice &&
+                String(row['الصنف']||'').toLowerCase() === filters.item
             );
             
             let totalUsd = 0;
@@ -933,7 +1002,7 @@
             document.getElementById('purchasesTotalUsd').textContent = `${totalUsd.toFixed(2)} $`;
         }
 
-        // عرض بيانات اليومية
+        // عرض بيانات اليومية - مع مطابقة تامة
         function renderJournal() {
             const tbody = document.getElementById('journalTableBody');
             const filters = {
@@ -943,10 +1012,10 @@
             
             tbody.innerHTML = '';
             const filteredData = allJournalData.filter(row => 
-                String(row['التاريخ']||'').toLowerCase().includes(filters.date) &&
+                String(row['التاريخ']||'').toLowerCase() === filters.date &&
                 (
-                    String(row['دائن']||'').toLowerCase().includes(filters.account) ||
-                    String(row['مدين']||'').toLowerCase().includes(filters.account)
+                    String(row['دائن']||'').toLowerCase() === filters.account ||
+                    String(row['مدين']||'').toLowerCase() === filters.account
                 )
             );
             
@@ -995,6 +1064,9 @@
             });
             
             document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            
+            // إخفاء جميع القوائم المنسدلة
+            hideAllSuggestLists();
         }
 
         // تهيئة خيارات الطباعة
@@ -1038,7 +1110,14 @@
 
         // عرض/إخفاء خيارات الطباعة
         function togglePrintOptions() {
-            const div = document.getElementById('printOptions');
+            const tabOptions = {
+                'items': 'printOptions',
+                'sales': 'salesPrintOptions',
+                'purchases': 'purchasesPrintOptions',
+                'journal': 'journalPrintOptions'
+            };
+            
+            const div = document.getElementById(tabOptions[currentTab]);
             hideAllPrintOptions();
             div.style.display = div.style.display === 'block' ? 'none' : 'block';
         }
@@ -1121,6 +1200,7 @@
         window.onload = () => { 
             initPrintOptions(); 
             fetchAllData(); 
+            startAutoSync(); // بدء المزامنة التلقائية
         };
     </script>
 </body>
