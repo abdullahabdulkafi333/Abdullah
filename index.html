@@ -907,7 +907,6 @@
         // عرض بيانات المبيعات
         function renderSales() {
             const tbody = document.getElementById('salesTableBody');
-            const rate = parseFloat(document.getElementById('exchangeRate').value) || 1;
             const filters = {
                 date: document.getElementById('searchSalesDate').value.toLowerCase(),
                 customer: document.getElementById('searchSalesCustomer').value.toLowerCase(),
@@ -930,9 +929,10 @@
                 const price = parseFloat(String(row['السعر دولار']).replace(/[^\d.]/g, '')) || 0;
                 const quantity = parseFloat(String(row['الكمية']).replace(/[^\d.]/g, '')) || 0;
                 const totalUsdRow = price * quantity;
-                // استخدام عمود "سوري" من البيانات إذا كان موجوداً، وإلا الحساب من سعر الصرف
-                const priceSyp = parseFloat(String(row['سوري']).replace(/[^\d.]/g, '')) || Math.round(price * rate);
-                const totalSypRow = Math.round(totalUsdRow * rate);
+                // استخدام عمود "سوري" (العمود J) لسعر السوري
+                const priceSyp = parseFloat(String(row['سوري']).replace(/[^\d.]/g, '')) || 0;
+                // استخدام عمود "ا.سوري" (العمود K) لإجمالي السوري
+                const totalSypRow = parseFloat(String(row['ا.سوري']).replace(/[^\d.]/g, '')) || 0;
                 
                 // جمع الإجماليات
                 totalUsd += totalUsdRow;
@@ -948,8 +948,8 @@
                     <td class="font-bold">${quantity}</td>
                     <td>${price.toFixed(2)}</td>
                     <td class="bg-blue-50 font-bold">${totalUsdRow.toFixed(2)}</td>
-                    <td class="bg-orange-50">${priceSyp.toLocaleString()}</td>
-                    <td class="bg-green-50 text-green-700 font-bold">${totalSypRow.toLocaleString()}</td>
+                    <td class="bg-orange-50">${Math.round(priceSyp).toLocaleString()}</td>
+                    <td class="bg-green-50 text-green-700 font-bold">${Math.round(totalSypRow).toLocaleString()}</td>
                 `;
                 tbody.appendChild(tr);
             });
