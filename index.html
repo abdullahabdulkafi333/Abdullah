@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>معرض ال.جي</title>
+    <title>معرض ال.2ي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -217,16 +217,20 @@
         .print-settings-btn {
             position: relative;
         }
-
-        /* تنسيق للأرصدة السالبة */
+        
+        /* تنسيق الأرصدة السالبة */
         .negative-balance {
             color: #dc2626 !important;
-            font-weight: 600;
+            font-weight: 700;
         }
         
         .positive-balance {
             color: #059669 !important;
-            font-weight: 600;
+            font-weight: 700;
+        }
+        
+        .zero-balance {
+            color: #6b7280 !important;
         }
     </style>
 </head>
@@ -262,8 +266,9 @@
                     <button onclick="switchTab('journal')" class="tab-button bg-blue-500 hover:bg-blue-400 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1">
                         <i class="fas fa-book text-[10px]"></i> اليومية
                     </button>
+                    <!-- تبويب الأرصدة الجديد -->
                     <button onclick="switchTab('balances')" class="tab-button bg-blue-500 hover:bg-blue-400 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1">
-                        <i class="fas fa-wallet text-[10px]"></i> الأرصدة
+                        <i class="fas fa-scale-balanced text-[10px]"></i> الأرصدة
                     </button>
                 </div>
                 
@@ -364,10 +369,14 @@
                 </div>
             </div>
 
-            <!-- بحث الأرصدة (لا يوجد بحث كما طلبت) -->
+            <!-- بحث الأرصدة -->
             <div id="balancesSearch" class="tab-content">
-                <div class="pb-2">
-                    <p class="text-sm text-white/80">عرض الأرصدة غير الصفرية فقط</p>
+                <div class="grid grid-cols-4 gap-3 pb-2">
+                    <div class="search-wrapper">
+                        <input type="text" id="searchBalancesAccount" placeholder="الحساب" class="input-glass balances-search-input" autocomplete="off">
+                        <div id="suggestBalancesAccount" class="suggestions-list"></div>
+                    </div>
+                    <div class="col-span-3"></div>
                 </div>
             </div>
         </div>
@@ -537,14 +546,34 @@
             </div>
         </div>
 
-        <!-- جدول الأرصدة -->
+        <!-- جدول الأرصدة الجديد -->
         <div id="balancesTable" class="tab-content">
+            <!-- إجماليات الأرصدة -->
+            <div class="totals-container mb-3 no-print">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="total-card usd-total">
+                        <div class="text-[11px] text-gray-600">إجمالي الدولار</div>
+                        <div class="text-sm" id="balancesTotalUsd">0.00 $</div>
+                    </div>
+                    <div class="total-card syp-total">
+                        <div class="text-[11px] text-gray-600">إجمالي السوري</div>
+                        <div class="text-sm" id="balancesTotalSyp">0 ل.س</div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="table-container">
                 <table id="balancesTableContent">
                     <thead>
                         <tr>
                             <th data-col="index" class="w-12">#</th>
                             <th data-col="account">الحساب</th>
+                            <th data-col="sales_usd">مبيعات دولار</th>
+                            <th data-col="sales_syp">مبيعات سوري</th>
+                            <th data-col="purchases_usd">مشتريات دولار</th>
+                            <th data-col="purchases_syp">مشتريات سوري</th>
+                            <th data-col="pressures_usd">ضغوط دولار</th>
+                            <th data-col="pressures_syp">ضغوط سوري</th>
                             <th data-col="balance_usd">الرصيد دولار</th>
                             <th data-col="balance_syp">الرصيد سوري</th>
                         </tr>
@@ -615,11 +644,13 @@
             {id:'description',label:'البيان'}
         ];
 
+        // تعريف أعمدة الأرصدة الجديدة
         const balancesColumns = [
-            {id:'index',label:'#'},
-            {id:'account',label:'الحساب'},
-            {id:'balance_usd',label:'الرصيد دولار'},
-            {id:'balance_syp',label:'الرصيد سوري'}
+            {id:'index',label:'#'},{id:'account',label:'الحساب'},
+            {id:'sales_usd',label:'مبيعات دولار'},{id:'sales_syp',label:'مبيعات سوري'},
+            {id:'purchases_usd',label:'مشتريات دولار'},{id:'purchases_syp',label:'مشتريات سوري'},
+            {id:'pressures_usd',label:'ضغوط دولار'},{id:'pressures_syp',label:'ضغوط سوري'},
+            {id:'balance_usd',label:'الرصيد دولار'},{id:'balance_syp',label:'الرصيد سوري'}
         ];
 
         // تحميل جميع البيانات
@@ -649,7 +680,7 @@
                 const salesResponse = await fetch(SALES_CSV_URL + '&t=' + timestamp);
                 const salesCsvText = await salesResponse.text();
                 
-                Papa.parse(salesCsvText, {  // تم إزالة split('\n').slice(1)
+                Papa.parse(salesCsvText, {
                     header: true, skipEmptyLines: true,
                     complete: (res) => {
                         allSalesData = res.data;
@@ -663,7 +694,7 @@
                 const purchasesResponse = await fetch(PURCHASES_CSV_URL + '&t=' + timestamp);
                 const purchasesCsvText = await purchasesResponse.text();
                 
-                Papa.parse(purchasesCsvText, {  // تم إزالة split('\n').slice(1)
+                Papa.parse(purchasesCsvText, {
                     header: true, skipEmptyLines: true,
                     complete: (res) => {
                         allPurchasesData = res.data;
@@ -677,7 +708,7 @@
                 const journalResponse = await fetch(JOURNAL_CSV_URL + '&t=' + timestamp);
                 const journalCsvText = await journalResponse.text();
                 
-                Papa.parse(journalCsvText, {  // تم إزالة split('\n').slice(1)
+                Papa.parse(journalCsvText, {
                     header: true, skipEmptyLines: true,
                     complete: (res) => {
                         allJournalData = res.data;
@@ -697,6 +728,7 @@
                         allBalancesData = res.data;
                         if (allBalancesData.length > 0) allBalancesData.pop();
                         renderBalances();
+                        setupBalancesDropdowns();
                         
                         // إخفاء الloader بعد تحميل كل البيانات
                         document.getElementById('loader').classList.add('hidden');
@@ -857,6 +889,15 @@
             };
         }
 
+        // إعداد القوائم المنسدلة للأرصدة
+        function setupBalancesDropdowns() {
+            const configs = [
+                { id: 'searchBalancesAccount', suggestId: 'suggestBalancesAccount', key: 'الحساب' }
+            ];
+
+            setupDropdownsForData(configs, allBalancesData);
+        }
+
         // دالة عامة لإعداد القوائم المنسدلة
         function setupDropdownsForData(configs, dataArray) {
             configs.forEach(config => {
@@ -887,6 +928,7 @@
                                 else if (currentTab === 'sales') renderSales();
                                 else if (currentTab === 'purchases') renderPurchases();
                                 else if (currentTab === 'journal') renderJournal();
+                                else if (currentTab === 'balances') renderBalances();
                             };
                             list.appendChild(div);
                             currentSuggestItems.push(div);
@@ -965,6 +1007,7 @@
                 !e.target.classList.contains('sales-search-input') && 
                 !e.target.classList.contains('purchases-search-input') &&
                 !e.target.classList.contains('journal-search-input') &&
+                !e.target.classList.contains('balances-search-input') &&
                 !e.target.classList.contains('suggestion-item')) {
                 hideAllSuggestLists();
             }
@@ -974,6 +1017,14 @@
         function searchFilter(value, searchValue) {
             if (!searchValue) return true; // إذا كان البحث فارغاً، عرض كل شيء
             return String(value || '').toLowerCase() === searchValue.toLowerCase(); // مطابقة تامة
+        }
+
+        // دالة مساعدة لتحويل الأرقام مع إزالة الفواصل
+        function parseNumber(value) {
+            if (!value) return 0;
+            // إزالة الفواصل والنقاط (الآلاف) وترك النقطة العشرية
+            const cleaned = String(value).replace(/,/g, '');
+            return parseFloat(cleaned) || 0;
         }
 
         // عرض بيانات الأصناف
@@ -996,8 +1047,8 @@
             );
             
             filteredData.forEach((row, i) => {
-                const buy = parseFloat(String(row['شراء']).replace(/[^\d.]/g, '')) || 0;
-                const disc = parseFloat(String(row['الحسم']).replace(/[^\d.]/g, '')) || 0;
+                const buy = parseNumber(row['شراء']);
+                const disc = parseNumber(row['الحسم']);
                 const final = buy - (buy * disc / 100);
                 const plus = final * 1.15;
                 const syp = plus * rate;
@@ -1040,13 +1091,13 @@
             let totalSyp = 0;
             
             filteredData.forEach((row, i) => {
-                const price = parseFloat(String(row['السعر دولار']).replace(/[^\d.]/g, '')) || 0;
-                const quantity = parseFloat(String(row['الكمية']).replace(/[^\d.]/g, '')) || 0;
+                const price = parseNumber(row['السعر دولار']);
+                const quantity = parseNumber(row['الكمية']);
                 const totalUsdRow = price * quantity;
                 // استخدام عمود "السعر سوري" (العمود J) لسعر السوري
-                const priceSyp = parseFloat(String(row['السعر سوري']).replace(/[^\d.]/g, '')) || 0;
+                const priceSyp = parseNumber(row['السعر سوري']);
                 // استخدام عمود "ا.سوري" (العمود K) لإجمالي السوري
-                const totalSypRow = parseFloat(String(row['ا.سوري']).replace(/[^\d.]/g, '')) || 0;
+                const totalSypRow = parseNumber(row['ا.سوري']);
                 
                 // جمع الإجماليات
                 totalUsd += totalUsdRow;
@@ -1094,9 +1145,9 @@
             let totalUsd = 0;
             
             filteredData.forEach((row, i) => {
-                const price = parseFloat(String(row['السعر']).replace(/[^\d.]/g, '')) || 0;
-                const quantity = parseFloat(String(row['الكمية']).replace(/[^\d.]/g, '')) || 0;
-                const discount = parseFloat(String(row['الحسم']).replace(/[^\d.]/g, '')) || 0;
+                const price = parseNumber(row['السعر']);
+                const quantity = parseNumber(row['الكمية']);
+                const discount = parseNumber(row['الحسم']);
                 const afterDiscount = price - (price * discount / 100);
                 const totalUsdRow = afterDiscount * quantity;
                 
@@ -1143,8 +1194,8 @@
             filteredData.forEach((row, i) => {
                 const credit = String(row['دائن'] || '').trim();
                 const debit = String(row['مدين'] || '').trim();
-                const usd = parseFloat(String(row['دولار']).replace(/[^\d.]/g, '')) || 0;
-                const syp = parseFloat(String(row['سوري']).replace(/[^\d.]/g, '')) || 0;
+                const usd = parseNumber(row['دولار']);
+                const syp = parseNumber(row['سوري']);
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -1163,29 +1214,66 @@
         // عرض بيانات الأرصدة
         function renderBalances() {
             const tbody = document.getElementById('balancesTableBody');
+            const filterAccount = document.getElementById('searchBalancesAccount').value.toLowerCase();
             
             tbody.innerHTML = '';
             
-            // فلترة البيانات: عرض فقط الصفوف التي يكون فيها الرصيد دولار (H) أو الرصيد سوري (I) لا يساوي الصفر
+            // تصفية البيانات حسب الحساب وعرض فقط الصفوف التي لديها رصيد
             const filteredData = allBalancesData.filter(row => {
-                const balanceUsd = parseFloat(String(row['الرصيد دولار']).replace(/[^\d.-]/g, '')) || 0;
-                const balanceSyp = parseFloat(String(row['الرصيد سوري']).replace(/[^\d.-]/g, '')) || 0;
-                return balanceUsd !== 0 || balanceSyp !== 0;
+                const account = String(row['الحساب'] || '').trim();
+                const balanceUsd = parseNumber(row['الرصيد دولار']);
+                const balanceSyp = parseNumber(row['الرصيد سوري']);
+                
+                // عرض فقط الصفوف التي لديها رصيد في الدولار أو السوري
+                const hasBalance = balanceUsd !== 0 || balanceSyp !== 0;
+                
+                // تطبيق فلتر البحث
+                const matchesSearch = !filterAccount || account.toLowerCase() === filterAccount;
+                
+                return hasBalance && matchesSearch;
             });
             
+            let totalUsd = 0;
+            let totalSyp = 0;
+            
             filteredData.forEach((row, i) => {
-                const balanceUsd = parseFloat(String(row['الرصيد دولار']).replace(/[^\d.-]/g, '')) || 0;
-                const balanceSyp = parseFloat(String(row['الرصيد سوري']).replace(/[^\d.-]/g, '')) || 0;
+                const account = String(row['الحساب'] || '').trim();
+                const salesUsd = parseNumber(row['مبيعات دولار']);
+                const salesSyp = parseNumber(row['مبيعات سوري']);
+                const purchasesUsd = parseNumber(row['مشتريات دولار']);
+                const purchasesSyp = parseNumber(row['مشتريات سوري']);
+                const pressuresUsd = parseNumber(row['الضغوط دولار']);
+                const pressuresSyp = parseNumber(row['الضغوط سوري']);
+                const balanceUsd = parseNumber(row['الرصيد دولار']);
+                const balanceSyp = parseNumber(row['الرصيد سوري']);
+                
+                // جمع الإجماليات
+                totalUsd += balanceUsd;
+                totalSyp += balanceSyp;
+                
+                // تحديد لون الرصيد بناءً على القيمة
+                const balanceUsdClass = balanceUsd > 0 ? 'positive-balance' : balanceUsd < 0 ? 'negative-balance' : 'zero-balance';
+                const balanceSypClass = balanceSyp > 0 ? 'positive-balance' : balanceSyp < 0 ? 'negative-balance' : 'zero-balance';
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="text-gray-400 text-[10px]">${i + 1}</td>
-                    <td class="text-right font-bold text-gray-800">${row['الحساب'] || ''}</td>
-                    <td class="${balanceUsd < 0 ? 'negative-balance' : 'positive-balance'} font-bold">${balanceUsd.toFixed(2)} $</td>
-                    <td class="${balanceSyp < 0 ? 'negative-balance' : 'positive-balance'} font-bold">${Math.round(balanceSyp).toLocaleString()} ل.س</td>
+                    <td class="text-right font-bold text-gray-800">${account}</td>
+                    <td class="bg-blue-50">${salesUsd.toFixed(2)}</td>
+                    <td class="bg-orange-50">${Math.round(salesSyp).toLocaleString()}</td>
+                    <td class="bg-purple-50">${purchasesUsd.toFixed(2)}</td>
+                    <td class="bg-pink-50">${Math.round(purchasesSyp).toLocaleString()}</td>
+                    <td class="bg-yellow-50">${pressuresUsd.toFixed(2)}</td>
+                    <td class="bg-red-50">${Math.round(pressuresSyp).toLocaleString()}</td>
+                    <td class="bg-green-50 font-bold ${balanceUsdClass}">${balanceUsd.toFixed(2)}</td>
+                    <td class="bg-teal-50 font-bold ${balanceSypClass}">${Math.round(balanceSyp).toLocaleString()}</td>
                 `;
                 tbody.appendChild(tr);
             });
+            
+            // تحديث الإجماليات
+            document.getElementById('balancesTotalUsd').textContent = `${totalUsd.toFixed(2)} $`;
+            document.getElementById('balancesTotalSyp').textContent = `${Math.round(totalSyp).toLocaleString()} ل.س`;
         }
 
         // تبديل التبويبات
@@ -1410,6 +1498,7 @@
         document.querySelectorAll('.sales-search-input').forEach(el => el.addEventListener('input', renderSales));
         document.querySelectorAll('.purchases-search-input').forEach(el => el.addEventListener('input', renderPurchases));
         document.querySelectorAll('.journal-search-input').forEach(el => el.addEventListener('input', renderJournal));
+        document.querySelectorAll('.balances-search-input').forEach(el => el.addEventListener('input', renderBalances));
         
         document.getElementById('exchangeRate').addEventListener('input', () => {
             if (currentTab === 'items') renderItems();
