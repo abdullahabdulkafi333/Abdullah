@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>معرض ال.جي</title>
+    <title>معرض1 ال.جي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- إضافة meta tags مهمة -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;">
+    <meta name="referrer" content="no-referrer-when-downgrade">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
         
@@ -229,6 +232,32 @@
             color: #dc2626 !important;
             font-weight: 700;
         }
+        
+        /* خطأ في تحميل البيانات */
+        .error-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fee2e2;
+            border: 2px solid #dc2626;
+            border-radius: 8px;
+            padding: 20px;
+            z-index: 1000;
+            text-align: center;
+            max-width: 400px;
+            display: none;
+        }
+        
+        .error-message button {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -236,6 +265,13 @@
     <div id="loader" class="fixed inset-0 bg-white/90 z-[100] flex flex-col items-center justify-center">
         <div class="animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent"></div>
         <p class="mt-4 text-gray-600 text-sm">جاري تحميل البيانات...</p>
+    </div>
+
+    <!-- رسالة الخطأ -->
+    <div id="errorMessage" class="error-message no-print">
+        <h3 class="text-red-700 font-bold mb-2">⚠️ خطأ في تحميل البيانات</h3>
+        <p id="errorText" class="text-gray-700 mb-4">تعذر تحميل البيانات. الرجاء التحقق من اتصال الإنترنت والمحاولة مرة أخرى.</p>
+        <button onclick="retryLoadData()"><i class="fas fa-sync-alt mr-2"></i> إعادة المحاولة</button>
     </div>
 
     <!-- مؤشر المزامنة -->
@@ -647,7 +683,25 @@
             {id:'balance_syp',label:'الرصيد سوري'}
         ];
 
-        // تحميل جميع البيانات
+        // إظهار رسالة الخطأ
+        function showError(message) {
+            document.getElementById('errorText').textContent = message;
+            document.getElementById('errorMessage').style.display = 'block';
+        }
+
+        // إخفاء رسالة الخطأ
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        // إعادة محاولة تحميل البيانات
+        function retryLoadData() {
+            hideError();
+            document.getElementById('loader').classList.remove('hidden');
+            fetchAllData();
+        }
+
+        // تحميل جميع البيانات مع معالجة أفضل للأخطاء
         async function fetchAllData(showSyncIndicator = false) {
             try {
                 if (showSyncIndicator) {
@@ -655,94 +709,132 @@
                 }
                 
                 const timestamp = Date.now();
+                let hasError = false;
+                let errorMessages = [];
                 
-                // تحميل بيانات الأصناف
-                const itemsResponse = await fetch(ITEMS_CSV_URL + '&t=' + timestamp);
-                const itemsCsvText = await itemsResponse.text();
-                
-                Papa.parse(itemsCsvText.split('\n').slice(1).join('\n'), {
-                    header: true, skipEmptyLines: true,
-                    complete: (res) => {
-                        allItemsData = res.data;
-                        if (allItemsData.length > 0) allItemsData.pop();
+                // دالة مساعدة لتحميل البيانات مع التحقق من CORS
+                const loadCSVData = async (url, dataArray, callback, isItems = false) => {
+                    try {
+                        // إضافة headers لمنع مشاكل CORS
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 ثواني timeout
+                        
+                        const response = await fetch(url + '&t=' + timestamp, {
+                            signal: controller.signal,
+                            mode: 'cors',
+                            credentials: 'omit',
+                            headers: {
+                                'Accept': 'text/csv',
+                                'Cache-Control': 'no-cache'
+                            }
+                        });
+                        
+                        clearTimeout(timeoutId);
+                        
+                        if (!response.ok) {
+                            throw new Error(`خطأ HTTP: ${response.status}`);
+                        }
+                        
+                        const csvText = await response.text();
+                        
+                        return new Promise((resolve, reject) => {
+                            Papa.parse(isItems ? csvText.split('\n').slice(1).join('\n') : csvText, {
+                                header: true, 
+                                skipEmptyLines: true,
+                                complete: (res) => {
+                                    dataArray = res.data;
+                                    if (dataArray.length > 0) {
+                                        // التحقق من أن آخر صف ليس فارغاً
+                                        const lastRow = dataArray[dataArray.length - 1];
+                                        const isEmpty = Object.values(lastRow).every(value => 
+                                            value === '' || value === null || value === undefined
+                                        );
+                                        if (isEmpty) {
+                                            dataArray.pop();
+                                        }
+                                    }
+                                    if (callback) callback(dataArray);
+                                    resolve({ success: true, data: dataArray });
+                                },
+                                error: (error) => {
+                                    console.error('خطأ في parsing CSV:', error);
+                                    reject(error);
+                                }
+                            });
+                        });
+                    } catch (error) {
+                        console.error('خطأ في تحميل الملف:', error);
+                        errorMessages.push(`خطأ في تحميل البيانات من ${url.split('?')[0].split('/').pop()}`);
+                        return { success: false, error: error.message };
+                    }
+                };
+
+                // تحميل جميع البيانات بالتوازي مع Promise.all
+                const loadPromises = [
+                    loadCSVData(ITEMS_CSV_URL, allItemsData, (data) => {
+                        allItemsData = data;
                         renderItems();
                         setupItemsDropdowns();
-                    }
-                });
-
-                // تحميل بيانات المبيعات
-                const salesResponse = await fetch(SALES_CSV_URL + '&t=' + timestamp);
-                const salesCsvText = await salesResponse.text();
-                
-                Papa.parse(salesCsvText, {
-                    header: true, skipEmptyLines: true,
-                    complete: (res) => {
-                        allSalesData = res.data;
-                        if (allSalesData.length > 0) allSalesData.pop();
+                    }, true),
+                    
+                    loadCSVData(SALES_CSV_URL, allSalesData, (data) => {
+                        allSalesData = data;
                         renderSales();
                         setupSalesDropdowns();
-                    }
-                });
-
-                // تحميل بيانات المشتريات
-                const purchasesResponse = await fetch(PURCHASES_CSV_URL + '&t=' + timestamp);
-                const purchasesCsvText = await purchasesResponse.text();
-                
-                Papa.parse(purchasesCsvText, {
-                    header: true, skipEmptyLines: true,
-                    complete: (res) => {
-                        allPurchasesData = res.data;
-                        if (allPurchasesData.length > 0) allPurchasesData.pop();
+                    }),
+                    
+                    loadCSVData(PURCHASES_CSV_URL, allPurchasesData, (data) => {
+                        allPurchasesData = data;
                         renderPurchases();
                         setupPurchasesDropdowns();
-                    }
-                });
-
-                // تحميل بيانات اليومية
-                const journalResponse = await fetch(JOURNAL_CSV_URL + '&t=' + timestamp);
-                const journalCsvText = await journalResponse.text();
-                
-                Papa.parse(journalCsvText, {
-                    header: true, skipEmptyLines: true,
-                    complete: (res) => {
-                        allJournalData = res.data;
-                        if (allJournalData.length > 0) allJournalData.pop();
+                    }),
+                    
+                    loadCSVData(JOURNAL_CSV_URL, allJournalData, (data) => {
+                        allJournalData = data;
                         renderJournal();
                         setupJournalDropdowns();
+                    }),
+                    
+                    loadCSVData(BALANCES_CSV_URL, allBalancesData, (data) => {
+                        allBalancesData = data;
+                        renderBalances();
+                    })
+                ];
+
+                const results = await Promise.allSettled(loadPromises);
+                
+                // التحقق من النتائج
+                results.forEach((result, index) => {
+                    if (result.status === 'rejected') {
+                        hasError = true;
+                        console.error(`فشل تحميل الملف ${index}:`, result.reason);
                     }
                 });
 
-                // تحميل بيانات الأرصدة
-                const balancesResponse = await fetch(BALANCES_CSV_URL + '&t=' + timestamp);
-                const balancesCsvText = await balancesResponse.text();
-                
-                Papa.parse(balancesCsvText, {
-                    header: true, skipEmptyLines: true,
-                    complete: (res) => {
-                        allBalancesData = res.data;
-                        if (allBalancesData.length > 0) allBalancesData.pop();
-                        renderBalances();
-                        
-                        // إخفاء الloader بعد تحميل كل البيانات
-                        document.getElementById('loader').classList.add('hidden');
-                        
-                        // تحديث وقت آخر مزامنة
-                        lastUpdateTime = new Date();
-                        
-                        if (showSyncIndicator) {
-                            setTimeout(() => {
-                                document.getElementById('syncIndicator').style.display = 'none';
-                            }, 2000);
-                        }
-                    }
-                });
+                // إذا كان هناك أخطاء، عرض رسالة مناسبة
+                if (hasError && errorMessages.length > 0) {
+                    showError('حدثت بعض الأخطاء في تحميل البيانات: ' + errorMessages.join(', '));
+                } else if (hasError) {
+                    showError('حدث خطأ في تحميل بعض البيانات. قد تكون بعض الجداول فارغة.');
+                }
 
             } catch (e) { 
-                console.error('خطأ في تحميل البيانات:', e);
-                document.getElementById('loader').classList.add('hidden');
+                console.error('خطأ عام في تحميل البيانات:', e);
+                showError('تعذر تحميل البيانات. الرجاء التحقق من اتصال الإنترنت والمحاولة مرة أخرى.');
+            } finally {
+                // إخفاء الloader في جميع الأحوال
+                setTimeout(() => {
+                    document.getElementById('loader').classList.add('hidden');
+                }, 500);
+                
                 if (showSyncIndicator) {
-                    document.getElementById('syncIndicator').style.display = 'none';
+                    setTimeout(() => {
+                        document.getElementById('syncIndicator').style.display = 'none';
+                    }, 2000);
                 }
+                
+                // تحديث وقت آخر مزامنة
+                lastUpdateTime = new Date();
             }
         }
 
@@ -1351,57 +1443,70 @@
 
         // تحميل إعدادات الطباعة من localStorage
         function loadPrintSettings() {
-            const savedSettings = localStorage.getItem('printSettings');
-            if (savedSettings) {
-                printSettings = JSON.parse(savedSettings);
+            try {
+                const savedSettings = localStorage.getItem('printSettings');
+                if (savedSettings) {
+                    printSettings = JSON.parse(savedSettings);
+                }
+            } catch (e) {
+                console.error('خطأ في تحميل إعدادات الطباعة:', e);
+                // استعادة الإعدادات الافتراضية في حالة الخطأ
+                printSettings = {
+                    items: {}, sales: {}, purchases: {}, journal: {}, balances: {}
+                };
             }
         }
 
         // حفظ إعدادات الطباعة إلى localStorage
         function savePrintSettings() {
-            // حفظ إعدادات الأصناف
-            const itemsChecks = document.querySelectorAll('#columnCheckboxes input');
-            itemsChecks.forEach(check => {
-                const colId = check.getAttribute('data-col-ref');
-                printSettings.items[colId] = check.checked;
-            });
+            try {
+                // حفظ إعدادات الأصناف
+                const itemsChecks = document.querySelectorAll('#columnCheckboxes input');
+                itemsChecks.forEach(check => {
+                    const colId = check.getAttribute('data-col-ref');
+                    printSettings.items[colId] = check.checked;
+                });
 
-            // حفظ إعدادات المبيعات
-            const salesChecks = document.querySelectorAll('#salesColumnCheckboxes input');
-            salesChecks.forEach(check => {
-                const colId = check.getAttribute('data-col-ref');
-                printSettings.sales[colId] = check.checked;
-            });
+                // حفظ إعدادات المبيعات
+                const salesChecks = document.querySelectorAll('#salesColumnCheckboxes input');
+                salesChecks.forEach(check => {
+                    const colId = check.getAttribute('data-col-ref');
+                    printSettings.sales[colId] = check.checked;
+                });
 
-            // حفظ إعدادات المشتريات
-            const purchasesChecks = document.querySelectorAll('#purchasesColumnCheckboxes input');
-            purchasesChecks.forEach(check => {
-                const colId = check.getAttribute('data-col-ref');
-                printSettings.purchases[colId] = check.checked;
-            });
+                // حفظ إعدادات المشتريات
+                const purchasesChecks = document.querySelectorAll('#purchasesColumnCheckboxes input');
+                purchasesChecks.forEach(check => {
+                    const colId = check.getAttribute('data-col-ref');
+                    printSettings.purchases[colId] = check.checked;
+                });
 
-            // حفظ إعدادات اليومية
-            const journalChecks = document.querySelectorAll('#journalColumnCheckboxes input');
-            journalChecks.forEach(check => {
-                const colId = check.getAttribute('data-col-ref');
-                printSettings.journal[colId] = check.checked;
-            });
+                // حفظ إعدادات اليومية
+                const journalChecks = document.querySelectorAll('#journalColumnCheckboxes input');
+                journalChecks.forEach(check => {
+                    const colId = check.getAttribute('data-col-ref');
+                    printSettings.journal[colId] = check.checked;
+                });
 
-            // حفظ إعدادات الأرصدة
-            const balancesChecks = document.querySelectorAll('#balancesColumnCheckboxes input');
-            balancesChecks.forEach(check => {
-                const colId = check.getAttribute('data-col-ref');
-                printSettings.balances[colId] = check.checked;
-            });
+                // حفظ إعدادات الأرصدة
+                const balancesChecks = document.querySelectorAll('#balancesColumnCheckboxes input');
+                balancesChecks.forEach(check => {
+                    const colId = check.getAttribute('data-col-ref');
+                    printSettings.balances[colId] = check.checked;
+                });
 
-            // حفظ في localStorage
-            localStorage.setItem('printSettings', JSON.stringify(printSettings));
-            
-            // إخفاء خيارات الطباعة
-            hideAllPrintOptions();
-            
-            // إظهار رسالة تأكيد
-            alert('تم حفظ إعدادات الطباعة بنجاح');
+                // حفظ في localStorage
+                localStorage.setItem('printSettings', JSON.stringify(printSettings));
+                
+                // إخفاء خيارات الطباعة
+                hideAllPrintOptions();
+                
+                // إظهار رسالة تأكيد
+                alert('تم حفظ إعدادات الطباعة بنجاح');
+            } catch (e) {
+                console.error('خطأ في حفظ إعدادات الطباعة:', e);
+                alert('حدث خطأ في حفظ الإعدادات');
+            }
         }
 
         // عرض/إخفاء خيارات الطباعة
@@ -1495,4 +1600,3 @@
     </script>
 </body>
 </html>
-
