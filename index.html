@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>معرض1 ال.جي</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>معرض ال.جي</title>
+    <!-- استبدال tailwind بـ CDN أكثر موثوقية -->
+    <script src="https://cdn.tailwindcss.com/3.3.0"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- إضافة meta tags مهمة -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;">
-    <meta name="referrer" content="no-referrer-when-downgrade">
+    <!-- تبسيط الـ CSP لكروم -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.google.com https://*.googleapis.com https://*.gstatic.com https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
         
@@ -41,6 +41,17 @@
         }
 
         td { padding: 8px 4px; border-bottom: 1px solid #f1f5f9; text-align: center; }
+
+        /* زيادة حجم خط جدول الأرصدة فقط */
+        #balancesTableBody td {
+            font-size: 0.85rem !important;
+        }
+        
+        /* تنسيق خاص لعمود الحساب في الأرصدة */
+        #balancesTableBody td:nth-child(2) {
+            text-align: right !important;
+            font-weight: 700 !important;
+        }
 
         .search-wrapper { position: relative; width: 100%; }
 
@@ -401,14 +412,14 @@
                 </div>
             </div>
 
-            <!-- بحث الأرصدة (مخفي حسب المتطلبات) -->
+            <!-- بحث الأرصدة -->
             <div id="balancesSearch" class="tab-content">
-                <!-- لا يوجد حقول بحث في تبويب الأرصدة حسب المتطلبات -->
+                <!-- لا يوجد حقول بحث في تبويب الأرصدة -->
             </div>
         </div>
     </header>
 
-    <!-- خيارات الطباعة للأصناف -->
+    <!-- خيارات الطباعة -->
     <div id="printOptions" class="no-print">
         <p class="font-bold text-xs mb-2">أعمدة الطباعة (الأصناف):</p>
         <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-xs" id="columnCheckboxes"></div>
@@ -418,7 +429,6 @@
         </div>
     </div>
 
-    <!-- خيارات الطباعة للمبيعات -->
     <div id="salesPrintOptions" class="no-print">
         <p class="font-bold text-xs mb-2">أعمدة الطباعة (المبيعات):</p>
         <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-xs" id="salesColumnCheckboxes"></div>
@@ -428,7 +438,6 @@
         </div>
     </div>
 
-    <!-- خيارات الطباعة للمشتريات -->
     <div id="purchasesPrintOptions" class="no-print">
         <p class="font-bold text-xs mb-2">أعمدة الطباعة (المشتريات):</p>
         <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-xs" id="purchasesColumnCheckboxes"></div>
@@ -438,7 +447,6 @@
         </div>
     </div>
 
-    <!-- خيارات الطباعة لليومية -->
     <div id="journalPrintOptions" class="no-print">
         <p class="font-bold text-xs mb-2">أعمدة الطباعة (اليومية):</p>
         <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-xs" id="journalColumnCheckboxes"></div>
@@ -448,7 +456,6 @@
         </div>
     </div>
 
-    <!-- خيارات الطباعة للأرصدة -->
     <div id="balancesPrintOptions" class="no-print">
         <p class="font-bold text-xs mb-2">أعمدة الطباعة (الأرصدة):</p>
         <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-xs" id="balancesColumnCheckboxes"></div>
@@ -484,7 +491,6 @@
 
         <!-- جدول المبيعات -->
         <div id="salesTable" class="tab-content">
-            <!-- إجماليات المبيعات -->
             <div class="totals-container mb-3 no-print">
                 <div class="grid grid-cols-2 gap-3">
                     <div class="total-card usd-total">
@@ -521,7 +527,6 @@
 
         <!-- جدول المشتريات -->
         <div id="purchasesTable" class="tab-content">
-            <!-- إجماليات المشتريات -->
             <div class="totals-container mb-3 no-print">
                 <div class="grid grid-cols-1 gap-3">
                     <div class="total-card purchase-total">
@@ -574,7 +579,6 @@
 
         <!-- جدول الأرصدة -->
         <div id="balancesTable" class="tab-content">
-            <!-- إجماليات الأرصدة -->
             <div class="totals-container mb-3 no-print">
                 <div class="grid grid-cols-2 gap-3">
                     <div class="total-card usd-total">
@@ -598,8 +602,8 @@
                             <th data-col="sales_syp">مبيعات سوري</th>
                             <th data-col="purchases_usd">مشتريات دولار</th>
                             <th data-col="purchases_syp">مشتريات سوري</th>
-                            <th data-col="pressure_usd">الضغوط دولار</th>
-                            <th data-col="pressure_syp">الضغوط سوري</th>
+                            <th data-col="payment_usd">المدفوع دولار</th>
+                            <th data-col="payment_syp">المدفوع سوري</th>
                             <th data-col="balance_usd">الرصيد دولار</th>
                             <th data-col="balance_syp">الرصيد سوري</th>
                         </tr>
@@ -628,13 +632,9 @@
         let lastUpdateTime = null;
         let syncInterval;
         
-        // إعدادات الطباعة المحفوظة
+        // إعدادات الطباعة
         let printSettings = {
-            items: {},
-            sales: {},
-            purchases: {},
-            journal: {},
-            balances: {}
+            items: {}, sales: {}, purchases: {}, journal: {}, balances: {}
         };
         
         // متغيرات للتحكم في القوائم المنسدلة
@@ -677,155 +677,197 @@
             {id:'sales_syp',label:'مبيعات سوري'},
             {id:'purchases_usd',label:'مشتريات دولار'},
             {id:'purchases_syp',label:'مشتريات سوري'},
-            {id:'pressure_usd',label:'الضغوط دولار'},
-            {id:'pressure_syp',label:'الضغوط سوري'},
+            {id:'payment_usd',label:'المدفوع دولار'},
+            {id:'payment_syp',label:'المدفوع سوري'},
             {id:'balance_usd',label:'الرصيد دولار'},
             {id:'balance_syp',label:'الرصيد سوري'}
         ];
 
-        // إظهار رسالة الخطأ
+        // إظهار/إخفاء رسائل الخطأ
         function showError(message) {
             document.getElementById('errorText').textContent = message;
             document.getElementById('errorMessage').style.display = 'block';
         }
 
-        // إخفاء رسالة الخطأ
         function hideError() {
             document.getElementById('errorMessage').style.display = 'none';
         }
 
-        // إعادة محاولة تحميل البيانات
         function retryLoadData() {
             hideError();
             document.getElementById('loader').classList.remove('hidden');
             fetchAllData();
         }
 
-        // تحميل جميع البيانات مع معالجة أفضل للأخطاء
+        // دالة محسنة لتحميل CSV تعمل على كروم
+        async function loadCSV(url) {
+            try {
+                // إضافة رؤوس للتحكم في CORS
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                
+                const response = await fetch(url + '&_=' + Date.now(), {
+                    signal: controller.signal,
+                    mode: 'cors',
+                    cache: 'no-cache',
+                    headers: {
+                        'Accept': 'text/csv, text/plain',
+                        'Pragma': 'no-cache',
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const csvText = await response.text();
+                return csvText;
+            } catch (error) {
+                console.error('خطأ في تحميل:', url, error);
+                throw error;
+            }
+        }
+
+        // تحميل جميع البيانات
         async function fetchAllData(showSyncIndicator = false) {
             try {
                 if (showSyncIndicator) {
                     showSyncNotification();
                 }
                 
-                const timestamp = Date.now();
-                let hasError = false;
-                let errorMessages = [];
+                document.getElementById('loader').classList.remove('hidden');
                 
-                // دالة مساعدة لتحميل البيانات مع التحقق من CORS
-                const loadCSVData = async (url, dataArray, callback, isItems = false) => {
-                    try {
-                        // إضافة headers لمنع مشاكل CORS
-                        const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 ثواني timeout
-                        
-                        const response = await fetch(url + '&t=' + timestamp, {
-                            signal: controller.signal,
-                            mode: 'cors',
-                            credentials: 'omit',
-                            headers: {
-                                'Accept': 'text/csv',
-                                'Cache-Control': 'no-cache'
+                // تحميل البيانات بشكل متوازي
+                const timestamp = Date.now();
+                const loadPromises = [];
+                
+                // دالة لمعالجة البيانات
+                const processData = (csvText, isItems = false) => {
+                    return new Promise((resolve) => {
+                        Papa.parse(csvText, {
+                            header: true,
+                            skipEmptyLines: true,
+                            complete: (results) => {
+                                let data = results.data || [];
+                                
+                                // إزالة الصفوف الفارغة تماماً
+                                data = data.filter(row => {
+                                    return Object.values(row).some(value => 
+                                        value !== null && 
+                                        value !== undefined && 
+                                        value.toString().trim() !== ''
+                                    );
+                                });
+                                
+                                // إزالة آخر صف إذا كان يحوي كلمة "إجمالي" أو "مجموع"
+                                if (data.length > 0) {
+                                    const lastRow = data[data.length - 1];
+                                    const lastRowValues = Object.values(lastRow).join('').toLowerCase();
+                                    const hasTotal = lastRowValues.includes('إجمالي') || 
+                                                    lastRowValues.includes('مجموع') || 
+                                                    lastRowValues.includes('total') ||
+                                                    lastRowValues.includes('sum');
+                                    if (hasTotal) {
+                                        data.pop();
+                                    }
+                                }
+                                
+                                resolve(data);
+                            },
+                            error: (error) => {
+                                console.warn('خطأ في parsing:', error);
+                                resolve([]);
                             }
                         });
-                        
-                        clearTimeout(timeoutId);
-                        
-                        if (!response.ok) {
-                            throw new Error(`خطأ HTTP: ${response.status}`);
-                        }
-                        
-                        const csvText = await response.text();
-                        
-                        return new Promise((resolve, reject) => {
-                            Papa.parse(isItems ? csvText.split('\n').slice(1).join('\n') : csvText, {
-                                header: true, 
-                                skipEmptyLines: true,
-                                complete: (res) => {
-                                    dataArray = res.data;
-                                    if (dataArray.length > 0) {
-                                        // التحقق من أن آخر صف ليس فارغاً
-                                        const lastRow = dataArray[dataArray.length - 1];
-                                        const isEmpty = Object.values(lastRow).every(value => 
-                                            value === '' || value === null || value === undefined
-                                        );
-                                        if (isEmpty) {
-                                            dataArray.pop();
-                                        }
-                                    }
-                                    if (callback) callback(dataArray);
-                                    resolve({ success: true, data: dataArray });
-                                },
-                                error: (error) => {
-                                    console.error('خطأ في parsing CSV:', error);
-                                    reject(error);
-                                }
-                            });
-                        });
-                    } catch (error) {
-                        console.error('خطأ في تحميل الملف:', error);
-                        errorMessages.push(`خطأ في تحميل البيانات من ${url.split('?')[0].split('/').pop()}`);
-                        return { success: false, error: error.message };
-                    }
+                    });
                 };
 
-                // تحميل جميع البيانات بالتوازي مع Promise.all
-                const loadPromises = [
-                    loadCSVData(ITEMS_CSV_URL, allItemsData, (data) => {
-                        allItemsData = data;
-                        renderItems();
-                        setupItemsDropdowns();
-                    }, true),
-                    
-                    loadCSVData(SALES_CSV_URL, allSalesData, (data) => {
-                        allSalesData = data;
-                        renderSales();
-                        setupSalesDropdowns();
-                    }),
-                    
-                    loadCSVData(PURCHASES_CSV_URL, allPurchasesData, (data) => {
-                        allPurchasesData = data;
-                        renderPurchases();
-                        setupPurchasesDropdowns();
-                    }),
-                    
-                    loadCSVData(JOURNAL_CSV_URL, allJournalData, (data) => {
-                        allJournalData = data;
-                        renderJournal();
-                        setupJournalDropdowns();
-                    }),
-                    
-                    loadCSVData(BALANCES_CSV_URL, allBalancesData, (data) => {
-                        allBalancesData = data;
-                        renderBalances();
-                    })
-                ];
+                // تحميل بيانات الأصناف
+                loadPromises.push(
+                    loadCSV(ITEMS_CSV_URL)
+                        .then(csvText => processData(csvText, true))
+                        .then(data => {
+                            allItemsData = data;
+                            renderItems();
+                            setupItemsDropdowns();
+                        })
+                        .catch(() => {
+                            console.warn('فشل تحميل بيانات الأصناف');
+                            allItemsData = [];
+                        })
+                );
 
-                const results = await Promise.allSettled(loadPromises);
+                // تحميل بيانات المبيعات
+                loadPromises.push(
+                    loadCSV(SALES_CSV_URL)
+                        .then(csvText => processData(csvText))
+                        .then(data => {
+                            allSalesData = data;
+                            renderSales();
+                            setupSalesDropdowns();
+                        })
+                        .catch(() => {
+                            console.warn('فشل تحميل بيانات المبيعات');
+                            allSalesData = [];
+                        })
+                );
+
+                // تحميل بيانات المشتريات
+                loadPromises.push(
+                    loadCSV(PURCHASES_CSV_URL)
+                        .then(csvText => processData(csvText))
+                        .then(data => {
+                            allPurchasesData = data;
+                            renderPurchases();
+                            setupPurchasesDropdowns();
+                        })
+                        .catch(() => {
+                            console.warn('فشل تحميل بيانات المشتريات');
+                            allPurchasesData = [];
+                        })
+                );
+
+                // تحميل بيانات اليومية
+                loadPromises.push(
+                    loadCSV(JOURNAL_CSV_URL)
+                        .then(csvText => processData(csvText))
+                        .then(data => {
+                            allJournalData = data;
+                            renderJournal();
+                            setupJournalDropdowns();
+                        })
+                        .catch(() => {
+                            console.warn('فشل تحميل بيانات اليومية');
+                            allJournalData = [];
+                        })
+                );
+
+                // تحميل بيانات الأرصدة
+                loadPromises.push(
+                    loadCSV(BALANCES_CSV_URL)
+                        .then(csvText => processData(csvText))
+                        .then(data => {
+                            allBalancesData = data;
+                            console.log('بيانات الأرصدة المحملة:', allBalancesData.length, 'صف');
+                            renderBalances();
+                        })
+                        .catch(() => {
+                            console.warn('فشل تحميل بيانات الأرصدة');
+                            allBalancesData = [];
+                        })
+                );
+
+                // انتظار انتهاء جميع عمليات التحميل
+                await Promise.allSettled(loadPromises);
                 
-                // التحقق من النتائج
-                results.forEach((result, index) => {
-                    if (result.status === 'rejected') {
-                        hasError = true;
-                        console.error(`فشل تحميل الملف ${index}:`, result.reason);
-                    }
-                });
-
-                // إذا كان هناك أخطاء، عرض رسالة مناسبة
-                if (hasError && errorMessages.length > 0) {
-                    showError('حدثت بعض الأخطاء في تحميل البيانات: ' + errorMessages.join(', '));
-                } else if (hasError) {
-                    showError('حدث خطأ في تحميل بعض البيانات. قد تكون بعض الجداول فارغة.');
-                }
-
-            } catch (e) { 
-                console.error('خطأ عام في تحميل البيانات:', e);
-                showError('تعذر تحميل البيانات. الرجاء التحقق من اتصال الإنترنت والمحاولة مرة أخرى.');
+            } catch (error) {
+                console.error('خطأ عام:', error);
+                showError('حدث خطأ في تحميل البيانات. الرجاء المحاولة مرة أخرى.');
             } finally {
-                // إخفاء الloader في جميع الأحوال
-                setTimeout(() => {
-                    document.getElementById('loader').classList.add('hidden');
-                }, 500);
+                document.getElementById('loader').classList.add('hidden');
                 
                 if (showSyncIndicator) {
                     setTimeout(() => {
@@ -833,29 +875,20 @@
                     }, 2000);
                 }
                 
-                // تحديث وقت آخر مزامنة
                 lastUpdateTime = new Date();
             }
         }
 
-        // إظهار إشعار المزامنة
         function showSyncNotification() {
-            const indicator = document.getElementById('syncIndicator');
-            indicator.style.display = 'block';
+            document.getElementById('syncIndicator').style.display = 'block';
         }
 
-        // بدء مزامنة تلقائية كل 3 دقائق
         function startAutoSync() {
-            if (syncInterval) {
-                clearInterval(syncInterval);
-            }
-            
-            syncInterval = setInterval(() => {
-                fetchAllData(true);
-            }, 3 * 60 * 1000); // 3 دقائق
+            if (syncInterval) clearInterval(syncInterval);
+            syncInterval = setInterval(() => fetchAllData(true), 3 * 60 * 1000);
         }
 
-        // إعداد القوائم المنسدلة للأصناف
+        // إعداد القوائم المنسدلة
         function setupItemsDropdowns() {
             const configs = [
                 { id: 'searchCat', suggestId: 'suggestCat', key: 'التصنيف' },
@@ -863,11 +896,9 @@
                 { id: 'searchName', suggestId: 'suggestName', key: 'الصنف' },
                 { id: 'searchQty', suggestId: 'suggestQty', key: 'الكمية' }
             ];
-
             setupDropdownsForData(configs, allItemsData);
         }
 
-        // إعداد القوائم المنسدلة للمبيعات
         function setupSalesDropdowns() {
             const configs = [
                 { id: 'searchSalesDate', suggestId: 'suggestSalesDate', key: 'التاريخ' },
@@ -875,11 +906,9 @@
                 { id: 'searchSalesInvoice', suggestId: 'suggestSalesInvoice', key: 'الفاتورة' },
                 { id: 'searchSalesItem', suggestId: 'suggestSalesItem', key: 'الصنف' }
             ];
-
             setupDropdownsForData(configs, allSalesData);
         }
 
-        // إعداد القوائم المنسدلة للمشتريات
         function setupPurchasesDropdowns() {
             const configs = [
                 { id: 'searchPurchasesDate', suggestId: 'suggestPurchasesDate', key: 'التاريخ' },
@@ -887,30 +916,24 @@
                 { id: 'searchPurchasesInvoice', suggestId: 'suggestPurchasesInvoice', key: 'الفاتورة' },
                 { id: 'searchPurchasesItem', suggestId: 'suggestPurchasesItem', key: 'الصنف' }
             ];
-
             setupDropdownsForData(configs, allPurchasesData);
         }
 
-        // إعداد القوائم المنسدلة لليومية
         function setupJournalDropdowns() {
             const configs = [
                 { id: 'searchJournalDate', suggestId: 'suggestJournalDate', key: 'التاريخ' }
             ];
-
             setupDropdownsForData(configs, allJournalData);
 
-            // بحث خاص للدائن/المدين
             const input = document.getElementById('searchJournalAccount');
             const list = document.getElementById('suggestJournalAccount');
 
             const updateList = () => {
                 const val = input.value.toLowerCase();
-                
-                // جمع الأسماء الفريدة من عمودي الدائن والمدين
                 const creditNames = [...new Set(allJournalData.map(row => String(row['دائن'] || '')))];
                 const debitNames = [...new Set(allJournalData.map(row => String(row['مدين'] || '')))];
                 const allNames = [...new Set([...creditNames, ...debitNames])]
-                    .filter(name => name && name.toLowerCase().includes(val)) // عرض المطابقة الجزئية
+                    .filter(name => name && name.toLowerCase().includes(val))
                     .slice(0, 15);
 
                 list.innerHTML = '';
@@ -938,15 +961,8 @@
                 }
             };
 
-            input.onfocus = function() {
-                hideAllSuggestLists();
-                updateList();
-            };
-            
-            input.oninput = function() {
-                updateList();
-            };
-            
+            input.onfocus = updateList;
+            input.oninput = updateList;
             input.onkeydown = function(e) {
                 if (e.key === 'ArrowDown') {
                     e.preventDefault();
@@ -964,8 +980,7 @@
                     e.preventDefault();
                     if (currentFocusIndex >= 0 && currentSuggestItems[currentFocusIndex]) {
                         currentSuggestItems[currentFocusIndex].click();
-                    } else if (currentSuggestItems.length > 0 && currentSuggestItems[0]) {
-                        // إذا لم يكن هناك عنصر محدد، اختر الأول
+                    } else if (currentSuggestItems.length > 0) {
                         currentSuggestItems[0].click();
                     }
                 } else if (e.key === 'Escape') {
@@ -974,19 +989,16 @@
             };
         }
 
-        // دالة عامة لإعداد القوائم المنسدلة
         function setupDropdownsForData(configs, dataArray) {
             configs.forEach(config => {
                 const input = document.getElementById(config.id);
                 const list = document.getElementById(config.suggestId);
-
                 if (!input || !list) return;
 
                 const updateList = () => {
                     const val = input.value.toLowerCase();
-                    // عرض المطابقة الجزئية عند الكتابة
                     const uniqueValues = [...new Set(dataArray.map(row => String(row[config.key] || '')))]
-                        .filter(v => v && v.toLowerCase().includes(val)) // مطابقة جزئية
+                        .filter(v => v && v.toLowerCase().includes(val))
                         .slice(0, 15);
 
                     list.innerHTML = '';
@@ -1017,15 +1029,8 @@
                     }
                 };
 
-                input.onfocus = function() {
-                    hideAllSuggestLists();
-                    updateList();
-                };
-                
-                input.oninput = function() {
-                    updateList();
-                };
-                
+                input.onfocus = updateList;
+                input.oninput = updateList;
                 input.onkeydown = function(e) {
                     if (e.key === 'ArrowDown') {
                         e.preventDefault();
@@ -1043,8 +1048,7 @@
                         e.preventDefault();
                         if (currentFocusIndex >= 0 && currentSuggestItems[currentFocusIndex]) {
                             currentSuggestItems[currentFocusIndex].click();
-                        } else if (currentSuggestItems.length > 0 && currentSuggestItems[0]) {
-                            // إذا لم يكن هناك عنصر محدد، اختر الأول
+                        } else if (currentSuggestItems.length > 0) {
                             currentSuggestItems[0].click();
                         }
                     } else if (e.key === 'Escape') {
@@ -1055,28 +1059,19 @@
         }
 
         function updateActiveItem() {
-            // إزالة التحديد من جميع العناصر
-            currentSuggestItems.forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            // إضافة التحديد للعنصر الحالي
+            currentSuggestItems.forEach(item => item.classList.remove('active'));
             if (currentFocusIndex >= 0 && currentSuggestItems[currentFocusIndex]) {
                 currentSuggestItems[currentFocusIndex].classList.add('active');
                 currentSuggestItems[currentFocusIndex].scrollIntoView({ block: 'nearest' });
             }
         }
 
-        // إخفاء جميع القوائم المنسدلة
         function hideAllSuggestLists() {
-            document.querySelectorAll('.suggestions-list').forEach(l => {
-                l.style.display = 'none';
-            });
+            document.querySelectorAll('.suggestions-list').forEach(l => l.style.display = 'none');
             currentFocusIndex = -1;
             currentSuggestItems = [];
         }
 
-        // إخفاء القوائم عند النقر خارجها
         document.addEventListener('click', (e) => {
             if (!e.target.classList.contains('search-input') && 
                 !e.target.classList.contains('sales-search-input') && 
@@ -1087,13 +1082,12 @@
             }
         });
 
-        // دالة مساعدة للبحث بمطابقة تامة أو عرض الكل
         function searchFilter(value, searchValue) {
-            if (!searchValue) return true; // إذا كان البحث فارغاً، عرض كل شيء
-            return String(value || '').toLowerCase() === searchValue.toLowerCase(); // مطابقة تامة
+            if (!searchValue) return true;
+            return String(value || '').toLowerCase() === searchValue.toLowerCase();
         }
 
-        // عرض بيانات الأصناف
+        // عرض بيانات الأصناف - تم الإصلاح
         function renderItems() {
             const tbody = document.getElementById('tableBody');
             const rate = parseFloat(document.getElementById('exchangeRate').value) || 1;
@@ -1105,6 +1099,14 @@
             };
             
             tbody.innerHTML = '';
+            
+            if (allItemsData.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="10" class="text-center py-4 text-gray-500">لا توجد بيانات للعرض</td>`;
+                tbody.appendChild(tr);
+                return;
+            }
+            
             const filteredData = allItemsData.filter(row => 
                 searchFilter(row['التصنيف'], filters.cat) &&
                 searchFilter(row['المورد'], filters.supp) &&
@@ -1113,8 +1115,8 @@
             );
             
             filteredData.forEach((row, i) => {
-                const buy = parseFloat(String(row['شراء']).replace(/[^\d.]/g, '')) || 0;
-                const disc = parseFloat(String(row['الحسم']).replace(/[^\d.]/g, '')) || 0;
+                const buy = parseFloat(String(row['شراء'] || row['سعر الشراء'] || '0').replace(/[^\d.]/g, '')) || 0;
+                const disc = parseFloat(String(row['الحسم'] || row['نسبة الحسم'] || '0').replace(/[^\d.]/g, '')) || 0;
                 const final = buy - (buy * disc / 100);
                 const plus = final * 1.15;
                 const syp = plus * rate;
@@ -1135,7 +1137,6 @@
             });
         }
 
-        // عرض بيانات المبيعات
         function renderSales() {
             const tbody = document.getElementById('salesTableBody');
             const filters = {
@@ -1182,12 +1183,10 @@
                 tbody.appendChild(tr);
             });
             
-            // تحديث الإجماليات
             document.getElementById('salesTotalUsd').textContent = `${totalUsd.toFixed(2)} $`;
             document.getElementById('salesTotalSyp').textContent = `${Math.round(totalSyp).toLocaleString()} ل.س`;
         }
 
-        // عرض بيانات المشتريات
         function renderPurchases() {
             const tbody = document.getElementById('purchasesTableBody');
             const filters = {
@@ -1235,7 +1234,6 @@
             document.getElementById('purchasesTotalUsd').textContent = `${totalUsd.toFixed(2)} $`;
         }
 
-        // عرض بيانات اليومية
         function renderJournal() {
             const tbody = document.getElementById('journalTableBody');
             const filters = {
@@ -1272,52 +1270,64 @@
             });
         }
 
-        // عرض بيانات الأرصدة
+        // عرض بيانات الأرصدة - تم الإصلاح
         function renderBalances() {
             const tbody = document.getElementById('balancesTableBody');
-            
             tbody.innerHTML = '';
             
-            // تصفية البيانات حسب الشرط: فقط الصفوف التي فيها رصيد دولار (H) أو رصيد سوري (I) لا يساوي الصفر
-            const filteredData = allBalancesData.filter(row => {
-                // الحصول على قيم الأعمدة H و I
-                const balanceUsd = parseFloat(String(row['الرصيد دولار'] || row['H'] || '0').replace(/[^\d.-]/g, '')) || 0;
-                const balanceSyp = parseFloat(String(row['الرصيد سوري'] || row['I'] || '0').replace(/[^\d.-]/g, '')) || 0;
-                
-                // إرجاع صحيح إذا كان أي من القيمتين لا تساوي الصفر
-                return balanceUsd !== 0 || balanceSyp !== 0;
-            });
+            if (allBalancesData.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="10" class="text-center py-4 text-gray-500">لا توجد بيانات للعرض</td>`;
+                tbody.appendChild(tr);
+                return;
+            }
+            
+            console.log('عدد صفوف الأرصدة:', allBalancesData.length);
             
             let totalUsd = 0;
             let totalSyp = 0;
             let rowCount = 0;
             
-            filteredData.forEach((row, i) => {
-                // استخراج البيانات من الصفوف حسب هيكل الجدول في الصورة
-                const account = row['A'] || row['الحساب'] || '';
+            // عرض جميع الصفوف بدون تصفية
+            allBalancesData.forEach((row, i) => {
+                // الحصول على قيم الأعمدة مع أسماء بديلة
+                const account = row['الحساب'] || row['A'] || '';
                 
-                // المبيعات (C و B)
-                const salesUsd = parseFloat(String(row['C'] || row['مبيعات دولار'] || '0').replace(/[^\d.-]/g, '')) || 0;
-                const salesSyp = parseFloat(String(row['B'] || row['مبيعات سوري'] || '0').replace(/[^\d.-]/g, '')) || 0;
+                // المبيعات
+                const salesUsd = parseFloat(String(row['مبيعات دولار'] || row['C'] || '0').replace(/[^\d.-]/g, '')) || 0;
+                const salesSyp = parseFloat(String(row['مبيعات سوري'] || row['B'] || '0').replace(/[^\d.-]/g, '')) || 0;
                 
-                // المشتريات (E و D)
-                const purchasesUsd = parseFloat(String(row['E'] || row['مشتريات دولار'] || '0').replace(/[^\d.-]/g, '')) || 0;
-                const purchasesSyp = parseFloat(String(row['D'] || row['مشتريات سوري'] || '0').replace(/[^\d.-]/g, '')) || 0;
+                // المشتريات
+                const purchasesUsd = parseFloat(String(row['مشتريات دولار'] || row['E'] || '0').replace(/[^\d.-]/g, '')) || 0;
+                const purchasesSyp = parseFloat(String(row['مشتريات سوري'] || row['D'] || '0').replace(/[^\d.-]/g, '')) || 0;
                 
-                // الضغوط (G و F)
-                const pressureUsd = parseFloat(String(row['G'] || row['الضغوط دولار'] || '0').replace(/[^\d.-]/g, '')) || 0;
-                const pressureSyp = parseFloat(String(row['F'] || row['الضغوط سوري'] || '0').replace(/[^\d.-]/g, '')) || 0;
+                // المدفوع
+                const paymentUsd = parseFloat(String(row['المدفوع دولار'] || row['الضغوط دولار'] || row['G'] || '0').replace(/[^\d.-]/g, '')) || 0;
+                const paymentSyp = parseFloat(String(row['المدفوع سوري'] || row['الضغوط سوري'] || row['F'] || '0').replace(/[^\d.-]/g, '')) || 0;
                 
-                // الأرصدة (H و I)
-                const balanceUsd = parseFloat(String(row['H'] || row['الرصيد دولار'] || '0').replace(/[^\d.-]/g, '')) || 0;
-                const balanceSyp = parseFloat(String(row['I'] || row['الرصيد سوري'] || '0').replace(/[^\d.-]/g, '')) || 0;
+                // الأرصدة
+                const balanceUsd = parseFloat(String(row['الرصيد دولار'] || row['H'] || '0').replace(/[^\d.-]/g, '')) || 0;
+                const balanceSyp = parseFloat(String(row['الرصيد سوري'] || row['I'] || '0').replace(/[^\d.-]/g, '')) || 0;
                 
-                // جمع الإجماليات
+                // تخطي الصف إذا كان فارغاً
+                if (!account.trim() && salesUsd === 0 && salesSyp === 0 && 
+                    purchasesUsd === 0 && purchasesSyp === 0 && 
+                    paymentUsd === 0 && paymentSyp === 0 && 
+                    balanceUsd === 0 && balanceSyp === 0) {
+                    return;
+                }
+                
+                // تخطي صف الإجمالي إذا كان موجوداً
+                if (account.toLowerCase().includes('إجمالي') || 
+                    account.toLowerCase().includes('مجموع') ||
+                    account.toLowerCase().includes('total')) {
+                    return;
+                }
+                
                 totalUsd += balanceUsd;
                 totalSyp += balanceSyp;
                 rowCount++;
                 
-                // تحديد لون الرصيد (أخضر للرصيد الموجب، أحمر للرصيد السالب)
                 const balanceUsdClass = balanceUsd >= 0 ? 'balance-positive' : 'balance-negative';
                 const balanceSypClass = balanceSyp >= 0 ? 'balance-positive' : 'balance-negative';
                 
@@ -1329,32 +1339,29 @@
                     <td class="text-[11px]">${Math.round(salesSyp).toLocaleString()}</td>
                     <td class="text-[11px]">${purchasesUsd.toFixed(2)}</td>
                     <td class="text-[11px]">${Math.round(purchasesSyp).toLocaleString()}</td>
-                    <td class="text-[11px]">${pressureUsd.toFixed(2)}</td>
-                    <td class="text-[11px]">${Math.round(pressureSyp).toLocaleString()}</td>
+                    <td class="text-[11px]">${paymentUsd.toFixed(2)}</td>
+                    <td class="text-[11px]">${Math.round(paymentSyp).toLocaleString()}</td>
                     <td class="font-bold ${balanceUsdClass}">${balanceUsd.toFixed(2)}</td>
                     <td class="font-bold ${balanceSypClass}">${Math.round(balanceSyp).toLocaleString()}</td>
                 `;
                 tbody.appendChild(tr);
             });
             
-            // تحديث الإجماليات
+            if (rowCount === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="10" class="text-center py-4 text-gray-500">لا توجد بيانات صالحة للعرض</td>`;
+                tbody.appendChild(tr);
+            }
+            
             document.getElementById('balancesTotalUsd').textContent = `${totalUsd.toFixed(2)} $`;
             document.getElementById('balancesTotalSyp').textContent = `${Math.round(totalSyp).toLocaleString()} ل.س`;
         }
 
-        // تبديل التبويبات
         function switchTab(tabName) {
             currentTab = tabName;
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            // تحديث أزرار التبويبات
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            // تفعيل التبويب المختار
             const tabs = {
                 'items': ['itemsSearch', 'itemsTable'],
                 'sales': ['salesSearch', 'salesTable'],
@@ -1364,154 +1371,76 @@
             };
             
             tabs[tabName].forEach(id => {
-                if (document.getElementById(id)) {
-                    document.getElementById(id).classList.add('active');
-                }
+                if (document.getElementById(id)) document.getElementById(id).classList.add('active');
             });
             
             document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
-            
-            // إخفاء جميع القوائم المنسدلة
             hideAllSuggestLists();
             
-            // عند التبديل إلى تبويب الأرصدة، قم بتحديث البيانات
-            if (tabName === 'balances') {
-                renderBalances();
-            }
+            if (tabName === 'balances') renderBalances();
+            else if (tabName === 'items') renderItems();
         }
 
-        // تهيئة خيارات الطباعة
         function initPrintOptions() {
-            // تحميل إعدادات الطباعة المحفوظة
             loadPrintSettings();
             
-            // خيارات طباعة الأصناف
-            const itemsContainer = document.getElementById('columnCheckboxes');
-            itemsContainer.innerHTML = '';
-            itemsColumns.forEach(col => {
-                const label = document.createElement('label');
-                label.className = 'flex items-center gap-2 cursor-pointer';
-                const isChecked = printSettings.items[col.id] !== false; // true by default
-                label.innerHTML = `<input type="checkbox" ${isChecked ? 'checked' : ''} data-col-ref="${col.id}"> ${col.label}`;
-                itemsContainer.appendChild(label);
-            });
-
-            // خيارات طباعة المبيعات
-            const salesContainer = document.getElementById('salesColumnCheckboxes');
-            salesContainer.innerHTML = '';
-            salesColumns.forEach(col => {
-                const label = document.createElement('label');
-                label.className = 'flex items-center gap-2 cursor-pointer';
-                const isChecked = printSettings.sales[col.id] !== false; // true by default
-                label.innerHTML = `<input type="checkbox" ${isChecked ? 'checked' : ''} data-col-ref="${col.id}"> ${col.label}`;
-                salesContainer.appendChild(label);
-            });
-
-            // خيارات طباعة المشتريات
-            const purchasesContainer = document.getElementById('purchasesColumnCheckboxes');
-            purchasesContainer.innerHTML = '';
-            purchasesColumns.forEach(col => {
-                const label = document.createElement('label');
-                label.className = 'flex items-center gap-2 cursor-pointer';
-                const isChecked = printSettings.purchases[col.id] !== false; // true by default
-                label.innerHTML = `<input type="checkbox" ${isChecked ? 'checked' : ''} data-col-ref="${col.id}"> ${col.label}`;
-                purchasesContainer.appendChild(label);
-            });
-
-            // خيارات طباعة اليومية
-            const journalContainer = document.getElementById('journalColumnCheckboxes');
-            journalContainer.innerHTML = '';
-            journalColumns.forEach(col => {
-                const label = document.createElement('label');
-                label.className = 'flex items-center gap-2 cursor-pointer';
-                const isChecked = printSettings.journal[col.id] !== false; // true by default
-                label.innerHTML = `<input type="checkbox" ${isChecked ? 'checked' : ''} data-col-ref="${col.id}"> ${col.label}`;
-                journalContainer.appendChild(label);
-            });
-
-            // خيارات طباعة الأرصدة
-            const balancesContainer = document.getElementById('balancesColumnCheckboxes');
-            balancesContainer.innerHTML = '';
-            balancesColumns.forEach(col => {
-                const label = document.createElement('label');
-                label.className = 'flex items-center gap-2 cursor-pointer';
-                const isChecked = printSettings.balances[col.id] !== false; // true by default
-                label.innerHTML = `<input type="checkbox" ${isChecked ? 'checked' : ''} data-col-ref="${col.id}"> ${col.label}`;
-                balancesContainer.appendChild(label);
+            const containers = {
+                items: document.getElementById('columnCheckboxes'),
+                sales: document.getElementById('salesColumnCheckboxes'),
+                purchases: document.getElementById('purchasesColumnCheckboxes'),
+                journal: document.getElementById('journalColumnCheckboxes'),
+                balances: document.getElementById('balancesColumnCheckboxes')
+            };
+            
+            const columns = { items: itemsColumns, sales: salesColumns, 
+                            purchases: purchasesColumns, journal: journalColumns, 
+                            balances: balancesColumns };
+            
+            Object.keys(containers).forEach(key => {
+                if (containers[key]) {
+                    containers[key].innerHTML = '';
+                    columns[key].forEach(col => {
+                        const label = document.createElement('label');
+                        label.className = 'flex items-center gap-2 cursor-pointer';
+                        const isChecked = printSettings[key][col.id] !== false;
+                        label.innerHTML = `<input type="checkbox" ${isChecked ? 'checked' : ''} data-col-ref="${col.id}"> ${col.label}`;
+                        containers[key].appendChild(label);
+                    });
+                }
             });
         }
 
-        // تحميل إعدادات الطباعة من localStorage
         function loadPrintSettings() {
             try {
-                const savedSettings = localStorage.getItem('printSettings');
-                if (savedSettings) {
-                    printSettings = JSON.parse(savedSettings);
-                }
+                const saved = localStorage.getItem('printSettings');
+                if (saved) printSettings = JSON.parse(saved);
             } catch (e) {
-                console.error('خطأ في تحميل إعدادات الطباعة:', e);
-                // استعادة الإعدادات الافتراضية في حالة الخطأ
-                printSettings = {
-                    items: {}, sales: {}, purchases: {}, journal: {}, balances: {}
-                };
+                console.error('خطأ في تحميل الإعدادات:', e);
             }
         }
 
-        // حفظ إعدادات الطباعة إلى localStorage
         function savePrintSettings() {
             try {
-                // حفظ إعدادات الأصناف
-                const itemsChecks = document.querySelectorAll('#columnCheckboxes input');
-                itemsChecks.forEach(check => {
-                    const colId = check.getAttribute('data-col-ref');
-                    printSettings.items[colId] = check.checked;
+                const containers = ['items', 'sales', 'purchases', 'journal', 'balances'];
+                containers.forEach(key => {
+                    const checks = document.querySelectorAll(`#${key}ColumnCheckboxes input`);
+                    checks.forEach(check => {
+                        const colId = check.getAttribute('data-col-ref');
+                        printSettings[key][colId] = check.checked;
+                    });
                 });
-
-                // حفظ إعدادات المبيعات
-                const salesChecks = document.querySelectorAll('#salesColumnCheckboxes input');
-                salesChecks.forEach(check => {
-                    const colId = check.getAttribute('data-col-ref');
-                    printSettings.sales[colId] = check.checked;
-                });
-
-                // حفظ إعدادات المشتريات
-                const purchasesChecks = document.querySelectorAll('#purchasesColumnCheckboxes input');
-                purchasesChecks.forEach(check => {
-                    const colId = check.getAttribute('data-col-ref');
-                    printSettings.purchases[colId] = check.checked;
-                });
-
-                // حفظ إعدادات اليومية
-                const journalChecks = document.querySelectorAll('#journalColumnCheckboxes input');
-                journalChecks.forEach(check => {
-                    const colId = check.getAttribute('data-col-ref');
-                    printSettings.journal[colId] = check.checked;
-                });
-
-                // حفظ إعدادات الأرصدة
-                const balancesChecks = document.querySelectorAll('#balancesColumnCheckboxes input');
-                balancesChecks.forEach(check => {
-                    const colId = check.getAttribute('data-col-ref');
-                    printSettings.balances[colId] = check.checked;
-                });
-
-                // حفظ في localStorage
+                
                 localStorage.setItem('printSettings', JSON.stringify(printSettings));
-                
-                // إخفاء خيارات الطباعة
                 hideAllPrintOptions();
-                
-                // إظهار رسالة تأكيد
-                alert('تم حفظ إعدادات الطباعة بنجاح');
+                alert('تم حفظ الإعدادات');
             } catch (e) {
-                console.error('خطأ في حفظ إعدادات الطباعة:', e);
+                console.error('خطأ في حفظ الإعدادات:', e);
                 alert('حدث خطأ في حفظ الإعدادات');
             }
         }
 
-        // عرض/إخفاء خيارات الطباعة
         function togglePrintSettings() {
-            const tabOptions = {
+            const options = {
                 'items': 'printOptions',
                 'sales': 'salesPrintOptions',
                 'purchases': 'purchasesPrintOptions',
@@ -1519,42 +1448,35 @@
                 'balances': 'balancesPrintOptions'
             };
             
-            const div = document.getElementById(tabOptions[currentTab]);
+            const div = document.getElementById(options[currentTab]);
             hideAllPrintOptions();
             div.style.display = div.style.display === 'block' ? 'none' : 'block';
         }
 
         function hideAllPrintOptions() {
-            document.getElementById('printOptions').style.display = 'none';
-            document.getElementById('salesPrintOptions').style.display = 'none';
-            document.getElementById('purchasesPrintOptions').style.display = 'none';
-            document.getElementById('journalPrintOptions').style.display = 'none';
-            document.getElementById('balancesPrintOptions').style.display = 'none';
+            ['printOptions', 'salesPrintOptions', 'purchasesPrintOptions', 
+             'journalPrintOptions', 'balancesPrintOptions'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
         }
 
-        // إعداد الطباعة
         function preparePrint() {
-            let checks, colSelector;
-            
-            const tabConfigs = {
-                'items': {checks: '#columnCheckboxes input', selector: '#mainTable'},
-                'sales': {checks: '#salesColumnCheckboxes input', selector: '#salesTableContent'},
-                'purchases': {checks: '#purchasesColumnCheckboxes input', selector: '#purchasesTableContent'},
-                'journal': {checks: '#journalColumnCheckboxes input', selector: '#journalTableContent'},
-                'balances': {checks: '#balancesColumnCheckboxes input', selector: '#balancesTableContent'}
+            const configs = {
+                'items': { selector: '#mainTable' },
+                'sales': { selector: '#salesTableContent' },
+                'purchases': { selector: '#purchasesTableContent' },
+                'journal': { selector: '#journalTableContent' },
+                'balances': { selector: '#balancesTableContent' }
             };
             
-            const config = tabConfigs[currentTab];
-            
-            // استخدام الإعدادات المحفوظة للتحقق
+            const config = configs[currentTab];
             const currentSettings = printSettings[currentTab];
             
-            // إخفاء جميع الأعمدة أولاً
             document.querySelectorAll(`${config.selector} th, ${config.selector} td`).forEach(el => {
                 el.classList.remove('print-hidden');
             });
             
-            // إخفاء الأعمدة غير المحددة في الإعدادات المحفوظة
             Object.keys(currentSettings).forEach(colId => {
                 if (!currentSettings[colId]) {
                     const th = document.querySelector(`${config.selector} th[data-col="${colId}"]`);
@@ -1568,10 +1490,8 @@
                 }
             });
             
-            // تنفيذ الطباعة
             window.print();
             
-            // إعادة عرض جميع الأعمدة بعد الطباعة
             setTimeout(() => {
                 document.querySelectorAll(`${config.selector} th, ${config.selector} td`).forEach(el => {
                     el.classList.remove('print-hidden');
@@ -1595,7 +1515,7 @@
         window.onload = () => { 
             initPrintOptions(); 
             fetchAllData(); 
-            startAutoSync(); // بدء المزامنة التلقائية
+            startAutoSync();
         };
     </script>
 </body>
