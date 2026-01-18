@@ -143,8 +143,9 @@
 
         .usd-total { background: #dbeafe; color: #1e40af; }
         .syp-total { background: #dcfce7; color: #166534; }
-        .purchase-total { background: #f3e8ff; color: #6b21a8; }
+        .purchase-total { background: #fee2e2; color: #991b1b; }
         .payment-total { background: #fef3c7; color: #92400e; }
+        .balance-total { background: #f3e8ff; color: #6b21a8; }
         
         /* تنسيق خاص لعمود البيان في اليومية */
         .journal-description {
@@ -232,34 +233,13 @@
             font-weight: 700;
         }
         
-        /* تخصيص ألوان الأرصدة بدون خلفية */
-        .balance-usd-positive {
-            color: #059669 !important;
-            font-weight: 700;
-        }
-        
-        .balance-usd-negative {
-            color: #dc2626 !important;
-            font-weight: 700;
-        }
-        
-        .balance-syp-positive {
-            color: #059669 !important;
-            font-weight: 700;
-        }
-        
-        .balance-syp-negative {
-            color: #dc2626 !important;
-            font-weight: 700;
-        }
-        
-        /* تنسيق كشف الحساب */
+        /* تنسيق كشف الحساب النظامي */
         .sale-row {
             background-color: #f0f9ff !important;
         }
         
         .purchase-row {
-            background-color: #fef7ff !important;
+            background-color: #fef2f2 !important;
         }
         
         .payment-row {
@@ -267,7 +247,7 @@
         }
         
         .sale-badge {
-            background-color: #059669;
+            background-color: #1d4ed8;
             color: white;
             padding: 2px 8px;
             border-radius: 12px;
@@ -276,7 +256,7 @@
         }
         
         .purchase-badge {
-            background-color: #7c3aed;
+            background-color: #dc2626;
             color: white;
             padding: 2px 8px;
             border-radius: 12px;
@@ -342,11 +322,6 @@
             margin-bottom: 10px;
         }
         
-        /* تنسيق خانة البحث عن الحساب */
-        .account-search-box {
-            grid-column: span 2;
-        }
-        
         /* تنسيق كروت التبويبات الفرعية */
         .sub-tab-button {
             padding: 6px 12px;
@@ -378,15 +353,25 @@
             flex-wrap: wrap;
         }
         
-        /* تنسيق خاص لعرض الدفعات */
-        .payment-credit {
+        /* تنسيق خاص لعرض الرصيد المتداول */
+        .running-balance {
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        
+        .positive-balance-cell {
             color: #059669 !important;
             font-weight: 700;
         }
         
-        .payment-debit {
+        .negative-balance-cell {
             color: #dc2626 !important;
             font-weight: 700;
+        }
+        
+        /* تنسيق خانة البحث عن الحساب */
+        .account-search-box {
+            grid-column: span 2;
         }
         
         /* تحسينات للعرض على الجوال */
@@ -562,7 +547,7 @@
                     <!-- خانة البحث عن الحساب -->
                     <div class="account-search-box">
                         <div class="search-wrapper">
-                            <input type="text" id="searchStatementAccount" placeholder="بحث عن حساب (عميل/مورد/دفعة)" class="input-glass statement-search-input" autocomplete="off">
+                            <input type="text" id="searchStatementAccount" placeholder="بحث عن حساب (عميل/مورد)" class="input-glass statement-search-input" autocomplete="off">
                             <div id="suggestStatementAccount" class="suggestions-list"></div>
                         </div>
                     </div>
@@ -578,38 +563,12 @@
                         </div>
                     </div>
                     
-                    <!-- أنواع العمليات -->
-                    <div class="search-wrapper">
-                        <input type="text" id="searchStatementType" placeholder="النوع (بيع/شراء/دفعة)" class="input-glass statement-search-input" autocomplete="off">
-                        <div id="suggestStatementType" class="suggestions-list"></div>
-                    </div>
-                    
-                    <!-- البحث بالصنف -->
-                    <div class="search-wrapper">
-                        <input type="text" id="searchStatementItem" placeholder="الصنف" class="input-glass statement-search-input" autocomplete="off">
-                        <div id="suggestStatementItem" class="suggestions-list"></div>
-                    </div>
-                    
-                    <!-- البحث بالفاتورة -->
-                    <div class="search-wrapper">
-                        <input type="text" id="searchStatementInvoice" placeholder="رقم الفاتورة" class="input-glass statement-search-input" autocomplete="off">
-                        <div id="suggestStatementInvoice" class="suggestions-list"></div>
-                    </div>
-                    
                     <!-- زر تطبيق البحث -->
                     <div class="search-wrapper">
                         <button onclick="applyStatementFilter()" class="apply-date-btn w-full">
                             <i class="fas fa-search text-[10px] mr-1"></i> تطبيق البحث
                         </button>
                     </div>
-                </div>
-                
-                <!-- التبويبات الفرعية -->
-                <div class="sub-tabs-container">
-                    <button onclick="switchStatementSubTab('all')" class="sub-tab-button active">الكل</button>
-                    <button onclick="switchStatementSubTab('sales')" class="sub-tab-button">المبيعات</button>
-                    <button onclick="switchStatementSubTab('purchases')" class="sub-tab-button">المشتريات</button>
-                    <button onclick="switchStatementSubTab('payments')" class="sub-tab-button">الدفعات</button>
                 </div>
             </div>
         </div>
@@ -796,26 +755,26 @@
             </div>
         </div>
 
-        <!-- جدول كشف الحساب -->
+        <!-- جدول كشف الحساب النظامي -->
         <div id="statementTable" class="tab-content">
             <!-- إجماليات كشف الحساب -->
             <div class="totals-container mb-3 no-print">
                 <div class="grid grid-cols-4 gap-3">
                     <div class="total-card usd-total">
-                        <div class="text-[11px] text-gray-600">المبيعات دولار</div>
+                        <div class="text-[11px] text-gray-600">إجمالي المبيعات</div>
                         <div class="text-sm" id="statementSalesTotalUsd">0.00 $</div>
                     </div>
                     <div class="total-card purchase-total">
-                        <div class="text-[11px] text-gray-600">المشتريات دولار</div>
+                        <div class="text-[11px] text-gray-600">إجمالي المشتريات</div>
                         <div class="text-sm" id="statementPurchasesTotalUsd">0.00 $</div>
                     </div>
                     <div class="total-card payment-total">
-                        <div class="text-[11px] text-gray-600">الدفعات دولار</div>
-                        <div class="text-sm" id="statementPaymentsTotalUsd">0.00 $</div>
+                        <div class="text-[11px] text-gray-600">صافي الدفعات</div>
+                        <div class="text-sm" id="statementPaymentsNetUsd">0.00 $</div>
                     </div>
-                    <div class="total-card syp-total">
-                        <div class="text-[11px] text-gray-600">المبيعات سوري</div>
-                        <div class="text-sm" id="statementSalesTotalSyp">0 ل.س</div>
+                    <div class="total-card balance-total">
+                        <div class="text-[11px] text-gray-600">الرصيد الحالي</div>
+                        <div class="text-sm" id="statementCurrentBalance">0.00 $</div>
                     </div>
                 </div>
             </div>
@@ -825,16 +784,16 @@
                     <thead>
                         <tr>
                             <th data-col="index" class="w-12">#</th>
-                            <th data-col="type">النوع</th>
                             <th data-col="date">التاريخ</th>
+                            <th data-col="type">نوع الحركة</th>
                             <th data-col="account">الحساب</th>
                             <th data-col="invoice">الفاتورة</th>
                             <th data-col="item">الصنف</th>
                             <th data-col="qty">الكمية</th>
-                            <th data-col="price_usd">السعر دولار</th>
-                            <th data-col="total_usd">ا.دولار</th>
-                            <th data-col="price_syp">السعر سوري</th>
-                            <th data-col="total_syp">ا.سوري</th>
+                            <th data-col="amount_usd">المبلغ دولار</th>
+                            <th data-col="amount_syp">المبلغ سوري</th>
+                            <th data-col="running_balance_usd">الرصيد دولار</th>
+                            <th data-col="running_balance_syp">الرصيد سوري</th>
                             <th data-col="description">البيان</th>
                         </tr>
                     </thead>
@@ -859,7 +818,6 @@
         let allJournalData = [];
         let allBalancesData = [];
         let currentTab = 'items';
-        let statementSubTab = 'all';
         let lastUpdateTime = null;
         let syncInterval;
         
@@ -911,14 +869,16 @@
             {id:'balance_syp',label:'الرصيد سوري'}
         ];
 
-        // أعمدة كشف الحساب
+        // أعمدة كشف الحساب النظامي
         const statementColumns = [
-            {id:'index',label:'#'},{id:'type',label:'النوع'},
-            {id:'date',label:'التاريخ'},{id:'account',label:'الحساب'},
+            {id:'index',label:'#'},{id:'date',label:'التاريخ'},
+            {id:'type',label:'نوع الحركة'},{id:'account',label:'الحساب'},
             {id:'invoice',label:'الفاتورة'},{id:'item',label:'الصنف'},
-            {id:'qty',label:'الكمية'},{id:'price_usd',label:'السعر دولار'},
-            {id:'total_usd',label:'ا.دولار'},{id:'price_syp',label:'السعر سوري'},
-            {id:'total_syp',label:'ا.سوري'},{id:'description',label:'البيان'}
+            {id:'qty',label:'الكمية'},{id:'amount_usd',label:'المبلغ دولار'},
+            {id:'amount_syp',label:'المبلغ سوري'},
+            {id:'running_balance_usd',label:'الرصيد دولار'},
+            {id:'running_balance_syp',label:'الرصيد سوري'},
+            {id:'description',label:'البيان'}
         ];
 
         // تحميل جميع البيانات
@@ -1211,220 +1171,6 @@
             };
             
             accountInput.onkeydown = function(e) {
-                if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    if (currentSuggestItems.length > 0) {
-                        currentFocusIndex = Math.min(currentFocusIndex + 1, currentSuggestItems.length - 1);
-                        updateActiveItem();
-                    }
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (currentSuggestItems.length > 0) {
-                        currentFocusIndex = Math.max(currentFocusIndex - 1, 0);
-                        updateActiveItem();
-                    }
-                } else if (e.key === 'Enter') {
-                    e.preventDefault();
-                    if (currentFocusIndex >= 0 && currentSuggestItems[currentFocusIndex]) {
-                        currentSuggestItems[currentFocusIndex].click();
-                    } else if (currentSuggestItems.length > 0 && currentSuggestItems[0]) {
-                        currentSuggestItems[0].click();
-                    }
-                } else if (e.key === 'Escape') {
-                    hideAllSuggestLists();
-                }
-            };
-
-            // إعداد البحث بالنوع (بيع/شراء/دفعة)
-            const typeInput = document.getElementById('searchStatementType');
-            const typeList = document.getElementById('suggestStatementType');
-
-            const updateTypeList = () => {
-                const val = typeInput.value.toLowerCase();
-                const types = ['بيع', 'شراء', 'دفعة']
-                    .filter(type => type.toLowerCase().includes(val));
-
-                typeList.innerHTML = '';
-                currentSuggestItems = [];
-                
-                if (types.length > 0) {
-                    types.forEach(type => {
-                        const div = document.createElement('div');
-                        div.className = 'suggestion-item';
-                        div.textContent = type;
-                        div.onclick = () => {
-                            typeInput.value = type;
-                            hideAllSuggestLists();
-                            renderStatement();
-                        };
-                        typeList.appendChild(div);
-                        currentSuggestItems.push(div);
-                    });
-                    typeList.style.display = 'block';
-                    currentFocusIndex = -1;
-                } else {
-                    typeList.style.display = 'none';
-                    currentFocusIndex = -1;
-                    currentSuggestItems = [];
-                }
-            };
-
-            typeInput.onfocus = function() {
-                hideAllSuggestLists();
-                updateTypeList();
-            };
-            
-            typeInput.oninput = function() {
-                updateTypeList();
-            };
-            
-            typeInput.onkeydown = function(e) {
-                if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    if (currentSuggestItems.length > 0) {
-                        currentFocusIndex = Math.min(currentFocusIndex + 1, currentSuggestItems.length - 1);
-                        updateActiveItem();
-                    }
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (currentSuggestItems.length > 0) {
-                        currentFocusIndex = Math.max(currentFocusIndex - 1, 0);
-                        updateActiveItem();
-                    }
-                } else if (e.key === 'Enter') {
-                    e.preventDefault();
-                    if (currentFocusIndex >= 0 && currentSuggestItems[currentFocusIndex]) {
-                        currentSuggestItems[currentFocusIndex].click();
-                    } else if (currentSuggestItems.length > 0 && currentSuggestItems[0]) {
-                        currentSuggestItems[0].click();
-                    }
-                } else if (e.key === 'Escape') {
-                    hideAllSuggestLists();
-                }
-            };
-
-            // إعداد البحث بالصنف
-            const itemInput = document.getElementById('searchStatementItem');
-            const itemList = document.getElementById('suggestStatementItem');
-
-            const updateItemList = () => {
-                const val = itemInput.value.toLowerCase();
-                
-                // جمع الأصناف الفريدة من بيانات المبيعات والمشتريات
-                const salesItems = [...new Set(allSalesData.map(row => String(row['الصنف'] || '')))];
-                const purchasesItems = [...new Set(allPurchasesData.map(row => String(row['الصنف'] || '')))];
-                const allItems = [...new Set([...salesItems, ...purchasesItems])]
-                    .filter(item => item && item.toLowerCase().includes(val))
-                    .slice(0, 15);
-
-                itemList.innerHTML = '';
-                currentSuggestItems = [];
-                
-                if (allItems.length > 0) {
-                    allItems.forEach(item => {
-                        const div = document.createElement('div');
-                        div.className = 'suggestion-item';
-                        div.textContent = item;
-                        div.onclick = () => {
-                            itemInput.value = item;
-                            hideAllSuggestLists();
-                            renderStatement();
-                        };
-                        itemList.appendChild(div);
-                        currentSuggestItems.push(div);
-                    });
-                    itemList.style.display = 'block';
-                    currentFocusIndex = -1;
-                } else {
-                    itemList.style.display = 'none';
-                    currentFocusIndex = -1;
-                    currentSuggestItems = [];
-                }
-            };
-
-            itemInput.onfocus = function() {
-                hideAllSuggestLists();
-                updateItemList();
-            };
-            
-            itemInput.oninput = function() {
-                updateItemList();
-            };
-            
-            itemInput.onkeydown = function(e) {
-                if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    if (currentSuggestItems.length > 0) {
-                        currentFocusIndex = Math.min(currentFocusIndex + 1, currentSuggestItems.length - 1);
-                        updateActiveItem();
-                    }
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (currentSuggestItems.length > 0) {
-                        currentFocusIndex = Math.max(currentFocusIndex - 1, 0);
-                        updateActiveItem();
-                    }
-                } else if (e.key === 'Enter') {
-                    e.preventDefault();
-                    if (currentFocusIndex >= 0 && currentSuggestItems[currentFocusIndex]) {
-                        currentSuggestItems[currentFocusIndex].click();
-                    } else if (currentSuggestItems.length > 0 && currentSuggestItems[0]) {
-                        currentSuggestItems[0].click();
-                    }
-                } else if (e.key === 'Escape') {
-                    hideAllSuggestLists();
-                }
-            };
-
-            // إعداد البحث بالفاتورة
-            const invoiceInput = document.getElementById('searchStatementInvoice');
-            const invoiceList = document.getElementById('suggestStatementInvoice');
-
-            const updateInvoiceList = () => {
-                const val = invoiceInput.value.toLowerCase();
-                
-                // جمع أرقام الفواتير الفريدة من بيانات المبيعات والمشتريات
-                const salesInvoices = [...new Set(allSalesData.map(row => String(row['الفاتورة'] || '')))];
-                const purchasesInvoices = [...new Set(allPurchasesData.map(row => String(row['الفاتورة'] || '')))];
-                const allInvoices = [...new Set([...salesInvoices, ...purchasesInvoices])]
-                    .filter(invoice => invoice && invoice.toLowerCase().includes(val))
-                    .slice(0, 15);
-
-                invoiceList.innerHTML = '';
-                currentSuggestItems = [];
-                
-                if (allInvoices.length > 0) {
-                    allInvoices.forEach(invoice => {
-                        const div = document.createElement('div');
-                        div.className = 'suggestion-item';
-                        div.textContent = invoice;
-                        div.onclick = () => {
-                            invoiceInput.value = invoice;
-                            hideAllSuggestLists();
-                            renderStatement();
-                        };
-                        invoiceList.appendChild(div);
-                        currentSuggestItems.push(div);
-                    });
-                    invoiceList.style.display = 'block';
-                    currentFocusIndex = -1;
-                } else {
-                    invoiceList.style.display = 'none';
-                    currentFocusIndex = -1;
-                    currentSuggestItems = [];
-                }
-            };
-
-            invoiceInput.onfocus = function() {
-                hideAllSuggestLists();
-                updateInvoiceList();
-            };
-            
-            invoiceInput.oninput = function() {
-                updateInvoiceList();
-            };
-            
-            invoiceInput.onkeydown = function(e) {
                 if (e.key === 'ArrowDown') {
                     e.preventDefault();
                     if (currentSuggestItems.length > 0) {
@@ -1771,7 +1517,7 @@
                 tr.innerHTML = `
                     <td class="text-gray-400 text-[10px]">${i + 1}</td>
                     <td class="text-[11px] text-gray-700">${row['التاريخ'] || ''}</td>
-                    <td class="text-right font-bold text-purple-700">${row['المورد'] || ''}</td>
+                    <td class="text-right font-bold text-red-700">${row['المورد'] || ''}</td>
                     <td class="font-bold">${row['الفاتورة'] || ''}</td>
                     <td class="text-right">${row['الصنف'] || ''}</td>
                     <td class="font-bold">${quantity}</td>
@@ -1852,21 +1598,38 @@
             document.getElementById('balancesTotalSyp').textContent = `${Math.round(totalSyp).toLocaleString()} ل.س`;
         }
 
-        // تبديل التبويب الفرعي في كشف الحساب
-        function switchStatementSubTab(subTab) {
-            statementSubTab = subTab;
+        // دالة لتحديد نوع الدفعة (دائن/مدين)
+        function getPaymentType(row) {
+            const credit = String(row['دائن'] || '').trim();
+            const debit = String(row['مدين'] || '').trim();
+            const usd = parseNumber(row['دولار']);
+            const syp = parseNumber(row['سوري']);
             
-            // تحديث أزرار التبويبات الفرعية
-            document.querySelectorAll('.sub-tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.querySelector(`[onclick="switchStatementSubTab('${subTab}')"]`).classList.add('active');
+            let type = 'دفعة';
+            let account = '';
+            let description = String(row['البيان'] || '').trim();
             
-            // إعادة عرض البيانات
-            renderStatement();
+            // تحديد الحساب والنوع بناءً على الدائن والمدين
+            if (credit && debit) {
+                // إذا كان هناك دائن ومدين معاً
+                account = `${credit} ← ${debit}`;
+                type = usd > 0 ? 'دائن' : 'مدين';
+            } else if (credit) {
+                account = credit;
+                type = 'دائن';
+            } else if (debit) {
+                account = debit;
+                type = 'مدين';
+            }
+            
+            return {
+                type: type,
+                account: account,
+                description: description
+            };
         }
 
-        // عرض بيانات كشف الحساب
+        // عرض بيانات كشف الحساب النظامي
         function renderStatement() {
             const tbody = document.getElementById('statementTableBody');
             tbody.innerHTML = '';
@@ -1875,9 +1638,6 @@
             const accountFilter = document.getElementById('searchStatementAccount').value.toLowerCase();
             const fromDateStr = document.getElementById('searchStatementDateFrom').value;
             const toDateStr = document.getElementById('searchStatementDateTo').value;
-            const typeFilter = document.getElementById('searchStatementType').value.toLowerCase();
-            const itemFilter = document.getElementById('searchStatementItem').value.toLowerCase();
-            const invoiceFilter = document.getElementById('searchStatementInvoice').value.toLowerCase();
             
             // تحويل التواريخ من نص إلى كائنات Date
             let fromDate = null;
@@ -1904,201 +1664,243 @@
             // تجميع بيانات المبيعات مع إضافة عمود النوع
             const salesWithType = allSalesData.map(row => ({
                 ...row,
-                type: 'بيع',
+                transactionType: 'بيع',
                 account: row['العميل'] || '',
-                name: row['العميل'] || '',
-                price_usd: row['السعر دولار'] || 0,
-                price_syp: row['السعر سوري'] || 0,
-                total_usd: parseNumber(row['السعر دولار']) * parseNumber(row['الكمية']),
-                total_syp: parseNumber(row['ا.سوري']),
-                description: ''
+                amount_usd: parseNumber(row['السعر دولار']) * parseNumber(row['الكمية']),
+                amount_syp: parseNumber(row['ا.سوري']),
+                description: '',
+                originalType: 'sale',
+                date: row['التاريخ'] || ''
             }));
             
             // تجميع بيانات المشتريات مع إضافة عمود النوع
             const purchasesWithType = allPurchasesData.map(row => ({
                 ...row,
-                type: 'شراء',
+                transactionType: 'شراء',
                 account: row['المورد'] || '',
-                name: row['المورد'] || '',
-                price_usd: row['السعر'] || 0,
-                price_syp: 0,
-                total_usd: parseNumber(row['السعر']) * parseNumber(row['الكمية']),
-                total_syp: 0,
-                description: ''
+                amount_usd: parseNumber(row['السعر']) * parseNumber(row['الكمية']),
+                amount_syp: 0,
+                description: '',
+                originalType: 'purchase',
+                date: row['التاريخ'] || ''
             }));
             
-            // تجميع بيانات اليومية (الدفعات) مع إضافة عمود النوع
+            // تجميع بيانات اليومية (الدفعات) مع تحديد الدائن والمدين
             const paymentsWithType = allJournalData.map(row => {
-                const credit = String(row['دائن'] || '').trim();
-                const debit = String(row['مدين'] || '').trim();
+                const paymentInfo = getPaymentType(row);
                 const usd = parseNumber(row['دولار']);
                 const syp = parseNumber(row['سوري']);
-                const description = String(row['البيان'] || '').trim();
                 
-                // تحديد الحساب المناسب (دائن أو مدين)
-                let account = credit || debit;
+                // تحديد المبلغ (موجب للدائن، سالب للمدين)
+                let amountUsd = usd;
+                let amountSyp = syp;
                 
-                // تحديد النوع بناءً على الدائن والمدين
-                let type = 'دفعة';
+                // إذا كان مدين، نجعل المبلغ سالباً
+                if (paymentInfo.type === 'مدين') {
+                    amountUsd = -Math.abs(usd);
+                    amountSyp = -Math.abs(syp);
+                }
                 
                 return {
                     ...row,
-                    type: type,
-                    account: account,
-                    name: account,
-                    price_usd: usd,
-                    price_syp: syp,
-                    total_usd: usd,
-                    total_syp: syp,
-                    description: description,
-                    'التاريخ': row['التاريخ'] || '',
+                    transactionType: paymentInfo.type,
+                    account: paymentInfo.account,
+                    amount_usd: amountUsd,
+                    amount_syp: amountSyp,
+                    description: paymentInfo.description,
+                    originalType: 'payment',
+                    date: row['التاريخ'] || '',
                     'الفاتورة': '',
                     'الصنف': '',
-                    'الكمية': '',
-                    'credit': credit,
-                    'debit': debit
+                    'الكمية': ''
                 };
             });
             
-            // دمج البيانات
-            let combinedData = [];
+            // دمج جميع البيانات
+            const allTransactions = [...salesWithType, ...purchasesWithType, ...paymentsWithType];
             
-            // تطبيق التبويب الفرعي المحدد
-            if (statementSubTab === 'all') {
-                combinedData = [...salesWithType, ...purchasesWithType, ...paymentsWithType];
-            } else if (statementSubTab === 'sales') {
-                combinedData = [...salesWithType];
-            } else if (statementSubTab === 'purchases') {
-                combinedData = [...purchasesWithType];
-            } else if (statementSubTab === 'payments') {
-                combinedData = [...paymentsWithType];
+            // فلترة البيانات حسب البحث
+            let filteredData = allTransactions;
+            
+            // فلترة حسب الحساب
+            if (accountFilter) {
+                filteredData = filteredData.filter(row => 
+                    searchFilter(row.account, accountFilter)
+                );
             }
             
-            // فلترة البيانات
-            const filteredData = combinedData.filter(row => {
-                // فلترة حسب النوع
-                if (typeFilter && row.type.toLowerCase() !== typeFilter) {
-                    return false;
-                }
-                
-                // فلترة حسب الحساب
-                if (accountFilter && !searchFilter(row.account, accountFilter)) {
-                    return false;
-                }
-                
-                // فلترة حسب الصنف
-                if (itemFilter && !searchFilter(row['الصنف'], itemFilter)) {
-                    return false;
-                }
-                
-                // فلترة حسب الفاتورة
-                if (invoiceFilter && !searchFilter(row['الفاتورة'], invoiceFilter)) {
-                    return false;
-                }
-                
-                // فلترة حسب التاريخ
-                if (fromDate && toDate) {
-                    if (!isDateInRange(row['التاريخ'], fromDate, toDate)) {
-                        return false;
-                    }
-                }
-                
-                return true;
-            });
+            // فلترة حسب التاريخ
+            if (fromDate && toDate) {
+                filteredData = filteredData.filter(row => 
+                    isDateInRange(row.date, fromDate, toDate)
+                );
+            }
             
-            // فرز البيانات حسب التاريخ (من الأحدث إلى الأقدم)
+            // فرز البيانات حسب التاريخ (من الأقدم إلى الأحدث)
             filteredData.sort((a, b) => {
-                const dateA = parseArabicDate(a['التاريخ']) || new Date(0);
-                const dateB = parseArabicDate(b['التاريخ']) || new Date(0);
-                return dateB - dateA; // ترتيب تنازلي
+                const dateA = parseArabicDate(a.date) || new Date(0);
+                const dateB = parseArabicDate(b.date) || new Date(0);
+                return dateA - dateB; // ترتيب تصاعدي
             });
             
-            // متغيرات لحساب الإجماليات
+            // حساب الرصيد المتداول
+            let runningBalanceUsd = 0;
+            let runningBalanceSyp = 0;
+            
+            // حساب الإجماليات
             let salesTotalUsd = 0;
             let salesTotalSyp = 0;
             let purchasesTotalUsd = 0;
-            let paymentsTotalUsd = 0;
-            let paymentsTotalSyp = 0;
+            let purchasesTotalSyp = 0;
+            let paymentsCreditUsd = 0;
+            let paymentsDebitUsd = 0;
+            let paymentsCreditSyp = 0;
+            let paymentsDebitSyp = 0;
             
-            // عرض البيانات
-            filteredData.forEach((row, i) => {
-                const priceUsd = parseNumber(row.price_usd);
-                const quantity = parseNumber(row['الكمية']);
-                const totalUsdRow = parseNumber(row.total_usd);
-                const priceSyp = parseNumber(row.price_syp);
-                const totalSypRow = parseNumber(row.total_syp);
-                const description = row.description || '';
+            // أولاً: حساب الإجماليات
+            filteredData.forEach(row => {
+                const amountUsd = row.amount_usd || 0;
+                const amountSyp = row.amount_syp || 0;
                 
-                // تحديد لون الصف بناءً على النوع
-                let rowClass = '';
-                let badgeClass = '';
-                let badgeText = '';
-                
-                if (row.type === 'بيع') {
-                    rowClass = 'sale-row';
-                    badgeClass = 'sale-badge';
-                    badgeText = 'بيع';
-                    salesTotalUsd += totalUsdRow;
-                    salesTotalSyp += totalSypRow;
-                } else if (row.type === 'شراء') {
-                    rowClass = 'purchase-row';
-                    badgeClass = 'purchase-badge';
-                    badgeText = 'شراء';
-                    purchasesTotalUsd += totalUsdRow;
-                } else if (row.type === 'دفعة') {
-                    rowClass = 'payment-row';
-                    badgeClass = 'payment-badge';
-                    badgeText = 'دفعة';
-                    paymentsTotalUsd += totalUsdRow;
-                    paymentsTotalSyp += totalSypRow;
-                }
-                
-                // تحديد تنسيق الحساب للدفعات (دائن/مدين)
-                let accountDisplay = row.account || '';
-                if (row.type === 'دفعة') {
-                    const credit = row.credit || '';
-                    const debit = row.debit || '';
-                    
-                    if (credit && debit) {
-                        accountDisplay = `${credit} / ${debit}`;
-                    } else if (credit) {
-                        accountDisplay = `${credit} (دائن)`;
-                    } else if (debit) {
-                        accountDisplay = `${debit} (مدين)`;
+                if (row.originalType === 'sale') {
+                    salesTotalUsd += amountUsd;
+                    salesTotalSyp += amountSyp;
+                    runningBalanceUsd += amountUsd; // البيع يزيد الرصيد
+                    runningBalanceSyp += amountSyp;
+                } else if (row.originalType === 'purchase') {
+                    purchasesTotalUsd += amountUsd;
+                    purchasesTotalSyp += amountSyp;
+                    runningBalanceUsd -= amountUsd; // الشراء يقلل الرصيد
+                    runningBalanceSyp -= amountSyp;
+                } else if (row.originalType === 'payment') {
+                    if (row.transactionType === 'دائن') {
+                        paymentsCreditUsd += amountUsd;
+                        paymentsCreditSyp += amountSyp;
+                        runningBalanceUsd += amountUsd; // الدائن يزيد الرصيد
+                        runningBalanceSyp += amountSyp;
+                    } else if (row.transactionType === 'مدين') {
+                        paymentsDebitUsd += Math.abs(amountUsd);
+                        paymentsDebitSyp += Math.abs(amountSyp);
+                        runningBalanceUsd += amountUsd; // المدين (سالبة) تقلل الرصيد
+                        runningBalanceSyp += amountSyp;
                     }
                 }
+            });
+            
+            // عرض البيانات مع الرصيد المتداول
+            runningBalanceUsd = 0;
+            runningBalanceSyp = 0;
+            
+            filteredData.forEach((row, i) => {
+                const amountUsd = row.amount_usd || 0;
+                const amountSyp = row.amount_syp || 0;
+                const quantity = parseNumber(row['الكمية']);
+                
+                // تحديث الرصيد المتداول
+                if (row.originalType === 'sale') {
+                    runningBalanceUsd += amountUsd;
+                    runningBalanceSyp += amountSyp;
+                } else if (row.originalType === 'purchase') {
+                    runningBalanceUsd -= amountUsd;
+                    runningBalanceSyp -= amountSyp;
+                } else if (row.originalType === 'payment') {
+                    runningBalanceUsd += amountUsd;
+                    runningBalanceSyp += amountSyp;
+                }
+                
+                // تحديد تنسيق الصف
+                let rowClass = '';
+                let badgeClass = '';
+                let badgeText = row.transactionType;
+                
+                if (row.originalType === 'sale') {
+                    rowClass = 'sale-row';
+                    badgeClass = 'sale-badge';
+                } else if (row.originalType === 'purchase') {
+                    rowClass = 'purchase-row';
+                    badgeClass = 'purchase-badge';
+                } else if (row.originalType === 'payment') {
+                    rowClass = 'payment-row';
+                    badgeClass = 'payment-badge';
+                }
+                
+                // تحديد تنسيق الرصيد
+                const balanceUsdClass = runningBalanceUsd >= 0 ? 'positive-balance-cell' : 'negative-balance-cell';
+                const balanceSypClass = runningBalanceSyp >= 0 ? 'positive-balance-cell' : 'negative-balance-cell';
                 
                 const tr = document.createElement('tr');
                 if (rowClass) tr.className = rowClass;
                 
                 tr.innerHTML = `
                     <td class="text-gray-400 text-[10px]">${i + 1}</td>
+                    <td class="text-[11px] text-gray-700">${row.date || ''}</td>
                     <td>
                         <span class="${badgeClass}">
                             ${badgeText}
                         </span>
                     </td>
-                    <td class="text-[11px] text-gray-700">${row['التاريخ'] || ''}</td>
-                    <td class="text-right font-bold ${row.type === 'بيع' ? 'text-blue-700' : row.type === 'شراء' ? 'text-purple-700' : 'text-amber-700'}">
-                        ${accountDisplay}
-                    </td>
+                    <td class="text-right font-bold text-gray-800">${row.account || ''}</td>
                     <td class="font-bold">${row['الفاتورة'] || ''}</td>
                     <td class="text-right">${row['الصنف'] || ''}</td>
                     <td class="font-bold">${quantity}</td>
-                    <td>${priceUsd.toFixed(2)}</td>
-                    <td class="bg-blue-50 font-bold">${totalUsdRow.toFixed(2)}</td>
-                    <td class="bg-orange-50">${row.type === 'بيع' ? Math.round(priceSyp).toLocaleString() : ''}</td>
-                    <td class="bg-green-50 text-green-700 font-bold">${row.type === 'بيع' ? Math.round(totalSypRow).toLocaleString() : ''}</td>
-                    <td class="journal-description">${description}</td>
+                    <td class="${row.transactionType === 'مدين' ? 'text-red-600' : 'text-blue-600'} font-bold">
+                        ${amountUsd.toFixed(2)}
+                    </td>
+                    <td class="${row.transactionType === 'مدين' ? 'text-red-600' : 'text-green-600'}">
+                        ${row.originalType === 'sale' || row.originalType === 'payment' ? Math.round(amountSyp).toLocaleString() : ''}
+                    </td>
+                    <td class="running-balance ${balanceUsdClass}">
+                        ${runningBalanceUsd.toFixed(2)}
+                    </td>
+                    <td class="running-balance ${balanceSypClass}">
+                        ${Math.round(runningBalanceSyp).toLocaleString()}
+                    </td>
+                    <td class="journal-description">${row.description || ''}</td>
                 `;
                 tbody.appendChild(tr);
             });
             
+            // حساب صافي الدفعات
+            const paymentsNetUsd = paymentsCreditUsd - paymentsDebitUsd;
+            const paymentsNetSyp = paymentsCreditSyp - paymentsDebitSyp;
+            
+            // حساب الرصيد الحالي
+            const currentBalanceUsd = salesTotalUsd - purchasesTotalUsd + paymentsNetUsd;
+            const currentBalanceSyp = salesTotalSyp - purchasesTotalSyp + paymentsNetSyp;
+            
             // تحديث الإجماليات
             document.getElementById('statementSalesTotalUsd').textContent = `${salesTotalUsd.toFixed(2)} $`;
             document.getElementById('statementPurchasesTotalUsd').textContent = `${purchasesTotalUsd.toFixed(2)} $`;
-            document.getElementById('statementPaymentsTotalUsd').textContent = `${paymentsTotalUsd.toFixed(2)} $`;
-            document.getElementById('statementSalesTotalSyp').textContent = `${Math.round(salesTotalSyp).toLocaleString()} ل.س`;
+            document.getElementById('statementPaymentsNetUsd').textContent = `${paymentsNetUsd.toFixed(2)} $`;
+            
+            // تحديث الرصيد الحالي مع لون مناسب
+            const currentBalanceElement = document.getElementById('statementCurrentBalance');
+            currentBalanceElement.textContent = `${currentBalanceUsd.toFixed(2)} $`;
+            
+            if (currentBalanceUsd >= 0) {
+                currentBalanceElement.className = 'text-sm positive-balance';
+            } else {
+                currentBalanceElement.className = 'text-sm negative-balance';
+            }
+            
+            // إضافة صف الإجماليات في نهاية الجدول
+            if (filteredData.length > 0) {
+                const totalRow = document.createElement('tr');
+                totalRow.className = 'bg-gray-100 font-bold';
+                totalRow.innerHTML = `
+                    <td colspan="7" class="text-right text-gray-700 py-2">الإجماليات:</td>
+                    <td class="text-blue-600 py-2">${salesTotalUsd.toFixed(2)}</td>
+                    <td class="text-green-600 py-2">${Math.round(salesTotalSyp).toLocaleString()}</td>
+                    <td class="${currentBalanceUsd >= 0 ? 'positive-balance-cell' : 'negative-balance-cell'} py-2">
+                        ${currentBalanceUsd.toFixed(2)}
+                    </td>
+                    <td class="${currentBalanceSyp >= 0 ? 'positive-balance-cell' : 'negative-balance-cell'} py-2">
+                        ${Math.round(currentBalanceSyp).toLocaleString()}
+                    </td>
+                    <td class="py-2"></td>
+                `;
+                tbody.appendChild(totalRow);
+            }
         }
 
         // تطبيق فلتر كشف الحساب
