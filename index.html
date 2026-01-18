@@ -233,6 +233,27 @@
             font-weight: 700;
         }
         
+        /* تخصيص ألوان الأرصدة بدون خلفية */
+        .balance-usd-positive {
+            color: #059669 !important;
+            font-weight: 700;
+        }
+        
+        .balance-usd-negative {
+            color: #dc2626 !important;
+            font-weight: 700;
+        }
+        
+        .balance-syp-positive {
+            color: #059669 !important;
+            font-weight: 700;
+        }
+        
+        .balance-syp-negative {
+            color: #dc2626 !important;
+            font-weight: 700;
+        }
+        
         /* تنسيق كشف الحساب النظامي */
         .sale-row {
             background-color: #f0f9ff !important;
@@ -1598,34 +1619,57 @@
             document.getElementById('balancesTotalSyp').textContent = `${Math.round(totalSyp).toLocaleString()} ل.س`;
         }
 
-        // دالة لتحديد نوع الدفعة (دائن/مدين)
+        // دالة لتحديد نوع الدفعة (دائن/مدين) بشكل صحيح
         function getPaymentType(row) {
             const credit = String(row['دائن'] || '').trim();
             const debit = String(row['مدين'] || '').trim();
             const usd = parseNumber(row['دولار']);
             const syp = parseNumber(row['سوري']);
+            const description = String(row['البيان'] || '').trim();
             
-            let type = 'دفعة';
+            // تحديد الحساب المناسب
+            // في اليومية: الدائن هو الذي دفع، المدين هو الذي قبض
+            // عند البحث عن حساب في كشف الحساب، نريد أن نرى كيف أثرت عليه الحركة
+            
             let account = '';
-            let description = String(row['البيان'] || '').trim();
+            let type = '';
+            let amountUsd = usd;
+            let amountSyp = syp;
             
-            // تحديد الحساب والنوع بناءً على الدائن والمدين
             if (credit && debit) {
-                // إذا كان هناك دائن ومدين معاً
+                // إذا كان هناك دائن ومدين معاً (تحويل من حساب لحساب)
                 account = `${credit} ← ${debit}`;
-                type = usd > 0 ? 'دائن' : 'مدين';
+                type = 'تحويل';
             } else if (credit) {
+                // إذا كان هناك دائن فقط (الذي دفع المال)
                 account = credit;
-                type = 'دائن';
+                type = 'قبض من'; // الحساب هو الذي قبض (المدين للمعرض)
+                // الدائن = المعرض قبض من الحساب
+                // بالنسبة للمعرض: قبض من الحساب = رصيد موجب
+                // بالنسبة للحساب: دفع للمعرض = رصيد سالب
             } else if (debit) {
+                // إذا كان هناك مدين فقط (الذي قبض المال)
                 account = debit;
-                type = 'مدين';
+                type = 'دفع إلى'; // الحساب هو الذي دفع (الدائن للمعرض)
+                // المدين = المعرض دفع للحساب
+                // بالنسبة للمعرض: دفع للحساب = رصيد سالب
+                // بالنسبة للحساب: قبض من المعرض = رصيد موجب
             }
+            
+            // إذا كان الحساب هو المعرض نفسه، نعكس التوقيع
+            // لكن في كشف الحساب نبحث عن الحسابات الأخرى (العملاء/الموردين)
             
             return {
                 type: type,
                 account: account,
-                description: description
+                description: description,
+                amount_usd: amountUsd,
+                amount_syp: amountSyp,
+                // نحدد تأثير الحركة على رصيد الحساب
+                // إذا كان الدائن: الحساب دفع للمعرض (رصيد الحساب يقل)
+                // إذا كان المدين: الحساب قبض من المعرض (رصيد الحساب يزيد)
+                isCredit: !!credit, // الحساب في عمود الدائن (دفع للمعرض)
+                isDebit: !!debit    // الحساب في عمود المدين (قبض من المعرض)
             };
         }
 
@@ -1638,6 +1682,19 @@
             const accountFilter = document.getElementById('searchStatementAccount').value.toLowerCase();
             const fromDateStr = document.getElementById('searchStatementDateFrom').value;
             const toDateStr = document.getElementById('searchStatementDateTo').value;
+            
+            // إذا لم يتم تحديد حساب، نعرض رسالة
+            if (!accountFilter) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="12" class="text-center py-8 text-gray-500">
+                            <i class="fas fa-search text-2xl mb-2"></i><br>
+                            الرجاء إدخال اسم حساب للبحث عنه
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
             
             // تحويل التواريخ من نص إلى كائنات Date
             let fromDate = null;
@@ -1670,7 +1727,10 @@
                 amount_syp: parseNumber(row['ا.سوري']),
                 description: '',
                 originalType: 'sale',
-                date: row['التاريخ'] || ''
+                date: row['التاريخ'] || '',
+                // في البيع: الحساب (العميل) مدين للمعرض (عليه دفع)
+                effectOnAccount: -1, // البيع يزيد دين العميل (رصيده يقل)
+                searchAccount: row['العميل'] || ''
             }));
             
             // تجميع بيانات المشتريات مع إضافة عمود النوع
@@ -1682,37 +1742,68 @@
                 amount_syp: 0,
                 description: '',
                 originalType: 'purchase',
-                date: row['التاريخ'] || ''
+                date: row['التاريخ'] || '',
+                // في الشراء: الحساب (المورد) دائن للمعرض (له رصيد)
+                effectOnAccount: 1, // الشراء يزيد رصيد المورد (عليه للمعرض)
+                searchAccount: row['المورد'] || ''
             }));
             
-            // تجميع بيانات اليومية (الدفعات) مع تحديد الدائن والمدين
+            // تجميع بيانات اليومية (الدفعات) مع تحديد الدائن والمدين بشكل صحيح
             const paymentsWithType = allJournalData.map(row => {
                 const paymentInfo = getPaymentType(row);
-                const usd = parseNumber(row['دولار']);
-                const syp = parseNumber(row['سوري']);
                 
-                // تحديد المبلغ (موجب للدائن، سالب للمدين)
-                let amountUsd = usd;
-                let amountSyp = syp;
+                // تحديد تأثير الحركة على رصيد الحساب
+                let effectOnAccount = 0;
+                let searchAccount = '';
                 
-                // إذا كان مدين، نجعل المبلغ سالباً
-                if (paymentInfo.type === 'مدين') {
-                    amountUsd = -Math.abs(usd);
-                    amountSyp = -Math.abs(syp);
+                // التحقق من أي من الحسابين مطابق للبحث
+                const credit = String(row['دائن'] || '').trim();
+                const debit = String(row['مدين'] || '').trim();
+                
+                if (credit && debit) {
+                    // تحويل بين حسابين
+                    // نتحقق من أي منهما مطابق للبحث
+                    if (credit.toLowerCase().includes(accountFilter) || debit.toLowerCase().includes(accountFilter)) {
+                        searchAccount = paymentInfo.account;
+                        // تأثير التحويل يعتمد على موقع الحساب
+                        // إذا كان الحساب في الدائن (دفع): -1
+                        // إذا كان الحساب في المدين (قبض): +1
+                        if (credit.toLowerCase().includes(accountFilter)) {
+                            effectOnAccount = -1; // دفع
+                        } else {
+                            effectOnAccount = 1; // قبض
+                        }
+                    }
+                } else if (credit) {
+                    // الحساب في الدائن (دفع للمعرض)
+                    if (credit.toLowerCase().includes(accountFilter)) {
+                        searchAccount = credit;
+                        effectOnAccount = -1; // دفع للمعرض (رصيده يقل)
+                    }
+                } else if (debit) {
+                    // الحساب في المدين (قبض من المعرض)
+                    if (debit.toLowerCase().includes(accountFilter)) {
+                        searchAccount = debit;
+                        effectOnAccount = 1; // قبض من المعرض (رصيده يزيد)
+                    }
                 }
                 
                 return {
                     ...row,
                     transactionType: paymentInfo.type,
                     account: paymentInfo.account,
-                    amount_usd: amountUsd,
-                    amount_syp: amountSyp,
+                    amount_usd: paymentInfo.amount_usd,
+                    amount_syp: paymentInfo.amount_syp,
                     description: paymentInfo.description,
                     originalType: 'payment',
                     date: row['التاريخ'] || '',
                     'الفاتورة': '',
                     'الصنف': '',
-                    'الكمية': ''
+                    'الكمية': '',
+                    effectOnAccount: effectOnAccount,
+                    searchAccount: searchAccount,
+                    isCredit: paymentInfo.isCredit,
+                    isDebit: paymentInfo.isDebit
                 };
             });
             
@@ -1720,20 +1811,31 @@
             const allTransactions = [...salesWithType, ...purchasesWithType, ...paymentsWithType];
             
             // فلترة البيانات حسب البحث
-            let filteredData = allTransactions;
+            let filteredData = allTransactions.filter(row => {
+                // التحقق من تطابق الحساب
+                const matchesAccount = searchFilter(row.searchAccount || row.account, accountFilter);
+                
+                if (!matchesAccount) return false;
+                
+                // فلترة حسب التاريخ
+                if (fromDate && toDate) {
+                    return isDateInRange(row.date, fromDate, toDate);
+                }
+                
+                return true;
+            });
             
-            // فلترة حسب الحساب
-            if (accountFilter) {
-                filteredData = filteredData.filter(row => 
-                    searchFilter(row.account, accountFilter)
-                );
-            }
-            
-            // فلترة حسب التاريخ
-            if (fromDate && toDate) {
-                filteredData = filteredData.filter(row => 
-                    isDateInRange(row.date, fromDate, toDate)
-                );
+            // إذا لم نجد أي بيانات
+            if (filteredData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="12" class="text-center py-8 text-gray-500">
+                            <i class="fas fa-ban text-2xl mb-2"></i><br>
+                            لا توجد حركات لهذا الحساب في الفترة المحددة
+                        </td>
+                    </tr>
+                `;
+                return;
             }
             
             // فرز البيانات حسب التاريخ (من الأقدم إلى الأحدث)
@@ -1752,61 +1854,38 @@
             let salesTotalSyp = 0;
             let purchasesTotalUsd = 0;
             let purchasesTotalSyp = 0;
-            let paymentsCreditUsd = 0;
-            let paymentsDebitUsd = 0;
-            let paymentsCreditSyp = 0;
-            let paymentsDebitSyp = 0;
-            
-            // أولاً: حساب الإجماليات
-            filteredData.forEach(row => {
-                const amountUsd = row.amount_usd || 0;
-                const amountSyp = row.amount_syp || 0;
-                
-                if (row.originalType === 'sale') {
-                    salesTotalUsd += amountUsd;
-                    salesTotalSyp += amountSyp;
-                    runningBalanceUsd += amountUsd; // البيع يزيد الرصيد
-                    runningBalanceSyp += amountSyp;
-                } else if (row.originalType === 'purchase') {
-                    purchasesTotalUsd += amountUsd;
-                    purchasesTotalSyp += amountSyp;
-                    runningBalanceUsd -= amountUsd; // الشراء يقلل الرصيد
-                    runningBalanceSyp -= amountSyp;
-                } else if (row.originalType === 'payment') {
-                    if (row.transactionType === 'دائن') {
-                        paymentsCreditUsd += amountUsd;
-                        paymentsCreditSyp += amountSyp;
-                        runningBalanceUsd -= amountUsd; // الدائن يزيد الرصيد
-                        runningBalanceSyp -= amountSyp;
-                    } else if (row.transactionType === 'مدين') {
-                        paymentsDebitUsd += Math.abs(amountUsd);
-                        paymentsDebitSyp += Math.abs(amountSyp);
-                        runningBalanceUsd += amountUsd; // المدين (سالبة) تقلل الرصيد
-                        runningBalanceSyp += amountSyp;
-                    }
-                }
-            });
+            let paymentsTotalUsd = 0;
+            let paymentsTotalSyp = 0;
             
             // عرض البيانات مع الرصيد المتداول
-            runningBalanceUsd = 0;
-            runningBalanceSyp = 0;
-            
             filteredData.forEach((row, i) => {
-                const amountUsd = row.amount_usd || 0;
-                const amountSyp = row.amount_syp || 0;
+                let amountUsd = row.amount_usd || 0;
+                let amountSyp = row.amount_syp || 0;
                 const quantity = parseNumber(row['الكمية']);
                 
-                // تحديث الرصيد المتداول
+                // تحديد تأثير الحركة على الرصيد
+                let effectMultiplier = 0;
+                
                 if (row.originalType === 'sale') {
-                    runningBalanceUsd += amountUsd;
-                    runningBalanceSyp += amountSyp;
+                    // البيع: العميل مدين (رصيده يقل)
+                    effectMultiplier = -1;
+                    salesTotalUsd += amountUsd;
+                    salesTotalSyp += amountSyp;
                 } else if (row.originalType === 'purchase') {
-                    runningBalanceUsd -= amountUsd;
-                    runningBalanceSyp -= amountSyp;
+                    // الشراء: المورد دائن (رصيده يزيد)
+                    effectMultiplier = 1;
+                    purchasesTotalUsd += amountUsd;
+                    purchasesTotalSyp += amountSyp;
                 } else if (row.originalType === 'payment') {
-                    runningBalanceUsd += amountUsd;
-                    runningBalanceSyp += amountSyp;
+                    // الدفعة: نستخدم التأثير المحدد
+                    effectMultiplier = row.effectOnAccount || 0;
+                    paymentsTotalUsd += Math.abs(amountUsd);
+                    paymentsTotalSyp += Math.abs(amountSyp);
                 }
+                
+                // تحديث الرصيد المتداول
+                runningBalanceUsd += (amountUsd * effectMultiplier);
+                runningBalanceSyp += (amountSyp * effectMultiplier);
                 
                 // تحديد تنسيق الصف
                 let rowClass = '';
@@ -1816,17 +1895,34 @@
                 if (row.originalType === 'sale') {
                     rowClass = 'sale-row';
                     badgeClass = 'sale-badge';
+                    badgeText = 'بيع';
                 } else if (row.originalType === 'purchase') {
                     rowClass = 'purchase-row';
                     badgeClass = 'purchase-badge';
+                    badgeText = 'شراء';
                 } else if (row.originalType === 'payment') {
                     rowClass = 'payment-row';
                     badgeClass = 'payment-badge';
+                    
+                    // تحديد نص البادج بناءً على نوع الحركة
+                    if (row.isCredit) {
+                        badgeText = 'دفع من';
+                    } else if (row.isDebit) {
+                        badgeText = 'قبض من';
+                    }
                 }
                 
                 // تحديد تنسيق الرصيد
                 const balanceUsdClass = runningBalanceUsd >= 0 ? 'positive-balance-cell' : 'negative-balance-cell';
                 const balanceSypClass = runningBalanceSyp >= 0 ? 'positive-balance-cell' : 'negative-balance-cell';
+                
+                // تحديد تنسيق المبلغ
+                const amountUsdClass = effectMultiplier > 0 ? 'text-blue-600' : 'text-red-600';
+                const amountSypClass = effectMultiplier > 0 ? 'text-green-600' : 'text-red-600';
+                
+                // تحديد علامة المبلغ
+                const amountUsdSign = effectMultiplier > 0 ? '+' : '-';
+                const displayAmountUsd = Math.abs(amountUsd).toFixed(2);
                 
                 const tr = document.createElement('tr');
                 if (rowClass) tr.className = rowClass;
@@ -1843,11 +1939,11 @@
                     <td class="font-bold">${row['الفاتورة'] || ''}</td>
                     <td class="text-right">${row['الصنف'] || ''}</td>
                     <td class="font-bold">${quantity}</td>
-                    <td class="${row.transactionType === 'مدين' ? 'text-red-600' : 'text-blue-600'} font-bold">
-                        ${amountUsd.toFixed(2)}
+                    <td class="${amountUsdClass} font-bold">
+                        ${amountUsdSign}${displayAmountUsd}
                     </td>
-                    <td class="${row.transactionType === 'مدين' ? 'text-red-600' : 'text-green-600'}">
-                        ${row.originalType === 'sale' || row.originalType === 'payment' ? Math.round(amountSyp).toLocaleString() : ''}
+                    <td class="${amountSypClass}">
+                        ${amountSyp ? (effectMultiplier > 0 ? '+' : '-') + Math.round(Math.abs(amountSyp)).toLocaleString() : ''}
                     </td>
                     <td class="running-balance ${balanceUsdClass}">
                         ${runningBalanceUsd.toFixed(2)}
@@ -1860,18 +1956,17 @@
                 tbody.appendChild(tr);
             });
             
-            // حساب صافي الدفعات
-            const paymentsNetUsd = paymentsCreditUsd - paymentsDebitUsd;
-            const paymentsNetSyp = paymentsCreditSyp - paymentsDebitSyp;
+            // حساب الرصيد الحالي (المحصلة النهائية)
+            const currentBalanceUsd = runningBalanceUsd;
+            const currentBalanceSyp = runningBalanceSyp;
             
-            // حساب الرصيد الحالي
-            const currentBalanceUsd = salesTotalUsd - purchasesTotalUsd + paymentsNetUsd;
-            const currentBalanceSyp = salesTotalSyp - purchasesTotalSyp + paymentsNetSyp;
+            // حساب صافي الدفعات
+            const paymentsNetUsd = paymentsTotalUsd; // نحسبها بشكل مختلف
             
             // تحديث الإجماليات
             document.getElementById('statementSalesTotalUsd').textContent = `${salesTotalUsd.toFixed(2)} $`;
             document.getElementById('statementPurchasesTotalUsd').textContent = `${purchasesTotalUsd.toFixed(2)} $`;
-            document.getElementById('statementPaymentsNetUsd').textContent = `${paymentsNetUsd.toFixed(2)} $`;
+            document.getElementById('statementPaymentsNetUsd').textContent = `${paymentsTotalUsd.toFixed(2)} $`;
             
             // تحديث الرصيد الحالي مع لون مناسب
             const currentBalanceElement = document.getElementById('statementCurrentBalance');
@@ -1888,9 +1983,13 @@
                 const totalRow = document.createElement('tr');
                 totalRow.className = 'bg-gray-100 font-bold';
                 totalRow.innerHTML = `
-                    <td colspan="7" class="text-right text-gray-700 py-2">الإجماليات:</td>
-                    <td class="text-blue-600 py-2">${salesTotalUsd.toFixed(2)}</td>
-                    <td class="text-green-600 py-2">${Math.round(salesTotalSyp).toLocaleString()}</td>
+                    <td colspan="7" class="text-right text-gray-700 py-2">الرصيد النهائي للحساب:</td>
+                    <td class="${currentBalanceUsd >= 0 ? 'positive-balance-cell' : 'negative-balance-cell'} py-2">
+                        ${currentBalanceUsd.toFixed(2)}
+                    </td>
+                    <td class="${currentBalanceSyp >= 0 ? 'positive-balance-cell' : 'negative-balance-cell'} py-2">
+                        ${Math.round(currentBalanceSyp).toLocaleString()}
+                    </td>
                     <td class="${currentBalanceUsd >= 0 ? 'positive-balance-cell' : 'negative-balance-cell'} py-2">
                         ${currentBalanceUsd.toFixed(2)}
                     </td>
@@ -1900,6 +1999,19 @@
                     <td class="py-2"></td>
                 `;
                 tbody.appendChild(totalRow);
+                
+                // إضافة شرح للرموز
+                const legendRow = document.createElement('tr');
+                legendRow.className = 'bg-gray-50 text-xs text-gray-600';
+                legendRow.innerHTML = `
+                    <td colspan="12" class="py-1 text-center">
+                        <span class="mx-2"><span class="text-blue-600">+</span> زيادة في الرصيد</span>
+                        <span class="mx-2"><span class="text-red-600">-</span> نقص في الرصيد</span>
+                        <span class="mx-2"><span class="positive-balance-cell">أخضر</span> رصيد موجب</span>
+                        <span class="mx-2"><span class="negative-balance-cell">أحمر</span> رصيد سالب</span>
+                    </td>
+                `;
+                tbody.appendChild(legendRow);
             }
         }
 
@@ -1942,7 +2054,15 @@
             if (tabName === 'statement') {
                 setupDatePickers();
                 setupStatementDropdowns();
-                renderStatement();
+                // لا نعرض البيانات حتى يتم البحث عن حساب
+                document.getElementById('statementTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="12" class="text-center py-8 text-gray-500">
+                            <i class="fas fa-search text-2xl mb-2"></i><br>
+                            أدخل اسم حساب للبحث عنه في خانة البحث أعلاه
+                        </td>
+                    </tr>
+                `;
             }
         }
 
@@ -2183,4 +2303,3 @@
     </script>
 </body>
 </html>
-
