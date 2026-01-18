@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>معرض الجي</title>
+    <title>معرض ال.جي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -218,17 +218,36 @@
             position: relative;
         }
         
-        /* تنسيق خاص للأرصدة */
+        /* تنسيق خاص للأرصدة - خلفية بيضاء فقط */
         .positive-balance {
             color: #059669 !important;
-            font-weight: 600;
-            background-color: #dcfce7 !important;
+            font-weight: 700;
         }
         
         .negative-balance {
             color: #dc2626 !important;
-            font-weight: 600;
-            background-color: #fee2e2 !important;
+            font-weight: 700;
+        }
+        
+        /* تخصيص ألوان الأرصدة بدون خلفية */
+        .balance-usd-positive {
+            color: #059669 !important;
+            font-weight: 700;
+        }
+        
+        .balance-usd-negative {
+            color: #dc2626 !important;
+            font-weight: 700;
+        }
+        
+        .balance-syp-positive {
+            color: #059669 !important;
+            font-weight: 700;
+        }
+        
+        .balance-syp-negative {
+            color: #dc2626 !important;
+            font-weight: 700;
         }
     </style>
 </head>
@@ -760,7 +779,7 @@
             indicator.style.display = 'block';
         }
 
-        // بدء مزامنة تلقائية كل 3 دقائق
+        // بدء مزامنة تلقائية كل 15 ثانية
         function startAutoSync() {
             if (syncInterval) {
                 clearInterval(syncInterval);
@@ -768,7 +787,7 @@
             
             syncInterval = setInterval(() => {
                 fetchAllData(true);
-            }, 3 * 60 * 1000); // 3 دقائق
+            }, 15 * 1000); // 15 ثانية بدلاً من 3 دقائق
         }
 
         // إعداد القوائم المنسدلة للأصناف
@@ -1305,9 +1324,9 @@
                 totalUsd += balanceUsd;
                 totalSyp += balanceSyp;
                 
-                // تحديد التنسيق بناءً على إشارة الرصيد
-                const balanceUsdClass = balanceUsd >= 0 ? 'positive-balance' : 'negative-balance';
-                const balanceSypClass = balanceSyp >= 0 ? 'positive-balance' : 'negative-balance';
+                // تحديد التنسيق بناءً على إشارة الرصيد (خلفية بيضاء فقط)
+                const balanceUsdClass = balanceUsd >= 0 ? 'balance-usd-positive' : 'balance-usd-negative';
+                const balanceSypClass = balanceSyp >= 0 ? 'balance-syp-positive' : 'balance-syp-negative';
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -1564,4 +1583,3 @@
     </script>
 </body>
 </html>
-
