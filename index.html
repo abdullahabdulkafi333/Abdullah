@@ -1776,8 +1776,8 @@
                     if (row.transactionType === 'دائن') {
                         paymentsCreditUsd += amountUsd;
                         paymentsCreditSyp += amountSyp;
-                        runningBalanceUsd += amountUsd; // الدائن يزيد الرصيد
-                        runningBalanceSyp += amountSyp;
+                        runningBalanceUsd -= amountUsd; // الدائن يزيد الرصيد
+                        runningBalanceSyp -= amountSyp;
                     } else if (row.transactionType === 'مدين') {
                         paymentsDebitUsd += Math.abs(amountUsd);
                         paymentsDebitSyp += Math.abs(amountSyp);
@@ -2183,3 +2183,4 @@
     </script>
 </body>
 </html>
+
