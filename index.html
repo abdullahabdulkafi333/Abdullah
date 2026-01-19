@@ -294,6 +294,17 @@
             color: #dc2626;
         }
         
+        .statement-note {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.75rem;
+            color: #92400e;
+            text-align: right;
+        }
+        
         .statement-type {
             padding: 2px 8px;
             border-radius: 12px;
@@ -462,18 +473,10 @@
             <div id="statementSearch" class="tab-content">
                 <div class="grid grid-cols-4 gap-3 pb-2">
                     <div class="search-wrapper">
-                        <input type="text" id="searchStatementAccount" placeholder="اسم العميل/المورد" class="input-glass statement-search-input" autocomplete="off">
+                        <input type="text" id="searchStatementAccount" placeholder="اسم العميل/المورد" class="input-glass statement-search-input" autocomplete="off" onkeypress="if(event.key === 'Enter') renderStatement()">
                         <div id="suggestStatementAccount" class="suggestions-list"></div>
                     </div>
-                    <div class="col-span-2"></div>
-                    <div class="flex gap-2">
-                        <button onclick="renderStatement()" class="bg-green-600 hover:bg-green-500 px-3 py-1.5 rounded text-xs font-bold flex items-center gap-1">
-                            <i class="fas fa-search text-[10px]"></i> بحث
-                        </button>
-                        <button onclick="clearStatementSearch()" class="bg-gray-600 hover:bg-gray-500 px-3 py-1.5 rounded text-xs font-bold flex items-center gap-1">
-                            <i class="fas fa-times text-[10px]"></i> مسح
-                        </button>
-                    </div>
+                    <div class="col-span-3"></div>
                 </div>
             </div>
         </div>
@@ -497,7 +500,7 @@
             <button onclick="savePrintSettings()" class="w-full bg-blue-600 text-white py-1.5 rounded text-xs font-bold">حفظ الإعدادات</button>
             <button onclick="hideAllPrintOptions()" class="w-full bg-gray-300 text-gray-800 py-1.5 rounded text-xs font-bold">إغلاق</button>
         </div>
-    </div>
+</div>
 
     <!-- خيارات الطباعة للمشتريات -->
     <div id="purchasesPrintOptions" class="no-print">
@@ -698,7 +701,10 @@
                 <div class="text-sm" id="statementPeriod"></div>
             </div>
 
-            <!-- ملاحظة توضيحية - تم حذفها كما طلبت -->
+            <!-- ملاحظة توضيحية -->
+            <div class="statement-note">
+                <strong>تنويه:</strong> في اليومية، عمود "دائن" يعني أن الحساب هو الذي دفع المبلغ (مستحق له)، وعمود "مدين" يعني أن الحساب هو الذي قبض المبلغ (مدين له).
+            </div>
 
             <!-- ملخص كشف الحساب -->
             <div id="statementSummary" class="statement-summary mb-3" style="display: none;">
@@ -1669,8 +1675,8 @@
                     typeClass: 'type-sales',
                     invoice: row['الفاتورة'] || '',
                     description: row['الصنف'] || '',
-                    debit: totalUsdRow, // تم التعديل: المبيعات: العميل مدين (يجب أن يدفع) ← تظهر في المدين
-                    credit: 0, // تم التعديل
+                    debit: totalUsdRow, // المبيعات: العميل مدين (يجب أن يدفع) - قلبت الإشارة
+                    credit: 0, // المبيعات: العميل مدين (يجب أن يدفع)
                     rawDate: parseDate(date)
                 });
             });
@@ -1696,8 +1702,8 @@
                     typeClass: 'type-purchase',
                     invoice: row['الفاتورة'] || '',
                     description: row['الصنف'] || '',
-                    debit: 0, // تم التعديل: المشتريات: نحن مدينون (يجب أن ندفع) ← تظهر في الدائن
-                    credit: totalUsdRow, // تم التعديل
+                    debit: 0, // المشتريات: نحن مدينون (يجب أن ندفع)
+                    credit: totalUsdRow, // المشتريات: نحن مدينون (يجب أن ندفع) - قلبت الإشارة
                     rawDate: parseDate(date)
                 });
             });
@@ -1730,8 +1736,8 @@
                         typeClass: typeClass,
                         invoice: '',
                         description: description,
-                        debit: usd, // تم التعديل: الحساب دائن (دفع لنا) ← تظهر في المدين
-                        credit: 0, // تم التعديل
+                        debit: 0, // الحساب دائن (دفع لنا)
+                        credit: usd, // الحساب دائن (دفع لنا)
                         rawDate: parseDate(date)
                     });
                 } else if (debitName === accountName) {
@@ -1746,8 +1752,8 @@
                         typeClass: typeClass,
                         invoice: '',
                         description: description,
-                        debit: 0, // تم التعديل: الحساب مدين (دفعنا له) ← تظهر في الدائن
-                        credit: usd, // تم التعديل
+                        debit: usd, // الحساب مدين (دفعنا له)
+                        credit: 0, // الحساب مدين (دفعنا له)
                         rawDate: parseDate(date)
                     });
                 }
@@ -1756,15 +1762,15 @@
             // ترتيب البيانات حسب التاريخ
             statementData.sort((a, b) => a.rawDate - b.rawDate);
             
-            // حساب الرصيد الجاري - تم تعديل الصيغة حسب التعديلات الجديدة
+            // حساب الرصيد الجاري - قلب إشارة المبيعات والمشتريات
             let runningBalance = 0;
             
             tbody.innerHTML = '';
             
             statementData.forEach((item, i) => {
-                // تحديث الرصيد الجاري حسب التعديلات الجديدة:
-                // المدين (debit) يزيد الرصيد (يجب أن يدفع لنا)
-                // الدائن (credit) ينقص الرصيد (يجب أن ندفع له)
+                // تحديث الرصيد الجاري
+                // قلبت الإشارة: المبيعات الآن في عمود مدين (العميل مدين لنا)
+                // المشتريات الآن في عمود دائن (نحن مدينون له)
                 runningBalance += item.debit - item.credit;
                 
                 const tr = document.createElement('tr');
@@ -1783,8 +1789,8 @@
                 tbody.appendChild(tr);
             });
             
-            // حساب الرصيد النهائي حسب التعديلات الجديدة
-            const finalBalance = totalSales + totalReceipts - totalPurchases - totalPayments;
+            // حساب الرصيد النهائي - قلب إشارة المبيعات والمشتريات
+            const finalBalance = totalSales - totalPurchases + totalPayments - totalReceipts;
             
             // تحديث الملخص
             document.getElementById('summarySalesTotal').textContent = `${totalSales.toFixed(2)} $`;
@@ -1818,8 +1824,8 @@
                 totalRow.className = 'bg-gray-50 font-bold';
                 totalRow.innerHTML = `
                     <td colspan="5" class="text-right py-2">الإجمالي</td>
-                    <td class="debit-cell py-2">${(totalSales + totalReceipts).toFixed(2)}</td>
-                    <td class="credit-cell py-2">${(totalPurchases + totalPayments).toFixed(2)}</td>
+                    <td class="debit-cell py-2">${totalSales.toFixed(2)}</td>
+                    <td class="credit-cell py-2">${totalPurchases.toFixed(2)}</td>
                     <td class="font-bold py-2 ${finalBalance >= 0 ? 'text-green-600' : 'text-red-600'}">
                         ${finalBalance.toFixed(2)}
                     </td>
@@ -1828,8 +1834,9 @@
             }
         }
 
-        // مسح بحث كشف الحساب
+        // مسح بحث كشف الحساب (تم إزالة هذا الزر من الواجهة)
         function clearStatementSearch() {
+            // هذه الدالة أصبحت غير مستخدمة بعد إزالة زر المسح
             document.getElementById('searchStatementAccount').value = '';
             const tbody = document.getElementById('statementTableBody');
             const header = document.getElementById('statementHeader');
@@ -1870,6 +1877,14 @@
             
             // إخفاء جميع القوائم المنسدلة
             hideAllSuggestLists();
+            
+            // إذا كان تبويب كشف الحساب، يتم البحث مباشرة إذا كان هناك حساب محدد
+            if (tabName === 'statement') {
+                const accountName = document.getElementById('searchStatementAccount').value.trim();
+                if (accountName) {
+                    renderStatement();
+                }
+            }
         }
 
         // تهيئة خيارات الطباعة
