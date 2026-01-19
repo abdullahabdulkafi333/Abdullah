@@ -294,17 +294,6 @@
             color: #dc2626;
         }
         
-        .statement-note {
-            background: #fef3c7;
-            border: 1px solid #f59e0b;
-            border-radius: 6px;
-            padding: 0.75rem;
-            margin-bottom: 1rem;
-            font-size: 0.75rem;
-            color: #92400e;
-            text-align: right;
-        }
-        
         .statement-type {
             padding: 2px 8px;
             border-radius: 12px;
@@ -709,32 +698,32 @@
                 <div class="text-sm" id="statementPeriod"></div>
             </div>
 
-            <!-- ملاحظة توضيحية -->
-            <div class="statement-note">
-                <strong>تنويه:</strong> في اليومية، عمود "دائن" يعني أن الحساب هو الذي دفع المبلغ (مستحق له)، وعمود "مدين" يعني أن الحساب هو الذي قبض المبلغ (مدين له).
-            </div>
-
             <!-- ملخص كشف الحساب -->
             <div id="statementSummary" class="statement-summary mb-3" style="display: none;">
                 <div class="summary-card">
                     <div class="summary-title">إجمالي المبيعات</div>
-                    <div class="summary-value" id="summarySalesTotal">0.00 $</div>
+                    <div class="summary-value" id="summarySalesTotalUsd">0.00 $</div>
+                    <div class="summary-value text-xs text-gray-600" id="summarySalesTotalSyp">0 ل.س</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-title">إجمالي المشتريات</div>
-                    <div class="summary-value" id="summaryPurchasesTotal">0.00 $</div>
+                    <div class="summary-value" id="summaryPurchasesTotalUsd">0.00 $</div>
+                    <div class="summary-value text-xs text-gray-600" id="summaryPurchasesTotalSyp">0 ل.س</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-title">إجمالي المقبوضات</div>
-                    <div class="summary-value summary-positive" id="summaryReceiptsTotal">0.00 $</div>
+                    <div class="summary-value summary-positive" id="summaryReceiptsTotalUsd">0.00 $</div>
+                    <div class="summary-value text-xs text-gray-600" id="summaryReceiptsTotalSyp">0 ل.س</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-title">إجمالي المدفوعات</div>
-                    <div class="summary-value summary-negative" id="summaryPaymentsTotal">0.00 $</div>
+                    <div class="summary-value summary-negative" id="summaryPaymentsTotalUsd">0.00 $</div>
+                    <div class="summary-value text-xs text-gray-600" id="summaryPaymentsTotalSyp">0 ل.س</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-title">الرصيد الحالي</div>
-                    <div class="summary-value" id="summaryCurrentBalance">0.00 $</div>
+                    <div class="summary-value" id="summaryCurrentBalanceUsd">0.00 $</div>
+                    <div class="summary-value text-xs text-gray-600" id="summaryCurrentBalanceSyp">0 ل.س</div>
                 </div>
             </div>
 
@@ -751,6 +740,7 @@
                             <th data-col="debit_usd">مدين (دولار)</th>
                             <th data-col="credit_usd">دائن (دولار)</th>
                             <th data-col="balance_usd">الرصيد (دولار)</th>
+                            <th data-col="balance_syp">الرصيد (سوري)</th>
                         </tr>
                     </thead>
                     <tbody id="statementTableBody"></tbody>
@@ -841,7 +831,8 @@
             {id:'description',label:'البيان'},
             {id:'debit_usd',label:'مدين (دولار)'},
             {id:'credit_usd',label:'دائن (دولار)'},
-            {id:'balance_usd',label:'الرصيد (دولار)'}
+            {id:'balance_usd',label:'الرصيد (دولار)'},
+            {id:'balance_syp',label:'الرصيد (سوري)'}
         ];
 
         // تحميل جميع البيانات
@@ -1639,6 +1630,7 @@
         // عرض كشف الحساب
         function renderStatement() {
             const accountName = document.getElementById('searchStatementAccount').value.trim();
+            const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 1;
             
             if (!accountName) {
                 alert('الرجاء إدخال اسم الحساب (عميل/مورد)');
@@ -1659,10 +1651,14 @@
             // جمع البيانات من جميع المصادر
             const statementData = [];
             
-            let totalSales = 0;
-            let totalPurchases = 0;
-            let totalReceipts = 0; // المقبوضات (الدائن في اليومية - أي دفع لنا)
-            let totalPayments = 0; // المدفوعات (المدين في اليومية - أي دفعنا له)
+            let totalSalesUsd = 0;
+            let totalSalesSyp = 0;
+            let totalPurchasesUsd = 0;
+            let totalPurchasesSyp = 0;
+            let totalReceiptsUsd = 0; // المقبوضات (الدائن في اليومية - أي دفع لنا)
+            let totalReceiptsSyp = 0;
+            let totalPaymentsUsd = 0; // المدفوعات (المدين في اليومية - أي دفعنا له)
+            let totalPaymentsSyp = 0;
             
             // 1. بيانات المبيعات للعميل
             const salesForAccount = allSalesData.filter(row => 
@@ -1674,8 +1670,10 @@
                 const price = parseNumber(row['السعر دولار']);
                 const quantity = parseNumber(row['الكمية']);
                 const totalUsdRow = price * quantity;
+                const totalSypRow = parseNumber(row['ا.سوري']);
                 
-                totalSales += totalUsdRow;
+                totalSalesUsd += totalUsdRow;
+                totalSalesSyp += totalSypRow;
                 
                 statementData.push({
                     date: date,
@@ -1683,8 +1681,10 @@
                     typeClass: 'type-sales',
                     invoice: row['الفاتورة'] || '',
                     description: row['الصنف'] || '',
-                    debit: 0, // المبيعات: العميل مدين (يجب أن يدفع)
-                    credit: totalUsdRow, // المبيعات: العميل مدين (يجب أن يدفع)
+                    debit: totalUsdRow, // المبيعات: العميل مدين (يجب أن يدفع) - وضعناها في المدين
+                    credit: 0, // المبيعات: لا يوجد دائن في المبيعات
+                    sypDebit: totalSypRow,
+                    sypCredit: 0,
                     rawDate: parseDate(date)
                 });
             });
@@ -1701,8 +1701,10 @@
                 const discount = parseNumber(row['الحسم']);
                 const afterDiscount = price - (price * discount / 100);
                 const totalUsdRow = afterDiscount * quantity;
+                const totalSypRow = totalUsdRow * exchangeRate;
                 
-                totalPurchases += totalUsdRow;
+                totalPurchasesUsd += totalUsdRow;
+                totalPurchasesSyp += totalSypRow;
                 
                 statementData.push({
                     date: date,
@@ -1710,8 +1712,10 @@
                     typeClass: 'type-purchase',
                     invoice: row['الفاتورة'] || '',
                     description: row['الصنف'] || '',
-                    debit: totalUsdRow, // المشتريات: نحن مدينون (يجب أن ندفع)
-                    credit: 0, // المشتريات: نحن مدينون (يجب أن ندفع)
+                    debit: 0, // المشتريات: نحن مدينون - وضعناها في الدائن لأن المورد هو الدائن
+                    credit: totalUsdRow, // المشتريات: المورد دائن (نحن مدينون له)
+                    sypDebit: 0,
+                    sypCredit: totalSypRow,
                     rawDate: parseDate(date)
                 });
             });
@@ -1725,6 +1729,7 @@
             journalForAccount.forEach(row => {
                 const date = row['التاريخ'] || '';
                 const usd = parseNumber(row['دولار']);
+                const syp = parseNumber(row['سوري']);
                 const creditName = String(row['دائن'] || '').trim();
                 const debitName = String(row['مدين'] || '').trim();
                 const description = row['البيان'] || '';
@@ -1734,7 +1739,8 @@
                 
                 if (creditName === accountName) {
                     // الحساب هو الدائن (أي دفع لنا)
-                    totalReceipts += usd;
+                    totalReceiptsUsd += usd;
+                    totalReceiptsSyp += syp;
                     type = 'مقبوضات';
                     typeClass = 'type-receipt';
                     
@@ -1744,13 +1750,16 @@
                         typeClass: typeClass,
                         invoice: '',
                         description: description,
-                        debit: 0, // الحساب دائن (دفع لنا)
+                        debit: 0, // الحساب دائن (دفع لنا) - وضعناها في الدائن
                         credit: usd, // الحساب دائن (دفع لنا)
+                        sypDebit: 0,
+                        sypCredit: syp,
                         rawDate: parseDate(date)
                     });
                 } else if (debitName === accountName) {
                     // الحساب هو المدين (أي دفعنا له)
-                    totalPayments += usd;
+                    totalPaymentsUsd += usd;
+                    totalPaymentsSyp += syp;
                     type = 'مدفوعات';
                     typeClass = 'type-payment';
                     
@@ -1761,7 +1770,9 @@
                         invoice: '',
                         description: description,
                         debit: usd, // الحساب مدين (دفعنا له)
-                        credit: 0, // الحساب مدين (دفعنا له)
+                        credit: 0, // الحساب مدين (دفعنا له) - وضعناها في المدين
+                        sypDebit: syp,
+                        sypCredit: 0,
                         rawDate: parseDate(date)
                     });
                 }
@@ -1770,16 +1781,21 @@
             // ترتيب البيانات حسب التاريخ
             statementData.sort((a, b) => a.rawDate - b.rawDate);
             
-            // حساب الرصيد الجاري
-            let runningBalance = 0;
+            // حساب الرصيد الجاري (بقلب إشارة المبيعات والمشتريات)
+            let runningBalanceUsd = 0;
+            let runningBalanceSyp = 0;
             
             tbody.innerHTML = '';
             
             statementData.forEach((item, i) => {
                 // تحديث الرصيد الجاري
-                // المدين (debit) يعني الحساب مدين (علينا) - يزيد رصيده
-                // الدائن (credit) يعني الحساب دائن (لنا) - يقلل رصيده
-                runningBalance += item.debit - item.credit;
+                // المبيعات: المدين يزيد رصيدنا (العميل مدين لنا)
+                // المشتريات: الدائن يقلل رصيدنا (نحن مدينون للمورد)
+                // المقبوضات: الدائن يقلل رصيدنا (الحساب دفع لنا)
+                // المدفوعات: المدين يزيد رصيدنا (دفعنا للحساب)
+                
+                runningBalanceUsd += item.debit - item.credit;
+                runningBalanceSyp += item.sypDebit - item.sypCredit;
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -1790,31 +1806,47 @@
                     <td class="text-right">${item.description}</td>
                     <td class="debit-cell">${item.debit > 0 ? item.debit.toFixed(2) : ''}</td>
                     <td class="credit-cell">${item.credit > 0 ? item.credit.toFixed(2) : ''}</td>
-                    <td class="font-bold ${runningBalance >= 0 ? 'text-green-600' : 'text-red-600'}">
-                        ${runningBalance.toFixed(2)}
+                    <td class="font-bold ${runningBalanceUsd >= 0 ? 'text-green-600' : 'text-red-600'}">
+                        ${runningBalanceUsd.toFixed(2)}
+                    </td>
+                    <td class="font-bold ${runningBalanceSyp >= 0 ? 'text-green-600' : 'text-red-600'}">
+                        ${Math.round(runningBalanceSyp).toLocaleString()}
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
             
-            // حساب الرصيد النهائي
-            const finalBalance = totalPurchases + totalPayments - totalSales - totalReceipts;
+            // حساب الرصيد النهائي (بقلب الإشارة)
+            const finalBalanceUsd = totalSalesUsd + totalPaymentsUsd - totalPurchasesUsd - totalReceiptsUsd;
+            const finalBalanceSyp = totalSalesSyp + totalPaymentsSyp - totalPurchasesSyp - totalReceiptsSyp;
             
             // تحديث الملخص
-            document.getElementById('summarySalesTotal').textContent = `${totalSales.toFixed(2)} $`;
-            document.getElementById('summaryPurchasesTotal').textContent = `${totalPurchases.toFixed(2)} $`;
-            document.getElementById('summaryReceiptsTotal').textContent = `${totalReceipts.toFixed(2)} $`;
-            document.getElementById('summaryPaymentsTotal').textContent = `${totalPayments.toFixed(2)} $`;
+            document.getElementById('summarySalesTotalUsd').textContent = `${totalSalesUsd.toFixed(2)} $`;
+            document.getElementById('summarySalesTotalSyp').textContent = `${Math.round(totalSalesSyp).toLocaleString()} ل.س`;
             
-            const summaryBalanceElement = document.getElementById('summaryCurrentBalance');
-            summaryBalanceElement.textContent = `${finalBalance.toFixed(2)} $`;
+            document.getElementById('summaryPurchasesTotalUsd').textContent = `${totalPurchasesUsd.toFixed(2)} $`;
+            document.getElementById('summaryPurchasesTotalSyp').textContent = `${Math.round(totalPurchasesSyp).toLocaleString()} ل.س`;
             
-            if (finalBalance >= 0) {
-                summaryBalanceElement.className = 'summary-value summary-positive';
-                summaryBalanceElement.title = 'الحساب مدين (يجب أن يدفع لنا)';
+            document.getElementById('summaryReceiptsTotalUsd').textContent = `${totalReceiptsUsd.toFixed(2)} $`;
+            document.getElementById('summaryReceiptsTotalSyp').textContent = `${Math.round(totalReceiptsSyp).toLocaleString()} ل.س`;
+            
+            document.getElementById('summaryPaymentsTotalUsd').textContent = `${totalPaymentsUsd.toFixed(2)} $`;
+            document.getElementById('summaryPaymentsTotalSyp').textContent = `${Math.round(totalPaymentsSyp).toLocaleString()} ل.س`;
+            
+            const summaryBalanceUsdElement = document.getElementById('summaryCurrentBalanceUsd');
+            const summaryBalanceSypElement = document.getElementById('summaryCurrentBalanceSyp');
+            
+            summaryBalanceUsdElement.textContent = `${finalBalanceUsd.toFixed(2)} $`;
+            summaryBalanceSypElement.textContent = `${Math.round(finalBalanceSyp).toLocaleString()} ل.س`;
+            
+            if (finalBalanceUsd >= 0) {
+                summaryBalanceUsdElement.className = 'summary-value summary-positive';
+                summaryBalanceUsdElement.title = 'الحساب مدين (يجب أن يدفع لنا)';
+                summaryBalanceSypElement.className = 'summary-value text-xs text-gray-600';
             } else {
-                summaryBalanceElement.className = 'summary-value summary-negative';
-                summaryBalanceElement.title = 'الحساب دائن (نحن مدينون له)';
+                summaryBalanceUsdElement.className = 'summary-value summary-negative';
+                summaryBalanceUsdElement.title = 'الحساب دائن (نحن مدينون له)';
+                summaryBalanceSypElement.className = 'summary-value text-xs text-gray-600';
             }
             
             // تحديث الفترة الزمنية
@@ -1832,10 +1864,13 @@
                 totalRow.className = 'bg-gray-50 font-bold';
                 totalRow.innerHTML = `
                     <td colspan="5" class="text-right py-2">الإجمالي</td>
-                    <td class="debit-cell py-2">${(totalPurchases + totalPayments).toFixed(2)}</td>
-                    <td class="credit-cell py-2">${(totalSales + totalReceipts).toFixed(2)}</td>
-                    <td class="font-bold py-2 ${finalBalance >= 0 ? 'text-green-600' : 'text-red-600'}">
-                        ${finalBalance.toFixed(2)}
+                    <td class="debit-cell py-2">${(totalSalesUsd + totalPaymentsUsd).toFixed(2)}</td>
+                    <td class="credit-cell py-2">${(totalPurchasesUsd + totalReceiptsUsd).toFixed(2)}</td>
+                    <td class="font-bold py-2 ${finalBalanceUsd >= 0 ? 'text-green-600' : 'text-red-600'}">
+                        ${finalBalanceUsd.toFixed(2)}
+                    </td>
+                    <td class="font-bold py-2 ${finalBalanceSyp >= 0 ? 'text-green-600' : 'text-red-600'}">
+                        ${Math.round(finalBalanceSyp).toLocaleString()}
                     </td>
                 `;
                 tbody.appendChild(totalRow);
@@ -2106,6 +2141,9 @@
         document.getElementById('exchangeRate').addEventListener('input', () => {
             if (currentTab === 'items') renderItems();
             else if (currentTab === 'sales') renderSales();
+            else if (currentTab === 'statement' && document.getElementById('searchStatementAccount').value.trim()) {
+                renderStatement();
+            }
         });
 
         // التحميل الأولي
