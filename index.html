@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abdulkafi</title>
+    <title>Abdulkafi | أدوات WORKPRO الصناعية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -15,18 +15,18 @@
         }
 
         :root {
-            --primary: #2c3e50;
-            --secondary: #e74c3c;
-            --light: #ecf0f1;
-            --dark: #2c3e50;
-            --success: #27ae60;
-            --warning: #f39c12;
-            --gray: #95a5a6;
+            --primary: #1a365d;       /* الأزرق الداكن WORKPRO */
+            --secondary: #e53e3e;     /* الأحمر/البرتقالي WORKPRO */
+            --light: #f7fafc;         /* خلفية فاتحة */
+            --dark: #2d3748;          /* رمادي داكن للنص */
+            --success: #38a169;       /* أخضر للنجاح */
+            --warning: #d69e2e;       /* برتقالي للتحذير */
+            --gray: #a0aec0;          /* رمادي فاتح */
         }
 
         body {
-            background-color: #f5f7fa;
-            color: #333;
+            background-color: #f7fafc;
+            color: #2d3748;
             line-height: 1.6;
         }
 
@@ -39,13 +39,14 @@
 
         /* Header Styles */
         header {
-            background-color: var(--primary);
-            color: white;
+            background-color: white;
+            color: var(--primary);
             padding: 15px 0;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             position: sticky;
             top: 0;
             z-index: 1000;
+            border-bottom: 3px solid var(--secondary);
         }
 
         .header-content {
@@ -57,21 +58,31 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
+            cursor: pointer;
         }
 
-        .logo i {
-            font-size: 28px;
-            color: var(--secondary);
+        .logo-img {
+            height: 45px;
+            display: flex;
+            align-items: center;
         }
 
-        .logo h1 {
-            font-size: 24px;
+        .logo-img img {
+            height: 100%;
+            width: auto;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-text h1 {
+            font-size: 22px;
             font-weight: 700;
-        }
-
-        .logo span {
-            color: var(--secondary);
+            color: var(--primary);
+            margin: 0;
         }
 
         nav ul {
@@ -81,7 +92,7 @@
         }
 
         nav a {
-            color: white;
+            color: var(--primary);
             text-decoration: none;
             font-weight: 600;
             font-size: 16px;
@@ -134,7 +145,7 @@
         }
 
         .auth-buttons button:hover {
-            background-color: #c0392b;
+            background-color: #c53030;
         }
 
         .mobile-menu {
@@ -145,16 +156,16 @@
 
         /* Hero Section */
         .hero {
-            background: linear-gradient(rgba(44, 62, 80, 0.9), rgba(44, 62, 80, 0.8)), url('https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
+            background: linear-gradient(rgba(26, 54, 93, 0.85), rgba(26, 54, 93, 0.9)), url('https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80');
             background-size: cover;
             background-position: center;
             color: white;
-            padding: 80px 0;
+            padding: 60px 0;
             text-align: center;
         }
 
         .hero h2 {
-            font-size: 36px;
+            font-size: 32px;
             margin-bottom: 15px;
         }
 
@@ -192,75 +203,77 @@
             cursor: pointer;
         }
 
-        /* Categories */
+        /* Categories - Updated to be smaller */
         .categories {
-            padding: 60px 0;
+            padding: 40px 0;
+            background-color: white;
         }
 
         .section-title {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             color: var(--primary);
-            font-size: 28px;
+            font-size: 24px;
             position: relative;
         }
 
         .section-title::after {
             content: '';
             position: absolute;
-            width: 80px;
-            height: 4px;
+            width: 60px;
+            height: 3px;
             background-color: var(--secondary);
-            bottom: -10px;
+            bottom: -8px;
             left: 50%;
             transform: translateX(-50%);
         }
 
         .categories-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
         }
 
         .category-card {
             background-color: white;
-            border-radius: 8px;
+            border-radius: 6px;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
             transition: transform 0.3s, box-shadow 0.3s;
             text-align: center;
-            padding: 25px 15px;
+            padding: 20px 10px;
             cursor: pointer;
+            border-top: 2px solid var(--secondary);
         }
 
         .category-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
 
         .category-icon {
-            font-size: 40px;
+            font-size: 32px;
             color: var(--secondary);
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .category-card h3 {
-            font-size: 20px;
-            margin-bottom: 10px;
+            font-size: 18px;
+            margin-bottom: 8px;
             color: var(--primary);
         }
 
         /* Products */
         .products {
-            padding: 60px 0;
-            background-color: #f9f9f9;
+            padding: 50px 0;
+            background-color: #f7fafc;
         }
 
         .products-filter {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             flex-wrap: wrap;
             gap: 15px;
         }
@@ -272,66 +285,84 @@
         }
 
         .filter-options select, .filter-options input {
-            padding: 10px 15px;
+            padding: 8px 12px;
             border-radius: 4px;
             border: 1px solid #ddd;
-            font-size: 16px;
+            font-size: 14px;
+            background-color: white;
         }
 
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
         }
 
         .product-card {
             background-color: white;
-            border-radius: 8px;
+            border-radius: 6px;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
             transition: transform 0.3s;
             position: relative;
+            border-top: 2px solid var(--secondary);
         }
 
         .product-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
 
         .product-badge {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            top: 10px;
+            right: 10px;
             background-color: var(--secondary);
             color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
             font-weight: bold;
         }
 
         .product-img {
-            height: 200px;
+            height: 160px;
             width: 100%;
-            object-fit: cover;
+            background-color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            font-size: 14px;
         }
 
         .product-info {
-            padding: 20px;
+            padding: 15px;
         }
 
         .product-title {
-            font-size: 18px;
-            margin-bottom: 10px;
+            font-size: 16px;
+            margin-bottom: 8px;
             color: var(--primary);
-            height: 50px;
+            height: 40px;
             overflow: hidden;
         }
 
         .product-price {
             color: var(--secondary);
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 700;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
+        }
+
+        .product-brand {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-bottom: 8px;
         }
 
         .product-actions {
@@ -344,10 +375,11 @@
             background-color: var(--primary);
             color: white;
             border: none;
-            padding: 8px 15px;
+            padding: 6px 12px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: 600;
+            font-size: 13px;
             transition: background-color 0.3s;
             display: flex;
             align-items: center;
@@ -355,13 +387,14 @@
         }
 
         .add-to-cart:hover, .view-details:hover {
-            background-color: #1a252f;
+            background-color: #2d3748;
         }
 
         .wishlist-btn {
             background-color: transparent;
             color: var(--primary);
             border: 1px solid var(--primary);
+            padding: 5px 10px;
         }
 
         .wishlist-btn:hover {
@@ -377,19 +410,19 @@
         footer {
             background-color: var(--primary);
             color: white;
-            padding: 60px 0 20px;
+            padding: 50px 0 20px;
         }
 
         .footer-content {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
         }
 
         .footer-column h3 {
-            font-size: 20px;
-            margin-bottom: 20px;
+            font-size: 18px;
+            margin-bottom: 15px;
             color: var(--secondary);
         }
 
@@ -398,13 +431,14 @@
         }
 
         .footer-column ul li {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .footer-column ul li a {
             color: #ddd;
             text-decoration: none;
             transition: color 0.3s;
+            font-size: 14px;
         }
 
         .footer-column ul li a:hover {
@@ -413,12 +447,12 @@
 
         .payment-methods {
             display: flex;
-            gap: 15px;
-            margin-top: 15px;
+            gap: 10px;
+            margin-top: 10px;
         }
 
         .payment-methods i {
-            font-size: 30px;
+            font-size: 24px;
             color: #ddd;
         }
 
@@ -427,7 +461,7 @@
             padding-top: 20px;
             border-top: 1px solid #3a506b;
             color: #bdc3c7;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         /* Modal Styles */
@@ -455,6 +489,7 @@
             overflow-y: auto;
             position: relative;
             animation: modalFadeIn 0.3s;
+            border-top: 3px solid var(--secondary);
         }
 
         @keyframes modalFadeIn {
@@ -507,15 +542,20 @@
         }
 
         .cart-item-img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
+            width: 70px;
+            height: 70px;
+            background-color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
             border-radius: 4px;
         }
 
         .cart-item-details h4 {
             margin-bottom: 5px;
             color: var(--primary);
+            font-size: 15px;
         }
 
         .cart-item-actions {
@@ -527,16 +567,18 @@
         .quantity-btn {
             background-color: #f5f5f5;
             border: none;
-            width: 30px;
-            height: 30px;
+            width: 25px;
+            height: 25px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 12px;
         }
 
         .quantity {
-            padding: 0 10px;
+            padding: 0 8px;
             font-weight: bold;
+            font-size: 14px;
         }
 
         .remove-item {
@@ -544,7 +586,7 @@
             border: none;
             color: var(--secondary);
             cursor: pointer;
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .cart-summary {
@@ -556,12 +598,13 @@
         .summary-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            font-size: 15px;
         }
 
         .summary-total {
             font-weight: bold;
-            font-size: 20px;
+            font-size: 18px;
             color: var(--primary);
             border-top: 2px solid #eee;
             padding-top: 10px;
@@ -573,22 +616,26 @@
             background-color: var(--secondary);
             color: white;
             border: none;
-            padding: 15px;
+            padding: 12px;
             border-radius: 4px;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
-            margin-top: 20px;
+            margin-top: 15px;
             transition: background-color 0.3s;
         }
 
         .checkout-btn:hover {
-            background-color: #c0392b;
+            background-color: #c53030;
         }
 
-        /* Login Modal */
+        /* Login Modal - Fixed */
         .login-form, .register-form {
             display: none;
+        }
+
+        .active-form {
+            display: block;
         }
 
         .form-tabs {
@@ -602,7 +649,7 @@
             background: none;
             border: none;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
             color: var(--gray);
             transition: color 0.3s;
@@ -614,53 +661,55 @@
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-weight: 600;
             color: var(--primary);
+            font-size: 14px;
         }
 
         .form-group input, .form-group select, .form-group textarea {
             width: 100%;
-            padding: 12px 15px;
+            padding: 10px 12px;
             border-radius: 4px;
             border: 1px solid #ddd;
-            font-size: 16px;
+            font-size: 14px;
+            background-color: white;
         }
 
         .submit-btn {
             background-color: var(--secondary);
             color: white;
             border: none;
-            padding: 15px;
+            padding: 12px;
             border-radius: 4px;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 15px;
             cursor: pointer;
             width: 100%;
             transition: background-color 0.3s;
         }
 
         .submit-btn:hover {
-            background-color: #c0392b;
+            background-color: #c53030;
         }
 
         /* Delivery Section */
         .delivery-options {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
             margin-top: 20px;
         }
 
         .delivery-option {
             border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
+            border-radius: 6px;
+            padding: 15px;
             cursor: pointer;
             transition: border-color 0.3s;
         }
@@ -671,21 +720,22 @@
 
         .delivery-option.selected {
             border-color: var(--secondary);
-            background-color: rgba(231, 76, 60, 0.05);
+            background-color: rgba(229, 62, 62, 0.05);
         }
 
         .delivery-option h4 {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             color: var(--primary);
+            font-size: 16px;
         }
 
         .qr-code {
             text-align: center;
-            margin: 20px 0;
+            margin: 15px 0;
         }
 
         .qr-code img {
-            max-width: 200px;
+            max-width: 180px;
             margin: 0 auto;
             display: block;
         }
@@ -694,14 +744,14 @@
         .tracking-steps {
             display: flex;
             justify-content: space-between;
-            margin: 30px 0;
+            margin: 25px 0;
             position: relative;
         }
 
         .tracking-steps::before {
             content: '';
             position: absolute;
-            top: 15px;
+            top: 12px;
             left: 0;
             right: 0;
             height: 2px;
@@ -718,15 +768,16 @@
         }
 
         .step-icon {
-            width: 30px;
-            height: 30px;
+            width: 25px;
+            height: 25px;
             border-radius: 50%;
             background-color: #ddd;
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            font-size: 12px;
         }
 
         .tracking-step.active .step-icon {
@@ -734,7 +785,7 @@
         }
 
         .step-label {
-            font-size: 14px;
+            font-size: 12px;
             color: var(--gray);
         }
 
@@ -743,20 +794,21 @@
             font-weight: bold;
         }
 
-        /* Admin Panel */
+        /* Admin Panel - Hidden with password */
         .admin-panel {
             display: none;
-            padding: 30px;
+            padding: 20px;
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            margin-top: 30px;
+            margin-top: 20px;
+            border-top: 3px solid var(--secondary);
         }
 
         .admin-actions {
             display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: 10px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
         }
 
@@ -764,48 +816,51 @@
             background-color: var(--primary);
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 10px 15px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: 600;
+            font-size: 14px;
             transition: background-color 0.3s;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .admin-btn:hover {
-            background-color: #1a252f;
+            background-color: #2d3748;
         }
 
-        .products-table {
+        .products-table, .categories-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 15px;
+            font-size: 14px;
         }
 
-        .products-table th, .products-table td {
-            padding: 12px 15px;
+        .products-table th, .products-table td,
+        .categories-table th, .categories-table td {
+            padding: 10px 12px;
             text-align: right;
             border-bottom: 1px solid #eee;
         }
 
-        .products-table th {
+        .products-table th, .categories-table th {
             background-color: #f8f9fa;
             color: var(--primary);
             font-weight: 700;
         }
 
-        .products-table tr:hover {
+        .products-table tr:hover, .categories-table tr:hover {
             background-color: #f8f9fa;
         }
 
         .action-btn {
-            padding: 5px 10px;
-            border-radius: 4px;
+            padding: 4px 8px;
+            border-radius: 3px;
             border: none;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
             margin-left: 5px;
         }
 
@@ -819,6 +874,31 @@
             color: white;
         }
 
+        .save-btn {
+            background-color: var(--success);
+            color: white;
+        }
+
+        /* Password Protection for Admin */
+        .password-protection {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-top: 30px;
+        }
+
+        .password-input {
+            width: 300px;
+            padding: 12px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin: 15px 0;
+            font-size: 16px;
+        }
+
         /* Responsive Design */
         @media (max-width: 992px) {
             nav ul {
@@ -826,7 +906,7 @@
             }
             
             .hero h2 {
-                font-size: 30px;
+                font-size: 28px;
             }
         }
 
@@ -855,11 +935,11 @@
             }
             
             .hero {
-                padding: 50px 0;
+                padding: 40px 0;
             }
             
             .hero h2 {
-                font-size: 26px;
+                font-size: 24px;
             }
             
             .products-filter {
@@ -869,11 +949,15 @@
             
             .tracking-steps {
                 flex-direction: column;
-                gap: 30px;
+                gap: 25px;
             }
             
             .tracking-steps::before {
                 display: none;
+            }
+            
+            .categories-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             }
         }
 
@@ -885,7 +969,7 @@
             .cart-item {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 15px;
+                gap: 10px;
             }
             
             .cart-item-info {
@@ -895,6 +979,14 @@
             .modal-content {
                 width: 95%;
             }
+            
+            .logo-text h1 {
+                font-size: 18px;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -902,9 +994,18 @@
     <!-- Header -->
     <header>
         <div class="container header-content">
-            <div class="logo">
-                <i class="fas fa-tools"></i>
-                <h1>Store <span>Abdulkafi</span></h1>
+            <div class="logo" onclick="toggleAdminPanel()">
+                <div class="logo-img">
+                    <!-- شعار WORKPRO المصمم بدقة -->
+                    <svg width="45" height="45" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100" height="100" fill="#1a365d"/>
+                        <text x="50" y="55" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="22" font-weight="bold">W</text>
+                        <text x="50" y="80" text-anchor="middle" fill="#e53e3e" font-family="Arial, sans-serif" font-size="14" font-weight="bold">WORKPRO</text>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <h1>Abdulkafi</h1>
+                </div>
             </div>
             
             <div class="mobile-menu">
@@ -936,11 +1037,11 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="container">
-            <h2>أدوات صناعية احترافية لجميع الأعمال</h2>
-            <p>نوفر لك أفضل العدد الصناعية من مثاقب كهربائية، معدات لحام، ضواغط هواء وأدوات البناء بأسعار تنافسية مع خدمة التوصيل لجميع مناطق المملكة</p>
+            <h2>أدوات WORKPRO الصناعية الاحترافية</h2>
+            <p>نوفر لك أفضل أدوات WORKPRO الصناعية من مثاقب كهربائية، معدات لحام، ضواغط هواء وأدوات البناء</p>
             
             <div class="search-bar">
-                <input type="text" placeholder="ابحث عن منتج معين...">
+                <input type="text" placeholder="ابحث عن منتج WORKPRO معين...">
                 <button><i class="fas fa-search"></i> بحث</button>
             </div>
         </div>
@@ -949,39 +1050,9 @@
     <!-- Categories Section -->
     <section class="categories" id="categories">
         <div class="container">
-            <h2 class="section-title">فئات المنتجات</h2>
+            <h2 class="section-title">فئات منتجات WORKPRO</h2>
             <div class="categories-grid">
-                <div class="category-card">
-                    <div class="category-icon">
-                        <i class="fas fa-bolt"></i>
-                    </div>
-                    <h3>أدوات كهربائية</h3>
-                    <p>مثاقب، شواكيش، مناشير</p>
-                </div>
-                
-                <div class="category-card">
-                    <div class="category-icon">
-                        <i class="fas fa-fire"></i>
-                    </div>
-                    <h3>معدات اللحام</h3>
-                    <p>ترنسات لحام، مسدسات لحام</p>
-                </div>
-                
-                <div class="category-card">
-                    <div class="category-icon">
-                        <i class="fas fa-wind"></i>
-                    </div>
-                    <h3>ضواغط الهواء</h3>
-                    <p>مضخات هواء، أدوات تعمل بالهواء</p>
-                </div>
-                
-                <div class="category-card">
-                    <div class="category-icon">
-                        <i class="fas fa-toolbox"></i>
-                    </div>
-                    <h3>عدة يدوية</h3>
-                    <p>مفاتيح، كماشات، شواكيش يدوية</p>
-                </div>
+                <!-- الفئات سيتم إضافتها بواسطة JavaScript -->
             </div>
         </div>
     </section>
@@ -989,24 +1060,21 @@
     <!-- Products Section -->
     <section class="products" id="products">
         <div class="container">
-            <h2 class="section-title">أحدث المنتجات</h2>
+            <h2 class="section-title">أحدث منتجات WORKPRO</h2>
             
             <div class="products-filter">
                 <h3>تصفية المنتجات:</h3>
                 <div class="filter-options">
                     <select id="categoryFilter">
                         <option value="all">جميع الفئات</option>
-                        <option value="electric">أدوات كهربائية</option>
-                        <option value="welding">معدات اللحام</option>
-                        <option value="air">ضواغط الهواء</option>
-                        <option value="hand">عدة يدوية</option>
+                        <!-- سيتم ملء الخيارات بواسطة JavaScript -->
                     </select>
                     
                     <select id="priceFilter">
                         <option value="all">جميع الأسعار</option>
-                        <option value="low">أقل من 500 ريال</option>
-                        <option value="medium">500 - 1500 ريال</option>
-                        <option value="high">أكثر من 1500 ريال</option>
+                        <option value="low">أقل من 50$</option>
+                        <option value="medium">50$ - 150$</option>
+                        <option value="high">أكثر من 150$</option>
                     </select>
                     
                     <input type="text" placeholder="البحث بالاسم..." id="productSearch">
@@ -1024,14 +1092,8 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-column">
-                    <h3>متجر العدد الصناعية</h3>
-                    <p>متخصصون في توريد العدد الصناعية والأدوات الاحترافية للمصانع والورش والهواة منذ عام 2010. نقدم منتجات عالية الجودة بأسعار منافسة.</p>
-                    <div class="payment-methods">
-                        <i class="fab fa-cc-visa"></i>
-                        <i class="fab fa-cc-mastercard"></i>
-                        <i class="fas fa-qrcode"></i>
-                        <i class="fas fa-money-bill-wave"></i>
-                    </div>
+                    <h3>متجر Abdulkafi</h3>
+                    <p>متخصصون في توريد أدوات WORKPRO الصناعية منذ عام 2015. نقدم منتجات عالية الجودة بأسعار منافسة.</p>
                 </div>
                 
                 <div class="footer-column">
@@ -1059,16 +1121,16 @@
                 <div class="footer-column">
                     <h3>معلومات الاتصال</h3>
                     <ul>
-                        <li><i class="fas fa-map-marker-alt"></i> الرياض، المملكة العربية السعودية</li>
-                        <li><i class="fas fa-phone"></i> +966 55 123 4567</li>
-                        <li><i class="fas fa-envelope"></i> info@tools-store.com</li>
-                        <li><i class="fas fa-clock"></i> من الأحد إلى الخميس: 8ص - 10م</li>
+                        <li><i class="fas fa-map-marker-alt"></i> حلب، سوريا</li>
+                        <li><i class="fas fa-phone"></i> +963 123 456 789</li>
+                        <li><i class="fas fa-envelope"></i> info@abdulkafi.com</li>
+                        <li><i class="fas fa-clock"></i> من الأحد إلى الخميس: 8ص - 6م</li>
                     </ul>
                 </div>
             </div>
             
             <div class="copyright">
-                <p>جميع الحقوق محفوظة &copy; 2023 متجر العدد الصناعية</p>
+                <p>جميع الحقوق محفوظة &copy; 2023 متجر Abdulkafi</p>
             </div>
         </div>
     </footer>
@@ -1089,15 +1151,15 @@
                 <div class="cart-summary">
                     <div class="summary-row">
                         <span>المجموع الفرعي:</span>
-                        <span>1,850 ريال</span>
+                        <span>185$</span>
                     </div>
                     <div class="summary-row">
                         <span>تكلفة التوصيل:</span>
-                        <span>25 ريال</span>
+                        <span>5$</span>
                     </div>
                     <div class="summary-row summary-total">
                         <span>المجموع الكلي:</span>
-                        <span>1,875 ريال</span>
+                        <span>190$</span>
                     </div>
                     
                     <button class="checkout-btn" onclick="openCheckoutModal()">إتمام الشراء</button>
@@ -1106,7 +1168,7 @@
         </div>
     </div>
 
-    <!-- Login/Register Modal -->
+    <!-- Login/Register Modal - Fixed -->
     <div class="modal" id="authModal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeAuthModal()">&times;</span>
@@ -1201,13 +1263,13 @@
                         <div class="delivery-option selected" onclick="selectDeliveryOption('standard')">
                             <h4>التوصيل العادي</h4>
                             <p>من 3 إلى 5 أيام عمل</p>
-                            <p>التكلفة: 25 ريال</p>
+                            <p>التكلفة: 5$</p>
                         </div>
                         
                         <div class="delivery-option" onclick="selectDeliveryOption('express')">
                             <h4>التوصيل السريع</h4>
                             <p>من 1 إلى 2 أيام عمل</p>
-                            <p>التكلفة: 50 ريال</p>
+                            <p>التكلفة: 10$</p>
                         </div>
                     </div>
                     
@@ -1216,25 +1278,20 @@
                 
                 <div id="checkoutStep2" style="display: none;">
                     <h3>طريقة الدفع</h3>
-                    <p>إجمالي المبلغ: <strong>1,875 ريال</strong></p>
+                    <p>إجمالي المبلغ: <strong>190$</strong></p>
                     
                     <div class="delivery-options">
                         <div class="delivery-option selected" onclick="selectPaymentMethod('sham')">
                             <h4>شام كاش (QR Code)</h4>
                             <p>الدفع عبر مسح كود QR باستخدام تطبيق شام كاش</p>
                         </div>
-                        
-                        <div class="delivery-option" onclick="selectPaymentMethod('card')">
-                            <h4>بطاقة ائتمان</h4>
-                            <p>الدفع باستخدام بطاقة فيزا أو ماستركارد</p>
-                        </div>
                     </div>
                     
                     <div id="shamPayment" style="margin-top: 20px;">
                         <div class="qr-code">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=SHAMCASH_PAYMENT_1875_SAR_ORDER_12345" alt="QR Code للدفع">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=SHAMCASH_PAYMENT_190_DOLLAR_ORDER_12345" alt="QR Code للدفع">
                         </div>
-                        <p style="text-align: center;">امسح كود QR أعلاه باستخدام تطبيق شام كاش لدفع مبلغ 1,875 ريال</p>
+                        <p style="text-align: center;">امسح كود QR أعلاه باستخدام تطبيق شام كاش لدفع مبلغ 190$</p>
                     </div>
                     
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -1247,7 +1304,7 @@
                     <h3 style="color: var(--success); text-align: center;"><i class="fas fa-check-circle"></i> تم تأكيد طلبك بنجاح!</h3>
                     <p style="text-align: center;">رقم الطلب: <strong>#12345</strong></p>
                     
-                    <div class="tracking-steps" style="margin: 30px 0;">
+                    <div class="tracking-steps" style="margin: 25px 0;">
                         <div class="tracking-step active">
                             <div class="step-icon"><i class="fas fa-clipboard-check"></i></div>
                             <span class="step-label">قيد التحضير</span>
@@ -1270,37 +1327,69 @@
         </div>
     </div>
 
-    <!-- Admin Panel (Hidden by default) -->
+    <!-- Password Protection for Admin Panel -->
+    <div class="container password-protection" id="passwordProtection">
+        <h2 class="section-title">الوصول إلى لوحة التحكم</h2>
+        <p>أدخل كلمة المرور للوصول إلى لوحة تحكم الإدارة:</p>
+        <input type="password" class="password-input" id="adminPassword" placeholder="أدخل كلمة المرور">
+        <button class="submit-btn" onclick="checkAdminPassword()">الدخول</button>
+        <p id="passwordError" style="color: var(--secondary); margin-top: 10px; display: none;">كلمة المرور غير صحيحة!</p>
+    </div>
+
+    <!-- Admin Panel (Hidden by default, protected by password) -->
     <div class="container admin-panel" id="adminPanel">
-        <h2 class="section-title">لوحة تحكم الإدارة</h2>
+        <h2 class="section-title">لوحة تحكم إدارة Abdulkafi</h2>
         
         <div class="admin-actions">
             <button class="admin-btn" onclick="showAddProductForm()"><i class="fas fa-plus"></i> إضافة منتج جديد</button>
+            <button class="admin-btn" onclick="showAddCategoryForm()"><i class="fas fa-folder-plus"></i> إضافة فئة جديدة</button>
+            <button class="admin-btn" onclick="showManageCategories()"><i class="fas fa-edit"></i> إدارة الفئات</button>
             <button class="admin-btn"><i class="fas fa-users"></i> إدارة المستخدمين</button>
             <button class="admin-btn"><i class="fas fa-shipping-fast"></i> إدارة الطلبات</button>
-            <button class="admin-btn"><i class="fas fa-chart-bar"></i> التقارير</button>
+            <button class="admin-btn" onclick="logoutAdmin()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</button>
         </div>
         
-        <h3>قائمة المنتجات</h3>
-        <table class="products-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>الصورة</th>
-                    <th>اسم المنتج</th>
-                    <th>الفئة</th>
-                    <th>السعر</th>
-                    <th>الكمية</th>
-                    <th>الإجراءات</th>
-                </tr>
-            </thead>
-            <tbody id="adminProductsTable">
-                <!-- سيتم ملء الجدول بواسطة JavaScript -->
-            </tbody>
-        </table>
+        <!-- إدارة المنتجات -->
+        <div id="productsManagement">
+            <h3>إدارة منتجات WORKPRO</h3>
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>اسم المنتج</th>
+                        <th>الفئة</th>
+                        <th>السعر ($)</th>
+                        <th>الكمية</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="adminProductsTable">
+                    <!-- سيتم ملء الجدول بواسطة JavaScript -->
+                </tbody>
+            </table>
+        </div>
         
+        <!-- إدارة الفئات -->
+        <div id="categoriesManagement" style="display: none; margin-top: 30px;">
+            <h3>إدارة فئات المنتجات</h3>
+            <table class="categories-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>اسم الفئة</th>
+                        <th>عدد المنتجات</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="adminCategoriesTable">
+                    <!-- سيتم ملء الجدول بواسطة JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- نموذج إضافة منتج جديد -->
         <div id="addProductForm" style="display: none; margin-top: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-            <h3>إضافة منتج جديد</h3>
+            <h3>إضافة منتج WORKPRO جديد</h3>
             <form id="newProductForm">
                 <div class="form-group">
                     <label for="productName">اسم المنتج</label>
@@ -1310,16 +1399,13 @@
                 <div class="form-group">
                     <label for="productCategory">الفئة</label>
                     <select id="productCategory" required>
-                        <option value="electric">أدوات كهربائية</option>
-                        <option value="welding">معدات اللحام</option>
-                        <option value="air">ضواغط الهواء</option>
-                        <option value="hand">عدة يدوية</option>
+                        <!-- سيتم ملء الخيارات بواسطة JavaScript -->
                     </select>
                 </div>
                 
                 <div class="form-group">
-                    <label for="productPrice">السعر (ريال)</label>
-                    <input type="number" id="productPrice" required>
+                    <label for="productPrice">السعر ($)</label>
+                    <input type="number" id="productPrice" step="0.01" required>
                 </div>
                 
                 <div class="form-group">
@@ -1332,15 +1418,35 @@
                     <textarea id="productDescription" rows="3"></textarea>
                 </div>
                 
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="submit-btn" style="flex: 1;" onclick="saveNewProduct()">حفظ المنتج</button>
+                    <button type="button" class="submit-btn" style="flex: 1; background-color: var(--gray);" onclick="hideAddProductForm()">إلغاء</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- نموذج إضافة فئة جديدة -->
+        <div id="addCategoryForm" style="display: none; margin-top: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+            <h3>إضافة فئة جديدة</h3>
+            <form id="newCategoryForm">
                 <div class="form-group">
-                    <label>صور المنتج</label>
-                    <input type="file" multiple accept="image/*">
-                    <p style="font-size: 14px; color: var(--gray);">يمكنك رفع أكثر من صورة للمنتج</p>
+                    <label for="categoryName">اسم الفئة</label>
+                    <input type="text" id="categoryName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="categoryIcon">أيقونة الفئة (FontAwesome)</label>
+                    <input type="text" id="categoryIcon" placeholder="مثال: fas fa-tools" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="categoryDescription">وصف الفئة</label>
+                    <textarea id="categoryDescription" rows="2"></textarea>
                 </div>
                 
                 <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="submit-btn" style="flex: 1;">حفظ المنتج</button>
-                    <button type="button" class="submit-btn" style="flex: 1; background-color: var(--gray);" onclick="hideAddProductForm()">إلغاء</button>
+                    <button type="button" class="submit-btn" style="flex: 1;" onclick="saveNewCategory()">حفظ الفئة</button>
+                    <button type="button" class="submit-btn" style="flex: 1; background-color: var(--gray);" onclick="hideAddCategoryForm()">إلغاء</button>
                 </div>
             </form>
         </div>
@@ -1348,88 +1454,95 @@
 
     <!-- JavaScript -->
     <script>
-        // بيانات المنتجات
-        const products = [
+        // البيانات الأساسية
+        let categories = [
+            { id: 1, name: "أدوات كهربائية", icon: "fas fa-bolt", description: "مثاقب، شواكيش، مناشير WORKPRO", productCount: 4 },
+            { id: 2, name: "معدات اللحام", icon: "fas fa-fire", description: "ترنسات لحام، مسدسات لحام WORKPRO", productCount: 2 },
+            { id: 3, name: "ضواغط الهواء", icon: "fas fa-wind", description: "مضخات هواء، أدوات تعمل بالهواء WORKPRO", productCount: 2 },
+            { id: 4, name: "عدة يدوية", icon: "fas fa-toolbox", description: "مفاتيح، كماشات، شواكيش يدوية WORKPRO", productCount: 1 }
+        ];
+
+        let products = [
             {
                 id: 1,
-                name: "مثقاب كهربائي محمول 20 فولت",
-                category: "electric",
-                price: 450,
-                image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-                description: "مثقاب لاسلكي قوي بمحرك 20 فولت، مناسب لأعمال النجارة والبناء",
+                name: "مثقاب WORKPRO كهربائي محمول 20 فولت",
+                categoryId: 1,
+                price: 45.00,
+                quantity: 10,
+                description: "مثقاب لاسلكي WORKPRO قوي بمحرك 20 فولت، مناسب لأعمال النجارة والبناء",
                 inWishlist: false,
                 inCart: false
             },
             {
                 id: 2,
-                name: "ترنس لحام 250 أمبير",
-                category: "welding",
-                price: 1850,
-                image: "https://images.unsplash.com/photo-1611078489935-0cb964de46e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80",
-                description: "معدة لحام احترافية بقدرة 250 أمبير، مناسبة للأعمال الصناعية",
+                name: "ترنس لحام WORKPRO 250 أمبير",
+                categoryId: 2,
+                price: 185.00,
+                quantity: 5,
+                description: "معدة لحام WORKPRO احترافية بقدرة 250 أمبير، مناسبة للأعمال الصناعية",
                 inWishlist: true,
                 inCart: true,
-                quantity: 1
+                cartQuantity: 1
             },
             {
                 id: 3,
-                name: "ضاغط هواء 100 لتر",
-                category: "air",
-                price: 1200,
-                image: "https://images.unsplash.com/photo-1611078489935-0cb964de46e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80",
-                description: "ضاغط هواء بقدرة 2 حصان وسعة 100 لتر، مناسب للورش والمصانع",
+                name: "ضاغط هواء WORKPRO 100 لتر",
+                categoryId: 3,
+                price: 120.00,
+                quantity: 8,
+                description: "ضاغط هواء WORKPRO بقدرة 2 حصان وسعة 100 لتر، مناسب للورش والمصانع",
                 inWishlist: false,
                 inCart: true,
-                quantity: 1
+                cartQuantity: 1
             },
             {
                 id: 4,
-                name: "منشار دائري محمول",
-                category: "electric",
-                price: 650,
-                image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-                description: "منشار دائري لقطع الخشب والمعادن، بشفرة 7.25 بوصة",
+                name: "منشار دائري WORKPRO محمول",
+                categoryId: 1,
+                price: 65.00,
+                quantity: 12,
+                description: "منشار دائري WORKPRO لقطع الخشب والمعادن، بشفرة 7.25 بوصة",
                 inWishlist: false,
                 inCart: false
             },
             {
                 id: 5,
-                name: "مسدس لحام بقوس بلازما",
-                category: "welding",
-                price: 3200,
-                image: "https://images.unsplash.com/photo-1611078489935-0cb964de46e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80",
-                description: "مسدس لحام بلازما متطور، مناسب للقطع واللحام الدقيق",
+                name: "مسدس لحام WORKPRO بقوس بلازما",
+                categoryId: 2,
+                price: 320.00,
+                quantity: 3,
+                description: "مسدس لحام بلازما WORKPRO متطور، مناسب للقطع واللحام الدقيق",
                 inWishlist: false,
                 inCart: false
             },
             {
                 id: 6,
-                name: "عدة يدوية متكاملة 150 قطعة",
-                category: "hand",
-                price: 850,
-                image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-                description: "عدة يدوية متكاملة تحتوي على 150 قطعة مختلفة للأعمال المنزلية والصناعية",
+                name: "عدة يدوية WORKPRO متكاملة 150 قطعة",
+                categoryId: 4,
+                price: 85.00,
+                quantity: 15,
+                description: "عدة يدوية WORKPRO متكاملة تحتوي على 150 قطعة مختلفة للأعمال المنزلية والصناعية",
                 inWishlist: true,
                 inCart: true,
-                quantity: 1
+                cartQuantity: 1
             },
             {
                 id: 7,
-                name: "مضخة هواء محمولة 50 لتر",
-                category: "air",
-                price: 750,
-                image: "https://images.unsplash.com/photo-1611078489935-0cb964de46e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80",
-                description: "مضخة هواء محمولة بسعة 50 لتر، خفيفة الوزن وسهلة الحمل",
+                name: "مضخة هواء WORKPRO محمولة 50 لتر",
+                categoryId: 3,
+                price: 75.00,
+                quantity: 7,
+                description: "مضخة هواء WORKPRO محمولة بسعة 50 لتر، خفيفة الوزن وسهلة الحمل",
                 inWishlist: false,
                 inCart: false
             },
             {
                 id: 8,
-                name: "شاكوش تكسير كهربائي",
-                category: "electric",
-                price: 950,
-                image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-                description: "شاكوش تكسير بقوة 1500 واط، مناسب لأعمال الهدم والتكسير",
+                name: "شاكوش تكسير WORKPRO كهربائي",
+                categoryId: 1,
+                price: 95.00,
+                quantity: 6,
+                description: "شاكوش تكسير WORKPRO بقوة 1500 واط، مناسب لأعمال الهدم والتكسير",
                 inWishlist: false,
                 inCart: false
             }
@@ -1437,39 +1550,36 @@
 
         // بيانات سلة التسوق
         let cartItems = [
-            {id: 2, name: "ترنس لحام 250 أمبير", price: 1850, quantity: 1, image: "https://images.unsplash.com/photo-1611078489935-0cb964de46e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80"},
-            {id: 3, name: "ضاغط هواء 100 لتر", price: 1200, quantity: 1, image: "https://images.unsplash.com/photo-1611078489935-0cb964de46e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80"},
-            {id: 6, name: "عدة يدوية متكاملة 150 قطعة", price: 850, quantity: 1, image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"}
+            {id: 2, name: "ترنس لحام WORKPRO 250 أمبير", price: 185.00, quantity: 1},
+            {id: 3, name: "ضاغط هواء WORKPRO 100 لتر", price: 120.00, quantity: 1},
+            {id: 6, name: "عدة يدوية WORKPRO متكاملة 150 قطعة", price: 85.00, quantity: 1}
         ];
+
+        // حالة النظام
+        let isAdminLoggedIn = false;
+        const ADMIN_PASSWORD = "admin123"; // كلمة المرور الافتراضية
 
         // تهيئة التطبيق
         document.addEventListener('DOMContentLoaded', function() {
+            renderCategories();
             renderProducts();
             renderCartItems();
-            renderAdminProductsTable();
+            updateCategoryFilter();
             
             // إضافة حدث للبحث عن المنتجات
             document.getElementById('productSearch').addEventListener('input', filterProducts);
             document.getElementById('categoryFilter').addEventListener('change', filterProducts);
             document.getElementById('priceFilter').addEventListener('change', filterProducts);
             
-            // إضافة أحداث للنماذج
+            // إصلاح أحداث تسجيل الدخول
             document.getElementById('loginForm').addEventListener('submit', function(e) {
                 e.preventDefault();
-                alert('تم تسجيل الدخول بنجاح!');
-                closeAuthModal();
+                handleLogin();
             });
             
             document.getElementById('registerForm').addEventListener('submit', function(e) {
                 e.preventDefault();
-                alert('تم إنشاء الحساب بنجاح! يرجى تسجيل الدخول.');
-                switchTab('login');
-            });
-            
-            document.getElementById('newProductForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                alert('تم إضافة المنتج بنجاح!');
-                hideAddProductForm();
+                handleRegister();
             });
             
             // إضافة حدث لقائمة الهواتف المحمولة
@@ -1478,27 +1588,44 @@
             });
         });
 
+        // عرض الفئات
+        function renderCategories() {
+            const container = document.querySelector('.categories-grid');
+            container.innerHTML = '';
+            
+            categories.forEach(category => {
+                const categoryCard = document.createElement('div');
+                categoryCard.className = 'category-card';
+                categoryCard.innerHTML = `
+                    <div class="category-icon">
+                        <i class="${category.icon}"></i>
+                    </div>
+                    <h3>${category.name}</h3>
+                    <p>${category.description}</p>
+                `;
+                container.appendChild(categoryCard);
+            });
+        }
+
         // عرض المنتجات
         function renderProducts() {
             const container = document.getElementById('productsContainer');
             container.innerHTML = '';
             
             products.forEach(product => {
-                const categoryText = {
-                    'electric': 'أدوات كهربائية',
-                    'welding': 'معدات اللحام',
-                    'air': 'ضواغط الهواء',
-                    'hand': 'عدة يدوية'
-                }[product.category];
-                
+                const category = categories.find(c => c.id === product.categoryId);
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card';
                 productCard.innerHTML = `
                     ${product.id === 2 ? '<span class="product-badge">الأكثر مبيعاً</span>' : ''}
-                    <img src="${product.image}" alt="${product.name}" class="product-img">
+                    <div class="product-brand">WORKPRO</div>
+                    <div class="product-img">
+                        <i class="fas fa-toolbox"></i>
+                        <span>صورة المنتج</span>
+                    </div>
                     <div class="product-info">
                         <h3 class="product-title">${product.name}</h3>
-                        <p class="product-price">${product.price.toLocaleString()} ريال</p>
+                        <p class="product-price">${formatPrice(product.price)}</p>
                         <div class="product-actions">
                             <button class="add-to-cart" onclick="addToCart(${product.id})">
                                 <i class="fas fa-cart-plus"></i> أضف للسلة
@@ -1516,10 +1643,23 @@
             });
         }
 
+        // تحديث عامل تصفية الفئات
+        function updateCategoryFilter() {
+            const filter = document.getElementById('categoryFilter');
+            filter.innerHTML = '<option value="all">جميع الفئات</option>';
+            
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                filter.appendChild(option);
+            });
+        }
+
         // فلترة المنتجات
         function filterProducts() {
             const searchTerm = document.getElementById('productSearch').value.toLowerCase();
-            const category = document.getElementById('categoryFilter').value;
+            const categoryId = document.getElementById('categoryFilter').value;
             const priceFilter = document.getElementById('priceFilter').value;
             
             const filteredProducts = products.filter(product => {
@@ -1529,15 +1669,15 @@
                 }
                 
                 // البحث بالفئة
-                if (category !== 'all' && product.category !== category) {
+                if (categoryId !== 'all' && product.categoryId !== parseInt(categoryId)) {
                     return false;
                 }
                 
                 // البحث بالسعر
                 if (priceFilter !== 'all') {
-                    if (priceFilter === 'low' && product.price >= 500) return false;
-                    if (priceFilter === 'medium' && (product.price < 500 || product.price > 1500)) return false;
-                    if (priceFilter === 'high' && product.price <= 1500) return false;
+                    if (priceFilter === 'low' && product.price >= 50) return false;
+                    if (priceFilter === 'medium' && (product.price < 50 || product.price > 150)) return false;
+                    if (priceFilter === 'high' && product.price <= 150) return false;
                 }
                 
                 return true;
@@ -1547,26 +1687,23 @@
             container.innerHTML = '';
             
             if (filteredProducts.length === 0) {
-                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px; font-size: 18px;">لم يتم العثور على منتجات تطابق معايير البحث.</p>';
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px; font-size: 16px;">لم يتم العثور على منتجات تطابق معايير البحث.</p>';
                 return;
             }
             
             filteredProducts.forEach(product => {
-                const categoryText = {
-                    'electric': 'أدوات كهربائية',
-                    'welding': 'معدات اللحام',
-                    'air': 'ضواغط الهواء',
-                    'hand': 'عدة يدوية'
-                }[product.category];
-                
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card';
                 productCard.innerHTML = `
                     ${product.id === 2 ? '<span class="product-badge">الأكثر مبيعاً</span>' : ''}
-                    <img src="${product.image}" alt="${product.name}" class="product-img">
+                    <div class="product-brand">WORKPRO</div>
+                    <div class="product-img">
+                        <i class="fas fa-toolbox"></i>
+                        <span>صورة المنتج</span>
+                    </div>
                     <div class="product-info">
                         <h3 class="product-title">${product.name}</h3>
-                        <p class="product-price">${product.price.toLocaleString()} ريال</p>
+                        <p class="product-price">${formatPrice(product.price)}</p>
                         <div class="product-actions">
                             <button class="add-to-cart" onclick="addToCart(${product.id})">
                                 <i class="fas fa-cart-plus"></i> أضف للسلة
@@ -1595,7 +1732,7 @@
             
             if (cartItems.length === 0) {
                 container.innerHTML = '<p style="text-align: center; padding: 20px;">سلة التسوق فارغة</p>';
-                cartCount.textContent = '0';
+                if (cartCount) cartCount.textContent = '0';
                 return;
             }
             
@@ -1608,10 +1745,12 @@
                 cartItem.className = 'cart-item';
                 cartItem.innerHTML = `
                     <div class="cart-item-info">
-                        <img src="${item.image}" alt="${item.name}" class="cart-item-img">
+                        <div class="cart-item-img">
+                            <i class="fas fa-toolbox"></i>
+                        </div>
                         <div class="cart-item-details">
                             <h4>${item.name}</h4>
-                            <p>${item.price.toLocaleString()} ريال</p>
+                            <p>${formatPrice(item.price)}</p>
                         </div>
                     </div>
                     <div class="cart-item-actions">
@@ -1626,7 +1765,7 @@
                 container.appendChild(cartItem);
             });
             
-            cartCount.textContent = totalItems.toString();
+            if (cartCount) cartCount.textContent = totalItems.toString();
             
             // تحديث الإجماليات
             updateCartSummary();
@@ -1635,20 +1774,30 @@
         // تحديث ملخص سلة التسوق
         function updateCartSummary() {
             const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const delivery = 25; // تكلفة توصيل افتراضية
+            const delivery = 5; // تكلفة توصيل افتراضية
             const total = subtotal + delivery;
             
             // تحديث العناصر في واجهة المستخدم إذا كانت موجودة
             const subtotalEl = document.querySelector('.summary-row:nth-child(1) span:last-child');
+            const deliveryEl = document.querySelector('.summary-row:nth-child(2) span:last-child');
             const totalEl = document.querySelector('.summary-total span:last-child');
             
             if (subtotalEl) {
-                subtotalEl.textContent = subtotal.toLocaleString() + ' ريال';
+                subtotalEl.textContent = formatPrice(subtotal);
+            }
+            
+            if (deliveryEl) {
+                deliveryEl.textContent = formatPrice(delivery);
             }
             
             if (totalEl) {
-                totalEl.textContent = total.toLocaleString() + ' ريال';
+                totalEl.textContent = formatPrice(total);
             }
+        }
+
+        // تنسيق السعر
+        function formatPrice(price) {
+            return `${price.toFixed(2)}$`;
         }
 
         // إضافة منتج إلى السلة
@@ -1666,8 +1815,7 @@
                     id: product.id,
                     name: product.name,
                     price: product.price,
-                    quantity: 1,
-                    image: product.image
+                    quantity: 1
                 });
             }
             
@@ -1716,17 +1864,92 @@
         // عرض تفاصيل المنتج
         function viewProductDetails(productId) {
             const product = products.find(p => p.id === productId);
+            const category = categories.find(c => c.id === product.categoryId);
             
             if (!product) return;
             
-            const categoryText = {
-                'electric': 'أدوات كهربائية',
-                'welding': 'معدات اللحام',
-                'air': 'ضواغط الهواء',
-                'hand': 'عدة يدوية'
-            }[product.category];
+            alert(`تفاصيل المنتج:\n\nالاسم: ${product.name}\nالفئة: ${category.name}\nالسعر: ${formatPrice(product.price)}\nالكمية المتاحة: ${product.quantity}\n\n${product.description}`);
+        }
+
+        // معالجة تسجيل الدخول
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
             
-            alert(`تفاصيل المنتج:\n\nالاسم: ${product.name}\nالفئة: ${categoryText}\nالسعر: ${product.price.toLocaleString()} ريال\n\n${product.description}`);
+            if (!email || !password) {
+                alert('يرجى ملء جميع الحقول');
+                return;
+            }
+            
+            // هنا يمكنك إضافة اتصال بخادم حقيقي
+            alert('تم تسجيل الدخول بنجاح!');
+            closeAuthModal();
+            
+            // إعادة تعيين النموذج
+            document.getElementById('loginForm').reset();
+        }
+
+        // معالجة التسجيل
+        function handleRegister() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const phone = document.getElementById('registerPhone').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            if (!name || !email || !phone || !password || !confirmPassword) {
+                alert('يرجى ملء جميع الحقول');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('كلمتا المرور غير متطابقتين');
+                return;
+            }
+            
+            // هنا يمكنك إضافة اتصال بخادم حقيقي
+            alert('تم إنشاء الحساب بنجاح! يرجى تسجيل الدخول.');
+            switchTab('login');
+            
+            // إعادة تعيين النموذج
+            document.getElementById('registerForm').reset();
+        }
+
+        // التحقق من كلمة مرور المدير
+        function checkAdminPassword() {
+            const password = document.getElementById('adminPassword').value;
+            const errorElement = document.getElementById('passwordError');
+            
+            if (password === ADMIN_PASSWORD) {
+                isAdminLoggedIn = true;
+                document.getElementById('passwordProtection').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                renderAdminProductsTable();
+                renderAdminCategoriesTable();
+                updateProductCategoryFilter();
+            } else {
+                errorElement.style.display = 'block';
+                document.getElementById('adminPassword').value = '';
+            }
+        }
+
+        // تبديل عرض لوحة التحكم
+        function toggleAdminPanel() {
+            if (!isAdminLoggedIn) {
+                document.getElementById('passwordProtection').style.display = 'block';
+                document.getElementById('adminPanel').style.display = 'none';
+            } else {
+                document.getElementById('passwordProtection').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+            }
+        }
+
+        // تسجيل خروج المدير
+        function logoutAdmin() {
+            isAdminLoggedIn = false;
+            document.getElementById('passwordProtection').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'none';
+            alert('تم تسجيل الخروج من لوحة التحكم');
         }
 
         // عرض جدول المنتجات في لوحة التحكم
@@ -1738,38 +1961,320 @@
             container.innerHTML = '';
             
             products.forEach(product => {
-                const categoryText = {
-                    'electric': 'أدوات كهربائية',
-                    'welding': 'معدات اللحام',
-                    'air': 'ضواغط الهواء',
-                    'hand': 'عدة يدوية'
-                }[product.category];
-                
+                const category = categories.find(c => c.id === product.categoryId);
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${product.id}</td>
-                    <td><img src="${product.image}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover;"></td>
                     <td>${product.name}</td>
-                    <td>${categoryText}</td>
-                    <td>${product.price.toLocaleString()} ريال</td>
-                    <td>10</td>
+                    <td>${category ? category.name : 'غير مصنف'}</td>
+                    <td>${formatPrice(product.price)}</td>
+                    <td>${product.quantity}</td>
                     <td>
-                        <button class="action-btn edit-btn"><i class="fas fa-edit"></i></button>
-                        <button class="action-btn delete-btn"><i class="fas fa-trash"></i></button>
+                        <button class="action-btn edit-btn" onclick="editProduct(${product.id})"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn delete-btn" onclick="deleteProduct(${product.id})"><i class="fas fa-trash"></i></button>
                     </td>
                 `;
                 container.appendChild(row);
             });
         }
 
+        // عرض جدول الفئات في لوحة التحكم
+        function renderAdminCategoriesTable() {
+            const container = document.getElementById('adminCategoriesTable');
+            
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            categories.forEach(category => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${category.id}</td>
+                    <td>${category.name}</td>
+                    <td>${category.productCount}</td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="editCategory(${category.id})"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn delete-btn" onclick="deleteCategory(${category.id})"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // تحديث قائمة الفئات في نموذج المنتج
+        function updateProductCategoryFilter() {
+            const filter = document.getElementById('productCategory');
+            filter.innerHTML = '';
+            
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                filter.appendChild(option);
+            });
+        }
+
         // إظهار نموذج إضافة منتج جديد
         function showAddProductForm() {
             document.getElementById('addProductForm').style.display = 'block';
+            document.getElementById('productsManagement').style.display = 'block';
+            document.getElementById('categoriesManagement').style.display = 'none';
+            document.getElementById('addCategoryForm').style.display = 'none';
         }
 
         // إخفاء نموذج إضافة منتج جديد
         function hideAddProductForm() {
             document.getElementById('addProductForm').style.display = 'none';
+        }
+
+        // حفظ منتج جديد
+        function saveNewProduct() {
+            const name = document.getElementById('productName').value;
+            const categoryId = parseInt(document.getElementById('productCategory').value);
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const quantity = parseInt(document.getElementById('productQuantity').value);
+            const description = document.getElementById('productDescription').value;
+            
+            if (!name || !categoryId || !price || !quantity) {
+                alert('يرجى ملء جميع الحقول المطلوبة');
+                return;
+            }
+            
+            const newProduct = {
+                id: products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1,
+                name: name,
+                categoryId: categoryId,
+                price: price,
+                quantity: quantity,
+                description: description,
+                inWishlist: false,
+                inCart: false
+            };
+            
+            products.push(newProduct);
+            
+            // تحديث عدد المنتجات في الفئة
+            const category = categories.find(c => c.id === categoryId);
+            if (category) {
+                category.productCount += 1;
+            }
+            
+            renderProducts();
+            renderAdminProductsTable();
+            renderAdminCategoriesTable();
+            updateCategoryFilter();
+            hideAddProductForm();
+            
+            alert('تم إضافة المنتج بنجاح!');
+            document.getElementById('newProductForm').reset();
+        }
+
+        // إظهار نموذج إضافة فئة جديدة
+        function showAddCategoryForm() {
+            document.getElementById('addCategoryForm').style.display = 'block';
+            document.getElementById('productsManagement').style.display = 'none';
+            document.getElementById('categoriesManagement').style.display = 'none';
+            document.getElementById('addProductForm').style.display = 'none';
+        }
+
+        // إخفاء نموذج إضافة فئة جديدة
+        function hideAddCategoryForm() {
+            document.getElementById('addCategoryForm').style.display = 'none';
+        }
+
+        // حفظ فئة جديدة
+        function saveNewCategory() {
+            const name = document.getElementById('categoryName').value;
+            const icon = document.getElementById('categoryIcon').value;
+            const description = document.getElementById('categoryDescription').value;
+            
+            if (!name || !icon) {
+                alert('يرجى ملء جميع الحقول المطلوبة');
+                return;
+            }
+            
+            const newCategory = {
+                id: categories.length > 0 ? Math.max(...categories.map(c => c.id)) + 1 : 1,
+                name: name,
+                icon: icon,
+                description: description,
+                productCount: 0
+            };
+            
+            categories.push(newCategory);
+            
+            renderCategories();
+            renderAdminCategoriesTable();
+            updateCategoryFilter();
+            updateProductCategoryFilter();
+            hideAddCategoryForm();
+            
+            alert('تم إضافة الفئة بنجاح!');
+            document.getElementById('newCategoryForm').reset();
+        }
+
+        // إظهار إدارة الفئات
+        function showManageCategories() {
+            document.getElementById('productsManagement').style.display = 'none';
+            document.getElementById('categoriesManagement').style.display = 'block';
+            document.getElementById('addProductForm').style.display = 'none';
+            document.getElementById('addCategoryForm').style.display = 'none';
+        }
+
+        // تعديل منتج
+        function editProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productCategory').value = product.categoryId;
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('productQuantity').value = product.quantity;
+            document.getElementById('productDescription').value = product.description || '';
+            
+            showAddProductForm();
+            
+            // تغيير زر الحفظ لتحديث المنتج
+            const saveButton = document.querySelector('#addProductForm .submit-btn');
+            saveButton.textContent = 'تحديث المنتج';
+            saveButton.onclick = function() { updateProduct(productId); };
+        }
+
+        // تحديث منتج
+        function updateProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const oldCategoryId = product.categoryId;
+            
+            product.name = document.getElementById('productName').value;
+            product.categoryId = parseInt(document.getElementById('productCategory').value);
+            product.price = parseFloat(document.getElementById('productPrice').value);
+            product.quantity = parseInt(document.getElementById('productQuantity').value);
+            product.description = document.getElementById('productDescription').value;
+            
+            // تحديث عدد المنتجات في الفئات
+            if (oldCategoryId !== product.categoryId) {
+                const oldCategory = categories.find(c => c.id === oldCategoryId);
+                if (oldCategory) oldCategory.productCount -= 1;
+                
+                const newCategory = categories.find(c => c.id === product.categoryId);
+                if (newCategory) newCategory.productCount += 1;
+            }
+            
+            renderProducts();
+            renderAdminProductsTable();
+            renderAdminCategoriesTable();
+            updateCategoryFilter();
+            hideAddProductForm();
+            
+            alert('تم تحديث المنتج بنجاح!');
+            
+            // إعادة تعيين زر الحفظ
+            const saveButton = document.querySelector('#addProductForm .submit-btn');
+            saveButton.textContent = 'حفظ المنتج';
+            saveButton.onclick = function() { saveNewProduct(); };
+            
+            document.getElementById('newProductForm').reset();
+        }
+
+        // حذف منتج
+        function deleteProduct(productId) {
+            if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
+            
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            // تحديث عدد المنتجات في الفئة
+            const category = categories.find(c => c.id === product.categoryId);
+            if (category) {
+                category.productCount -= 1;
+            }
+            
+            // حذف المنتج من المصفوفة
+            products = products.filter(p => p.id !== productId);
+            
+            // حذف المنتج من سلة التسوق
+            cartItems = cartItems.filter(item => item.id !== productId);
+            
+            renderProducts();
+            renderCartItems();
+            renderAdminProductsTable();
+            renderAdminCategoriesTable();
+            updateCategoryFilter();
+            
+            alert('تم حذف المنتج بنجاح!');
+        }
+
+        // تعديل فئة
+        function editCategory(categoryId) {
+            const category = categories.find(c => c.id === categoryId);
+            if (!category) return;
+            
+            document.getElementById('categoryName').value = category.name;
+            document.getElementById('categoryIcon').value = category.icon;
+            document.getElementById('categoryDescription').value = category.description || '';
+            
+            showAddCategoryForm();
+            
+            // تغيير زر الحفظ لتحديث الفئة
+            const saveButton = document.querySelector('#addCategoryForm .submit-btn');
+            saveButton.textContent = 'تحديث الفئة';
+            saveButton.onclick = function() { updateCategory(categoryId); };
+        }
+
+        // تحديث فئة
+        function updateCategory(categoryId) {
+            const category = categories.find(c => c.id === categoryId);
+            if (!category) return;
+            
+            category.name = document.getElementById('categoryName').value;
+            category.icon = document.getElementById('categoryIcon').value;
+            category.description = document.getElementById('categoryDescription').value;
+            
+            renderCategories();
+            renderAdminCategoriesTable();
+            updateCategoryFilter();
+            updateProductCategoryFilter();
+            hideAddCategoryForm();
+            
+            alert('تم تحديث الفئة بنجاح!');
+            
+            // إعادة تعيين زر الحفظ
+            const saveButton = document.querySelector('#addCategoryForm .submit-btn');
+            saveButton.textContent = 'حفظ الفئة';
+            saveButton.onclick = function() { saveNewCategory(); };
+            
+            document.getElementById('newCategoryForm').reset();
+        }
+
+        // حذف فئة
+        function deleteCategory(categoryId) {
+            if (!confirm('هل أنت متأكد من حذف هذه الفئة؟ سيتم حذف جميع المنتجات التابعة لها.')) return;
+            
+            // حذف جميع المنتجات في هذه الفئة
+            const productsInCategory = products.filter(p => p.categoryId === categoryId);
+            if (productsInCategory.length > 0) {
+                products = products.filter(p => p.categoryId !== categoryId);
+                
+                // حذف المنتجات من سلة التسوق
+                productsInCategory.forEach(product => {
+                    cartItems = cartItems.filter(item => item.id !== product.id);
+                });
+                
+                renderProducts();
+                renderCartItems();
+            }
+            
+            // حذف الفئة
+            categories = categories.filter(c => c.id !== categoryId);
+            
+            renderCategories();
+            renderAdminCategoriesTable();
+            updateCategoryFilter();
+            updateProductCategoryFilter();
+            
+            alert('تم حذف الفئة وجميع منتجاتها بنجاح!');
         }
 
         // فتح/إغلاق النماذج
@@ -1824,7 +2329,6 @@
             document.getElementById('checkoutStep2').style.display = 'none';
             document.getElementById('checkoutStep3').style.display = 'none';
             
-            // تحديث خطوات التتبع
             updateTrackingSteps(1);
         }
 
@@ -1833,7 +2337,6 @@
             document.getElementById('checkoutStep2').style.display = 'block';
             document.getElementById('checkoutStep3').style.display = 'none';
             
-            // تحديث خطوات التتبع
             updateTrackingSteps(2);
         }
 
@@ -1842,7 +2345,6 @@
             document.getElementById('checkoutStep2').style.display = 'none';
             document.getElementById('checkoutStep3').style.display = 'block';
             
-            // تحديث خطوات التتبع
             updateTrackingSteps(3);
             
             // تفريغ سلة التسوق بعد التأكيد
@@ -1871,10 +2373,10 @@
             event.currentTarget.classList.add('selected');
             
             // تحديث تكلفة التوصيل في الملخص
-            const deliveryCost = option === 'standard' ? 25 : 50;
+            const deliveryCost = option === 'standard' ? 5 : 10;
             const deliveryEl = document.querySelector('.summary-row:nth-child(2) span:last-child');
             if (deliveryEl) {
-                deliveryEl.textContent = deliveryCost.toLocaleString() + ' ريال';
+                deliveryEl.textContent = formatPrice(deliveryCost);
                 updateCartSummary();
             }
         }
@@ -1889,18 +2391,9 @@
             // إظهار/إخفاء QR Code بناءً على طريقة الدفع
             const qrSection = document.getElementById('shamPayment');
             if (qrSection) {
-                qrSection.style.display = method === 'sham' ? 'block' : 'none';
+                qrSection.style.display = 'block';
             }
         }
-
-        // إظهار/إخفاء لوحة التحكم (لأغراض العرض فقط)
-        function toggleAdminPanel() {
-            const adminPanel = document.getElementById('adminPanel');
-            adminPanel.style.display = adminPanel.style.display === 'none' ? 'block' : 'none';
-        }
-
-        // لإظهار لوحة التحكم لأغراض العرض
-        // toggleAdminPanel(); // قم بإلغاء التعليق لعرض لوحة التحكم
     </script>
 </body>
 </html>
