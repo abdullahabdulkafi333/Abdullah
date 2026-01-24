@@ -48,6 +48,7 @@
             border: 1px solid #e5e7eb;
             background: linear-gradient(45deg, #f3f4f6 25%, #e5e7eb 25%, #e5e7eb 75%, #f3f4f6 75%, #f3f4f6);
             background-size: 16px 16px;
+            transition: opacity 0.3s ease;
         }
         
         .admin-image {
@@ -66,6 +67,7 @@
             color: #9ca3af;
             font-size: 11px;
             font-weight: 500;
+            border-radius: 8px;
         }
         
         .clickable-image {
@@ -76,16 +78,6 @@
         .clickable-image:hover {
             transform: scale(1.08);
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
-        /* تحسينات التحميل */
-        .lazy-load {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .lazy-load.loaded {
-            opacity: 1;
         }
         
         /* شاشة التحميل */
@@ -101,7 +93,7 @@
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            transition: opacity 0.5s ease-out;
+            transition: opacity 0.3s ease-out;
         }
         
         .loading-spinner {
@@ -252,16 +244,6 @@
         /* تحسينات الأداء */
         .product-row {
             transform: translateZ(0);
-            will-change: transform;
-        }
-        
-        /* صورة مخفية للتحميل المسبق */
-        .preload-image {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-            pointer-events: none;
         }
     </style>
 </head>
@@ -464,6 +446,8 @@
         let selectedFile = null;
         let newSelectedFile = null;
         let isLoading = false;
+        let imagesLoaded = 0;
+        let totalImages = 0;
         
         // ============= شاشة التحميل =============
         function hideLoadingScreen() {
@@ -474,119 +458,93 @@
             }, 300);
         }
         
-        // ============= نظام التحميل الذكي =============
-        class SmartImageLoader {
+        // ============= نظام تحميل الصور المحسن =============
+        class SimpleImageLoader {
             constructor() {
-                this.cache = new Map();
-                this.loadingQueue = [];
-                this.isProcessing = false;
-                this.maxConcurrent = 3;
-                this.currentLoading = 0;
-                this.preloadedImages = new Set();
+                this.imageCache = new Map();
+                this.loadingPromises = new Map();
             }
             
-            preloadCriticalImages(products) {
-                // تحميل أول 3-4 صور بشكل مسبق
-                const criticalCount = Math.min(4, products.length);
-                for (let i = 0; i < criticalCount; i++) {
-                    if (products[i]?.img && products[i].img !== 'data:,' && !this.cache.has(products[i].img)) {
-                        this.preloadImage(products[i].img);
-                        this.preloadedImages.add(products[i].img);
-                    }
+            // تحميل مجموعة من الصور بالتوازي
+            async loadImageSet(imageUrls, batchSize = 4) {
+                const results = [];
+                
+                for (let i = 0; i < imageUrls.length; i += batchSize) {
+                    const batch = imageUrls.slice(i, i + batchSize);
+                    const batchPromises = batch.map(url => this.loadSingleImage(url));
+                    const batchResults = await Promise.all(batchPromises);
+                    results.push(...batchResults);
+                    
+                    // إعطاء فرصة للمتصفح ليعالج الأحداث الأخرى
+                    await new Promise(resolve => setTimeout(resolve, 50));
                 }
+                
+                return results;
             }
             
-            preloadImage(src) {
-                return new Promise((resolve) => {
+            // تحميل صورة واحدة
+            loadSingleImage(url) {
+                if (!url || url === 'data:,') {
+                    return Promise.resolve(null);
+                }
+                
+                // التحقق من الذاكرة المؤقتة
+                if (this.imageCache.has(url)) {
+                    return Promise.resolve(this.imageCache.get(url));
+                }
+                
+                // التحقق مما إذا كانت الصورة قيد التحميل
+                if (this.loadingPromises.has(url)) {
+                    return this.loadingPromises.get(url);
+                }
+                
+                const promise = new Promise((resolve, reject) => {
                     const img = new Image();
+                    
                     img.onload = () => {
-                        this.cache.set(src, src);
-                        resolve(src);
+                        this.imageCache.set(url, url);
+                        this.loadingPromises.delete(url);
+                        imagesLoaded++;
+                        updateLoadingProgress();
+                        resolve(url);
                     };
+                    
                     img.onerror = () => {
-                        console.warn('فشل تحميل الصورة:', src);
+                        console.warn('فشل تحميل الصورة:', url);
+                        this.loadingPromises.delete(url);
                         resolve(null);
                     };
-                    img.src = src;
-                });
-            }
-            
-            async loadImage(imgElement, src, productName) {
-                if (!src || src === 'data:,') {
-                    this.showPlaceholder(imgElement, productName);
-                    return;
-                }
-                
-                if (this.cache.has(src)) {
-                    imgElement.src = this.cache.get(src);
-                    imgElement.classList.remove('lazy-load');
-                    imgElement.classList.add('loaded');
-                    return;
-                }
-                
-                this.loadingQueue.push({ imgElement, src, productName });
-                this.processQueue();
-            }
-            
-            async processQueue() {
-                if (this.isProcessing || this.loadingQueue.length === 0 || this.currentLoading >= this.maxConcurrent) {
-                    return;
-                }
-                
-                this.isProcessing = true;
-                
-                while (this.loadingQueue.length > 0 && this.currentLoading < this.maxConcurrent) {
-                    const { imgElement, src, productName } = this.loadingQueue.shift();
-                    this.currentLoading++;
                     
-                    try {
-                        const img = new Image();
-                        img.onload = () => {
-                            this.cache.set(src, src);
-                            imgElement.src = src;
-                            imgElement.classList.remove('lazy-load');
-                            imgElement.classList.add('loaded');
-                            this.currentLoading--;
-                            this.processQueue();
-                        };
-                        img.onerror = () => {
-                            this.showPlaceholder(imgElement, productName);
-                            this.currentLoading--;
-                            this.processQueue();
-                        };
-                        img.src = src;
-                    } catch (error) {
-                        this.showPlaceholder(imgElement, productName);
-                        this.currentLoading--;
-                        this.processQueue();
-                    }
-                }
+                    // بدء التحميل
+                    img.src = url;
+                });
                 
-                this.isProcessing = false;
+                this.loadingPromises.set(url, promise);
+                return promise;
             }
             
-            showPlaceholder(imgElement, productName) {
-                imgElement.style.display = 'none';
-                const parent = imgElement.parentElement;
-                if (parent && !parent.querySelector('.image-placeholder')) {
-                    const placeholder = document.createElement('div');
-                    placeholder.className = 'product-image image-placeholder';
-                    placeholder.textContent = 'بدون صورة';
-                    placeholder.title = productName;
-                    parent.appendChild(placeholder);
-                }
+            // تحميل الصور المهمة أولاً (أول 6 صور)
+            preloadCriticalImages(imageUrls) {
+                const criticalUrls = imageUrls.slice(0, 6).filter(url => url && url !== 'data:,');
+                criticalUrls.forEach(url => this.loadSingleImage(url));
             }
             
             clearCache() {
-                this.cache.clear();
-                this.preloadedImages.clear();
-                this.loadingQueue = [];
+                this.imageCache.clear();
+                this.loadingPromises.clear();
             }
         }
         
-        const imageLoader = new SmartImageLoader();
+        const imageLoader = new SimpleImageLoader();
         
-        // ============= تحسين معاينة الصور =============
+        // تحديث تقدم التحميل
+        function updateLoadingProgress() {
+            if (totalImages > 0 && imagesLoaded >= Math.min(6, totalImages)) {
+                setTimeout(hideLoadingScreen, 300);
+            }
+        }
+        
+        // ============= معاينة الصور =============
         function previewImage() {
             const fileInput = document.getElementById('itemFile');
             const preview = document.getElementById('imagePreview');
@@ -617,7 +575,7 @@
             }
         }
         
-        // ============= تحسين ضغط الصور =============
+        // ============= ضغط الصور =============
         function compressImage(file, maxWidth, maxHeight, quality, callback) {
             if (file.size < 1024 * 50) { // إذا كانت الصورة صغيرة (أقل من 50KB)
                 const reader = new FileReader();
@@ -638,7 +596,6 @@
                     let width = img.width;
                     let height = img.height;
                     
-                    // حساب الأبعاد الجديدة مع الحفاظ على التناسب
                     if (width > height) {
                         if (width > maxWidth) {
                             height = Math.round((height * maxWidth) / width);
@@ -663,7 +620,7 @@
             };
         }
         
-        // ============= تحسين تحميل البيانات =============
+        // ============= تحميل البيانات =============
         async function loadData() {
             if (isLoading) return;
             isLoading = true;
@@ -672,31 +629,49 @@
                 const startTime = performance.now();
                 console.time('تحميل البيانات');
                 
-                // تحميل البيانات الأساسية أولاً بدون صور
+                // تحميل البيانات الأساسية
                 const response = await fetch('data.json');
                 let loadedProducts = await response.json();
                 
-                // تحسين البيانات: فحص إذا كانت الصور كبيرة جداً
+                // تحسين البيانات
                 products = loadedProducts.map(product => ({
                     ...product,
-                    img: product.img && product.img.length > 10000 ? 'data:,' : (product.img || 'data:,')
+                    img: product.img || 'data:,'
                 }));
                 
                 console.timeEnd('تحميل البيانات');
                 
-                // عرض البيانات الأساسية فوراً
+                // عرض الجدول أولاً
                 renderProductsTableFast();
+                
+                // حساب عدد الصور
+                totalImages = products.filter(p => p.img && p.img !== 'data:,').length;
+                imagesLoaded = 0;
+                
+                // تحميل الصور المهمة أولاً
+                const imageUrls = products
+                    .filter(p => p.img && p.img !== 'data:,')
+                    .map(p => p.img);
+                
+                imageLoader.preloadCriticalImages(imageUrls);
+                
+                // تحميل باقي الصور في الخلفية
+                if (imageUrls.length > 6) {
+                    setTimeout(() => {
+                        const remainingUrls = imageUrls.slice(6);
+                        imageLoader.loadImageSet(remainingUrls, 3);
+                    }, 1000);
+                }
+                
+                // عرض لوحة الإدارة
                 renderAdminTable();
                 updateOutput();
-                
-                // تحميل الصور المهمة بشكل مسبق
-                imageLoader.preloadCriticalImages(products);
                 
                 const loadTime = performance.now() - startTime;
                 console.log(`✅ تم تحميل ${products.length} منتج في ${loadTime.toFixed(0)} مللي ثانية`);
                 
-                // إخفاء شاشة التحميل بسرعة
-                setTimeout(hideLoadingScreen, 500);
+                // إخفاء شاشة التحميل بعد تحميل الصور المهمة
+                setTimeout(hideLoadingScreen, 1000);
                 
             } catch (error) {
                 console.error('خطأ في تحميل البيانات:', error);
@@ -723,7 +698,6 @@
                 return;
             }
             
-            // استخدام DocumentFragment لتسريع التحميل
             const fragment = document.createDocumentFragment();
             
             products.forEach((product, index) => {
@@ -740,18 +714,38 @@
                 
                 const imgContainer = document.createElement('div');
                 imgContainer.className = 'flex items-center justify-center';
+                imgContainer.id = `img-container-${index}`;
                 
                 if (hasImage) {
                     const img = document.createElement('img');
+                    img.id = `product-img-${index}`;
                     img.alt = product.name;
-                    img.className = 'product-image lazy-load clickable-image';
+                    img.className = 'product-image clickable-image';
+                    img.style.opacity = '0.5'; // شفافية مؤقتة حتى تكتمل التحميل
                     img.onclick = () => zoomProductImage(product.img, product.name);
                     imgContainer.appendChild(img);
                     
-                    // تحميل الصورة بشكل غير متزامن
-                    setTimeout(() => {
-                        imageLoader.loadImage(img, product.img, product.name);
-                    }, index * 10); // تأخير بسيط لمنع التحميل المفرط
+                    // بدء تحميل الصورة
+                    imageLoader.loadSingleImage(product.img)
+                        .then(loadedUrl => {
+                            if (loadedUrl) {
+                                img.src = loadedUrl;
+                                img.style.opacity = '1';
+                                img.onerror = () => {
+                                    img.style.display = 'none';
+                                    const placeholder = document.createElement('div');
+                                    placeholder.className = 'product-image image-placeholder';
+                                    placeholder.textContent = 'خطأ تحميل';
+                                    imgContainer.appendChild(placeholder);
+                                };
+                            } else {
+                                img.style.display = 'none';
+                                const placeholder = document.createElement('div');
+                                placeholder.className = 'product-image image-placeholder';
+                                placeholder.textContent = 'بدون صورة';
+                                imgContainer.appendChild(placeholder);
+                            }
+                        });
                 } else {
                     const placeholder = document.createElement('div');
                     placeholder.className = 'product-image image-placeholder';
@@ -1114,7 +1108,7 @@
                 if (newSelectedFile) {
                     compressImage(newSelectedFile, 200, 200, 0.7, (compressedData) => {
                         products[currentEditIndex].img = compressedData;
-                        imageLoader.cache.delete(compressedData);
+                        imageLoader.imageCache.delete(compressedData);
                         renderProducts();
                         renderAdminTable();
                         updateOutput();
